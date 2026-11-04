@@ -1,4 +1,5 @@
 @echo off
+rem Media Downloader - by Bibinho1999 - github.com/Bibinho1999/Media-Downloader
 chcp 65001 >nul
 title Media Downloader - nao feche esta janela
 set "SELF=%~f0"
@@ -150,6 +151,12 @@ using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 
+[assembly: AssemblyTitle("Media Downloader")]
+[assembly: AssemblyProduct("Media Downloader")]
+[assembly: AssemblyCompany("Bibinho1999")]
+[assembly: AssemblyCopyright("by Bibinho1999")]
+[assembly: AssemblyVersion("2.0.0.0")]
+
 namespace MediaDownloaderLauncher
 {
     static class Program
@@ -232,7 +239,7 @@ namespace MediaDownloaderLauncher
             tray = new NotifyIcon();
             try { tray.Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath); }
             catch (Exception) { tray.Icon = SystemIcons.Application; }
-            tray.Text = "Media Downloader";
+            tray.Text = "Media Downloader - by Bibinho1999";
             ContextMenu menu = new ContextMenu();
             menu.MenuItems.Add("Abrir Media Downloader", delegate { OpenUi(); });
             menu.MenuItems.Add("Abrir pasta de downloads", delegate { OpenDownloads(); });
@@ -525,7 +532,7 @@ $html=@'
 @media(prefers-color-scheme:dark){:root{--bg:#161618;--fg:#eee;--card:#232327;--mu:#999}}
 *{box-sizing:border-box}
 body{font:15px system-ui,sans-serif;background:var(--bg);color:var(--fg);max-width:960px;margin:0 auto;padding:16px}
-h1{font-size:21px;margin:0}.sub{color:var(--mu);font-size:13px;margin:2px 0 10px}
+h1{font-size:21px;margin:0}.by{font-size:12px;font-weight:400;color:var(--mu);margin-left:6px}footer{margin:18px 0 6px;text-align:center;color:var(--mu);font-size:12px}footer a{color:inherit}.sub{color:var(--mu);font-size:13px;margin:2px 0 10px}
 textarea,select,input[type=number],input[type=text]{width:100%;background:var(--card);color:var(--fg);border:1px solid #8884;border-radius:8px;padding:8px;font:inherit}
 textarea{height:96px}.card{background:var(--card);border-radius:12px;padding:12px;margin:10px 0}
 .row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}.row>*{flex:1;min-width:120px}.row>.nf{flex:none;min-width:0}
@@ -544,7 +551,7 @@ th{position:sticky;top:0;background:var(--card)}.tw{max-height:380px;overflow:au
 tr.na{opacity:.45}td select{padding:3px;width:auto}.num{text-align:right;color:var(--mu)}
 hr{border:0;border-top:1px solid var(--ln);margin:10px 0}
 </style></head><body>
-<h1>Media Downloader</h1>
+<h1>Media Downloader <small class="by">by Bibinho1999</small></h1>
 <div class="sub">Baixe áudio e vídeo de YouTube, Instagram, TikTok, X, Vimeo, SoundCloud, Facebook, Twitch e mais de mil sites. <span id="ver"></span></div>
 <div id="banner"></div>
 
@@ -622,6 +629,7 @@ hr{border:0;border-top:1px solid var(--ln);margin:10px 0}
 <div id="info" class="mu"></div><div id="cur"></div></div>
 <pre id="log"></pre><div id="alts"></div><div id="fails"></div>
 
+<footer>Media Downloader · by <a href="https://github.com/Bibinho1999" target="_blank" rel="noopener">Bibinho1999</a></footer>
 <script>
 const T='__TOK__',$=i=>document.getElementById(i);
 const api=(p,b)=>fetch('/api/'+p+(p.indexOf('?')<0?'?':'&')+'t='+T,b?{method:'POST',body:JSON.stringify(b)}:{}).then(r=>r.json());
@@ -692,7 +700,7 @@ function Make-Shortcuts{
  if($made.Count){ return "Atalhos criados em:`n"+($made -join "`n") } else { return 'Nao consegui criar os atalhos.' } }
 
 # ------------------------------------------------------------------ inicio
-Write-Host "== Media Downloader $APPVER =="
+Write-Host "== Media Downloader $APPVER - by Bibinho1999 =="
 $S.chan=$(if($(ReadSettings).chan){ "$((ReadSettings).chan)" }else{ 'stable' })
 if($self -and $self -match '\.(bat|ps1|cmd)$' -and (Test-Path $self) -and -not $env:YTDL_EXE){
  $raw=[IO.File]::ReadAllText($self,[Text.Encoding]::UTF8); $ix=$raw.LastIndexOf('###'+'PS###')

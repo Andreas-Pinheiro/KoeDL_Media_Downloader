@@ -1,5 +1,7 @@
 # Media Downloader
 
+**by Bibinho1999**
+
 Baixador de **áudio e vídeo** para Windows, em **um único arquivo** (`Media-Downloader.bat`). Abre uma interface no navegador, funciona com YouTube e com muitos outros sites e organiza as playlists em pastas.
 
 > **Status:** desenvolvido e testado em ambiente Linux (backend em PowerShell 7 com o yt-dlp real e interface no Chromium). **Ainda não foi testado no Windows.** A geração do `.exe`, a leitura de cookies dos navegadores, o encerramento de processos e a criação de atalhos dependem do Windows e podem precisar de ajustes. Se algo falhar, abra uma *issue* com a mensagem de erro.
@@ -58,3 +60,7 @@ Use apenas para baixar conteúdo que você tem o direito de baixar (seu, de dom�
 ## Créditos
 
 Todo o trabalho pesado é do [yt-dlp](https://github.com/yt-dlp/yt-dlp), do [FFmpeg](https://ffmpeg.org/) e do [Deno](https://deno.com/), que têm suas próprias licenças. Este projeto só os orquestra.
+
+---
+
+Feito por **[Bibinho1999](https://github.com/Bibinho1999)**.
