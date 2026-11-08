@@ -1,66 +1,67 @@
 # Media Downloader
 
-**by Bibinho1999**
+**by Bibinho1999** · [Português](README.pt-BR.md)
 
-Baixador de **áudio e vídeo** para Windows, em **um único arquivo** (`Media-Downloader.bat`). Abre uma interface no navegador, funciona com YouTube e com muitos outros sites e organiza as playlists em pastas.
+Audio and **video downloader** for Windows in a **single file** (`Media-Downloader.bat`). It opens a local web interface, works with YouTube and many other sites, and keeps playlists organized in folders.
 
-> **Status:** desenvolvido e testado em ambiente Linux (backend em PowerShell 7 com o yt-dlp real e interface no Chromium). **Ainda não foi testado no Windows.** A geração do `.exe`, a leitura de cookies dos navegadores, o encerramento de processos e a criação de atalhos dependem do Windows e podem precisar de ajustes. Se algo falhar, abra uma *issue* com a mensagem de erro.
+> **Status:** built and tested on Linux (backend on PowerShell 7 with the real yt-dlp, interface in Chromium). Tested by the author on Windows only lightly: the `.exe` build, browser cookie reading, process termination and shortcuts depend on Windows and may need adjustments. If something fails, open an *issue* with the error message.
 
-## O que faz
+## Features
 
-- **Música ou vídeo** de qualquer site suportado pelo yt-dlp (YouTube, Instagram, TikTok, X, Vimeo, SoundCloud, Facebook, Twitch e outros).
-- **Áudio:** MP3, M4A, Opus, FLAC ou WAV, com escolha de qualidade e capa/metadados embutidos.
-- **Vídeo:** MP4 (H.264 + AAC, compatível com tudo) ou MKV (original, sem converter), com limite de resolução opcional.
-- **Playlists organizadas:** uma pasta com o nome da playlist (retoma de onde parou), uma pasta nova a cada vez (nome + data e hora) ou sem pasta. Ao colar vários links, pode guardar tudo numa pasta "Lote data-hora".
-- **Aba "Playlist: escolher faixas":** carrega a lista, você marca o que quer e escolhe áudio ou vídeo em cada faixa. Modos: tudo em áudio, tudo em vídeo ou misturado. Opção de separar em subpastas Músicas e Vídeos.
-- **Retomada e histórico:** registra o que já foi baixado e pula repetidos. Há opção de recomeçar do zero.
-- **Vídeos bloqueados no YouTube:** procura uma versão alternativa e lista o que não teve solução, com o motivo.
-- **Cookies:** rodízio entre Firefox, Edge, Chrome, Brave, Opera e Vivaldi quando um falha ou é bloqueado. Também aceita um `cookies.txt` ao lado do programa.
-- **Sempre atualizado:** o yt-dlp é atualizado toda vez que abre (canal estável ou nightly). O ffmpeg e o deno são verificados de tempos em tempos. Se um download falhar por extrator desatualizado, atualiza e tenta de novo sozinho.
-- **Gera um `.exe`:** ao abrir o `.bat`, tenta criar `Media-Downloader.exe` ao lado, com ícone e menu na bandeja do sistema. Também cria atalhos na Área de Trabalho e no Menu Iniciar (botão na aba Configurações).
+- **Music or video** from any site supported by yt-dlp (YouTube, Instagram, TikTok, X, Vimeo, SoundCloud, Facebook, Twitch and more).
+- **Audio:** MP3, M4A, Opus, FLAC or WAV, with quality choice and embedded cover art/metadata.
+- **Video:** MP4 (H.264 + AAC, plays everywhere) or MKV (original, no conversion), with an optional resolution cap.
+- **Organized playlists:** one folder named after the playlist (resumes where it stopped), a new folder every time (name + date and time), or no folder. When you paste several links, everything can go into a "Batch date-time" folder.
+- **"Playlist: pick tracks" tab:** loads the list, you tick what you want and choose audio or video per track. Modes: all audio, all video, or mixed. Optional Music / Videos subfolders.
+- **Resume and history:** remembers what was already downloaded and skips repeats. There is an option to start over.
+- **Blocked YouTube videos:** looks for an alternative version and lists what could not be solved, with the reason.
+- **Cookies:** rotates between Firefox, Edge, Chrome, Brave, Opera and Vivaldi when one fails or gets blocked. Also accepts a `cookies.txt` next to the program.
+- **Always up to date:** yt-dlp is updated every time the program opens (stable or nightly channel). ffmpeg and deno are checked now and then. If a download fails because of an outdated extractor, it updates and retries on its own. Dependency downloads retry with increasing waits and fall back to an alternative address.
+- **Language:** opens in English; switch to Portuguese with the selector at the top. Your choice is remembered.
+- **Builds an `.exe`:** when you open the `.bat`, it tries to create `Media-Downloader.exe` next to it, with an icon and tray menu. A button in Settings creates Desktop and Start Menu shortcuts.
 
-## Como usar
+## How to use
 
-1. Baixe `Media-Downloader.bat` e coloque numa pasta sua (por exemplo `C:\Media-Downloader`).
-2. Dê duplo clique. Na primeira vez ele baixa o yt-dlp, o ffmpeg e o deno (precisa de internet e acesso ao GitHub).
-3. O navegador abre em `http://127.0.0.1:8765/`. Cole os links e clique em **Baixar**.
-4. Os arquivos ficam em `Downloads` ao lado do programa (a pasta pode ser trocada em Configurações).
+1. Download `Media-Downloader.bat` and put it in a folder of your own (for example `C:\Media-Downloader`).
+2. Double-click it. The first time it downloads yt-dlp, ffmpeg and deno (needs internet and access to GitHub).
+3. Your browser opens at `http://127.0.0.1:8765/`. Paste the links and click **Download**.
+4. Files go to `Downloads` next to the program (changeable in Settings).
 
-Se o Windows SmartScreen avisar, é porque o arquivo não é assinado: clique em *Mais informações* e *Executar assim mesmo*. Se o antivírus reclamar do `.exe`, use o `.bat`, que faz o mesmo.
+If Windows SmartScreen warns you, it is because the file is not signed: click *More info* and *Run anyway*. If your antivirus complains about the `.exe`, use the `.bat`, which does the same thing.
 
-Arquivos criados ao lado do programa: `bin\` (programas auxiliares, `settings.json`, histórico de downloads em `archives\`), `Downloads\` e, se gerado, o `.exe`.
+Files created next to the program: `bin\` (helper programs, `settings.json`, download history in `archives\`), `Downloads\` and, if built, the `.exe`.
 
-## Tecnologias usadas
+## Technologies
 
-| Peça | Para quê |
+| Piece | Purpose |
 |---|---|
-| **Batch (`.bat`) + PowerShell 5.1** | Arquivo único: o `.bat` lê a si mesmo e executa a parte em PowerShell sem depender da política de execução de scripts |
-| **PowerShell `HttpListener`** | Servidor web local (somente `127.0.0.1`, portas 8765–8789) com token por execução e verificação do cabeçalho `Host` |
-| **Runspaces do PowerShell** | Download, leitura de playlist e atualização em segundo plano, sem travar a interface |
-| **HTML + CSS + JavaScript puros** | Interface embutida no próprio arquivo, com tema claro e escuro automático |
-| **[yt-dlp](https://github.com/yt-dlp/yt-dlp)** | Extração e download |
-| **[FFmpeg](https://ffmpeg.org/)** (builds do yt-dlp) | Conversão, junção de áudio e vídeo e capa embutida |
-| **[Deno](https://deno.com/)** | Execução do JavaScript que o YouTube exige hoje |
-| **C# 5 + `CSharpCodeProvider` (.NET Framework)** | Compila o lançador `.exe` com ícone na bandeja, direto da máquina do usuário |
-| **WScript.Shell** | Criação de atalhos |
+| **Batch (`.bat`) + PowerShell 5.1** | Single file: the `.bat` reads itself and runs the PowerShell part without depending on the script execution policy |
+| **PowerShell `HttpListener`** | Local web server (`127.0.0.1` only, ports 8765-8789) with a per-run token and `Host` header check |
+| **PowerShell runspaces** | Download, playlist loading and updates in the background without freezing the interface |
+| **Plain HTML + CSS + JavaScript** | Interface embedded in the file itself, automatic light/dark theme, English/Portuguese |
+| **[yt-dlp](https://github.com/yt-dlp/yt-dlp)** | Extraction and download |
+| **[FFmpeg](https://ffmpeg.org/)** (yt-dlp builds) | Conversion, merging audio and video, embedded cover art |
+| **[Deno](https://deno.com/)** | Runs the JavaScript that YouTube requires today |
+| **C# 5 + `CSharpCodeProvider` (.NET Framework)** | Compiles the `.exe` launcher with a tray icon, right on the user's machine |
+| **WScript.Shell** | Shortcut creation |
 
-## Como funciona por dentro
+## How it works inside
 
-- O `.bat` extrai o texto depois do marcador `###PS###` e o executa como bloco de script.
-- Cada execução do yt-dlp usa um arquivo de configuração temporário em UTF-8. Isso evita problemas de aspas e de acentos na linha de comando do Windows.
-- O progresso vem de `--progress-template`; os arquivos concluídos, de `--exec`.
-- O nome da pasta da playlist é resolvido antes do download. O yt-dlp troca `/` por outro caractere dentro de campos do modelo de nome, então a pasta não pode ser montada só por ele.
-- O histórico (`--download-archive`) é separado por link e por formato/qualidade.
-- A API local (`/api/...`) é simples e protegida por token, o que deixa espaço para uma extensão de navegador ou um app com janela própria no futuro.
+- The `.bat` extracts the text after the `###PS###` marker and runs it as a script block.
+- Each yt-dlp run uses a temporary UTF-8 config file, avoiding quoting and accent problems on the Windows command line.
+- Progress comes from `--progress-template`; finished files from `--exec`.
+- The playlist folder name is resolved before the download, because yt-dlp replaces `/` inside template fields.
+- The history (`--download-archive`) is kept per link and per format/quality.
+- The local API (`/api/...`) is simple and token-protected, leaving room for a browser extension or a standalone app in the future.
 
-## Aviso legal
+## Legal notice
 
-Use apenas para baixar conteúdo que você tem o direito de baixar (seu, de domínio público, com licença que permita ou com autorização). Baixar certos conteúdos pode violar os termos de serviço dos sites ou leis de direitos autorais do seu país. A responsabilidade pelo uso é de quem usa. Este projeto não tem ligação com YouTube, Google ou qualquer outro site citado.
+Use it only to download content you have the right to download (yours, public domain, licensed, or authorized). Downloading some content may violate site terms of service or copyright laws in your country. The responsibility for use lies with the user. This project is not affiliated with YouTube, Google or any other site mentioned.
 
-## Créditos
+## Credits
 
-Todo o trabalho pesado é do [yt-dlp](https://github.com/yt-dlp/yt-dlp), do [FFmpeg](https://ffmpeg.org/) e do [Deno](https://deno.com/), que têm suas próprias licenças. Este projeto só os orquestra.
+All the heavy lifting is done by [yt-dlp](https://github.com/yt-dlp/yt-dlp), [FFmpeg](https://ffmpeg.org/) and [Deno](https://deno.com/), which have their own licenses. This project only orchestrates them.
 
 ---
 
-Feito por **[Bibinho1999](https://github.com/Bibinho1999)**.
+Made by **[Bibinho1999](https://github.com/Bibinho1999)**.
