@@ -26,7 +26,7 @@ $APPVER='2.0'
 
 # ------------------------------------------------------------------ estado compartilhado
 $S=[hashtable]::Synchronized(@{running=$false;status='Idle';lang='en';pct=0;speed='';eta='';item='';cur='';browser='';done=0;total=0;pid=0;lpid=0;ipid=0;stop=$false;
- ready=$false;prep='Iniciando...';ver=@{};win=$WIN;test=$TEST;yt=$yt;bin=$bin;dir=$dir;rc=$false;jsr=$false;payload='';exeok=$false;
+ ready=$false;lastErr='';prep='Starting...';ver=@{};win=$WIN;test=$TEST;yt=$yt;bin=$bin;dir=$dir;rc=$false;jsr=$false;payload='';exeok=$false;
  info=@{busy=$false};lastBrowser=-1})
 $S.log=[Collections.ArrayList]::Synchronized((New-Object Collections.ArrayList))
 $S.fails=[Collections.ArrayList]::Synchronized((New-Object Collections.ArrayList))
@@ -106,10 +106,17 @@ function Run($u,$c,$base,$o,$fl){
  $blocked=($bot -ge 2) -or ($bot -ge 1 -and $n -eq 0)
  return [pscustomobject]@{fatal=$fatal;bot=$bot;n=$n;stale=$stale;blocked=$blocked} }
 function GetFile($urls,$out){ $ProgressPreference='SilentlyContinue'
+ try{ [Net.WebRequest]::DefaultWebProxy.Credentials=[Net.CredentialCache]::DefaultCredentials }catch{}
+ $curl=$null; if($S.win){ $c=Get-Command curl.exe -ea 0; if($c){ $curl=$c.Source } }
  foreach($url in @($urls)){ $nm=($url -split '/')[-1]
   $wait=@(2,5,10,20)
-  for($i=1;$i -le 4;$i++){ try{ $t="$out.part"; Invoke-WebRequest $url -OutFile $t -UseBasicParsing -TimeoutSec 600; Move-Item $t $out -Force; return $true }
-   catch{ L (Tr "  falha ao baixar $nm ($i/4): $($_.Exception.Message)" "  failed to download $nm ($i/4): $($_.Exception.Message)"); Remove-Item "$out.part" -ea 0; if($i -lt 4){ Start-Sleep $wait[$i-1] } } }
+  for($i=1;$i -le 4;$i++){
+   $t="$out.part"; Remove-Item $t -ea 0
+   try{
+    if($curl -and ($i % 2 -eq 0)){ & $curl -L --fail --silent --show-error --connect-timeout 30 --max-time 900 -o $t $url 2>&1 | ForEach-Object{ $S.lastErr="$_" }; if($LASTEXITCODE -ne 0 -or -not(Test-Path $t)){ throw (Tr "curl falhou ($LASTEXITCODE) $($S.lastErr)" "curl failed ($LASTEXITCODE) $($S.lastErr)") } }
+    else{ Invoke-WebRequest $url -OutFile $t -UseBasicParsing -TimeoutSec 900 }
+    Move-Item $t $out -Force; return $true }
+   catch{ $S.lastErr=$_.Exception.Message; L (Tr "  falha ao baixar $nm ($i/4): $($_.Exception.Message)" "  failed to download $nm ($i/4): $($_.Exception.Message)"); Remove-Item $t -ea 0; if($i -lt 4){ Start-Sleep $wait[$i-1] } } }
   L (Tr "  (tentando endereco alternativo...)" "  (trying alternative address...)") }
  return $false }
 function GetZip($urls,$pat){ $z=J ([IO.Path]::GetTempPath()) ('dl_'+[guid]::NewGuid().ToString('N')+'.zip'); $x="$z.d"
@@ -130,8 +137,9 @@ $prepSb={ param($S,$lib,$force)
   $S.ready=$false; $S.prep=(Tr 'Verificando dependencias...' 'Checking dependencies...')
   if($S.test){ Ver; $S.prep=''; $S.ready=$true; return }
   $ch=$S.chan; if(-not $ch){ $ch='stable' }
-  $ytUrl=$(if($ch -eq 'nightly'){ 'https://github.com/yt-dlp/yt-dlp-nightly-builds/releases/latest/download/yt-dlp.exe' }else{ 'https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp.exe' })
-  if(-not(Test-Path $yt)){ $S.prep=(Tr 'Baixando yt-dlp...' 'Downloading yt-dlp...'); if(-not(GetFile $ytUrl $yt)){ $S.prep=(Tr 'ERRO: nao consegui baixar o yt-dlp (sem internet, GitHub fora do ar ou bloqueado). Reabra o programa para tentar de novo.' 'ERROR: could not download yt-dlp (no internet, GitHub down or blocked). Reopen the program to try again.'); return } }
+  $u1='https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp.exe'; $u2='https://github.com/yt-dlp/yt-dlp-nightly-builds/releases/latest/download/yt-dlp.exe'; $u3='https://github.com/yt-dlp/yt-dlp-master-builds/releases/latest/download/yt-dlp.exe'
+  $ytUrl=$(if($ch -eq 'nightly'){ @($u2,$u1,$u3) }else{ @($u1,$u2,$u3) })
+  if(-not(Test-Path $yt)){ $S.prep=(Tr 'Baixando yt-dlp...' 'Downloading yt-dlp...'); if(-not(GetFile $ytUrl $yt)){ $S.prep=(Tr "ERRO: nao consegui baixar o yt-dlp (sem internet, GitHub fora do ar ou bloqueado por rede/antivirus/proxy). Ultimo erro: $($S.lastErr)`n`nPara tentar de novo: Configuracoes > Atualizar tudo agora. Alternativa manual: baixe yt-dlp.exe em github.com/yt-dlp/yt-dlp/releases/latest e coloque na pasta: $bin" "ERROR: could not download yt-dlp (no internet, GitHub down, or blocked by network/antivirus/proxy). Last error: $($S.lastErr)`n`nTo retry: Settings > Update everything now. Manual alternative: download yt-dlp.exe from github.com/yt-dlp/yt-dlp/releases/latest and put it in this folder: $bin"); return } }
   else{ $S.prep=(Tr 'Atualizando yt-dlp...' 'Updating yt-dlp...'); UpdYt }
   $stF=J $bin 'ffmpeg.stamp'
   $old=(Test-Path (J $bin 'ffmpeg.exe')) -and (-not(Test-Path $stF) -or ((Get-Date)-(Get-Item $stF).LastWriteTime).TotalDays -gt 7)
@@ -557,7 +565,7 @@ pre{background:#000;color:#9f9;padding:8px;border-radius:8px;height:200px;overfl
 .tabs{display:flex;gap:4px;margin-top:10px;flex-wrap:wrap}.tabs button{background:transparent;color:var(--fg);border-radius:8px 8px 0 0;border-bottom:3px solid transparent}
 .tabs button.on{border-bottom-color:var(--ac);font-weight:600}
 .pane{display:none}.pane.on{display:block}
-#banner{background:#d6a02a33;border:1px solid #d6a02a;border-radius:8px;padding:8px;margin:8px 0;display:none}
+#banner{white-space:pre-wrap;background:#d6a02a33;border:1px solid #d6a02a;border-radius:8px;padding:8px;margin:8px 0;display:none}
 table{width:100%;border-collapse:collapse;font-size:14px}th,td{padding:5px 6px;text-align:left;border-bottom:1px solid var(--ln)}
 th{position:sticky;top:0;background:var(--card)}.tw{max-height:380px;overflow:auto;border-radius:8px;background:var(--bg)}
 tr.na{opacity:.45}td select{padding:3px;width:auto}.num{text-align:right;color:var(--mu)}
