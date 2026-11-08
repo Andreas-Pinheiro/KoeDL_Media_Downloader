@@ -1,3 +1,5 @@
+<p align="center"><img src="assets/logo.png" alt="Media Downloader" width="160"></p>
+
 # Media Downloader
 
 **by Bibinho1999** · [Português](README.pt-BR.md)
