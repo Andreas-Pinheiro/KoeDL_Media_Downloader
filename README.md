@@ -1,24 +1,24 @@
-<p align="center"><img src="assets/logo.png" alt="Media Downloader" width="160"></p>
-
 # Media Downloader
 
 **by Bibinho1999** · [Português](README.pt-BR.md)
 
-Audio and **video downloader** for Windows in a **single file** (`Media-Downloader.bat`). It opens a local web interface, works with YouTube and many other sites, and keeps playlists organized in folders.
+Audio and **video downloader** for Windows in a **single file** (`Media-Downloader.bat`). It opens a local web interface, works with over a thousand sites, and keeps playlists organized in folders.
 
 > **Status:** built and tested on Linux (backend on PowerShell 7 with the real yt-dlp, interface in Chromium). Tested by the author on Windows only lightly: the `.exe` build, browser cookie reading, process termination and shortcuts depend on Windows and may need adjustments. If something fails, open an *issue* with the error message.
 
 ## Features
 
-- **Music or video** from any site supported by yt-dlp (YouTube, Instagram, TikTok, X, Vimeo, SoundCloud, Facebook, Twitch and more).
+- **Music or video** from any site supported by [yt-dlp](https://github.com/yt-dlp/yt-dlp) (over a thousand; see its list of supported sites).
 - **Audio:** MP3, M4A, Opus, FLAC or WAV, with quality choice and embedded cover art/metadata.
 - **Video:** MP4 (H.264 + AAC, plays everywhere) or MKV (original, no conversion), with an optional resolution cap.
 - **Organized playlists:** one folder named after the playlist (resumes where it stopped), a new folder every time (name + date and time), or no folder. When you paste several links, everything can go into a "Batch date-time" folder.
 - **"Playlist: pick tracks" tab:** loads the list, you tick what you want and choose audio or video per track. Modes: all audio, all video, or mixed. Optional Music / Videos subfolders.
 - **Resume and history:** remembers what was already downloaded and skips repeats. There is an option to start over.
-- **Blocked YouTube videos:** looks for an alternative version and lists what could not be solved, with the reason.
+- **Blocked or removed videos:** looks for an alternative version and lists what could not be solved, with the reason.
 - **Cookies:** rotates between Firefox, Edge, Chrome, Brave, Opera and Vivaldi when one fails or gets blocked. Also accepts a `cookies.txt` next to the program.
 - **Always up to date:** yt-dlp is updated every time the program opens (stable or nightly channel). ffmpeg and deno are checked now and then. If a download fails because of an outdated extractor, it updates and retries on its own. Dependency downloads retry with increasing waits and fall back to an alternative address.
+- **Shortcuts on the first run:** creates Desktop and Start Menu shortcuts by itself (once) and points them to the `.exe` as soon as it is built. Taskbar pinning cannot be automated by Windows: right-click the shortcut > *Pin to taskbar*.
+- **Self-updating:** besides yt-dlp/ffmpeg/deno, the program checks this repository when it opens and downloads newer versions of itself (works with the `.bat` and the `.exe`; can be turned off in Settings).
 - **Language:** opens in English; switch to Portuguese with the selector at the top. Your choice is remembered.
 - **Builds an `.exe`:** when you open the `.bat`, it tries to create `Media-Downloader.exe` next to it, with an icon and tray menu. A button in Settings creates Desktop and Start Menu shortcuts.
 
@@ -26,7 +26,7 @@ Audio and **video downloader** for Windows in a **single file** (`Media-Download
 
 1. Download `Media-Downloader.bat` and put it in a folder of your own (for example `C:\Media-Downloader`).
 2. Double-click it. The first time it downloads yt-dlp, ffmpeg and deno (needs internet and access to GitHub).
-3. Your browser opens at `http://127.0.0.1:8765/`. Paste the links and click **Download**.
+3. The app opens in its own window (Microsoft Edge WebView2, downloaded automatically; if the Windows runtime is missing, it asks to install the latest one). Edge/Chrome in app mode is only a fallback. Paste the links and click **Download**. The window remembers its size and position.
 4. Files go to `Downloads` next to the program (changeable in Settings).
 
 If Windows SmartScreen warns you, it is because the file is not signed: click *More info* and *Run anyway*. If your antivirus complains about the `.exe`, use the `.bat`, which does the same thing.
@@ -43,7 +43,7 @@ Files created next to the program: `bin\` (helper programs, `settings.json`, dow
 | **Plain HTML + CSS + JavaScript** | Interface embedded in the file itself, automatic light/dark theme, English/Portuguese |
 | **[yt-dlp](https://github.com/yt-dlp/yt-dlp)** | Extraction and download |
 | **[FFmpeg](https://ffmpeg.org/)** (yt-dlp builds) | Conversion, merging audio and video, embedded cover art |
-| **[Deno](https://deno.com/)** | Runs the JavaScript that YouTube requires today |
+| **[Deno](https://deno.com/)** | Runs the JavaScript some sites require today |
 | **C# 5 + `CSharpCodeProvider` (.NET Framework)** | Compiles the `.exe` launcher with a tray icon, right on the user's machine |
 | **WScript.Shell** | Shortcut creation |
 
