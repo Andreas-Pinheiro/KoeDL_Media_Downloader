@@ -1,6 +1,6 @@
 # Media Downloader
 
-**by Bibinho1999** · [English](README.md)
+**by Andreas-Pinheiro** · [English](README.md)
 
 Baixador de **áudio e vídeo** para Windows, em **um único arquivo** (`Media-Downloader.bat`). Abre uma interface em janela própria, funciona com mais de mil sites e organiza as playlists em pastas.
 
@@ -66,4 +66,8 @@ Todo o trabalho pesado é do [yt-dlp](https://github.com/yt-dlp/yt-dlp), do [FFm
 
 ---
 
-Feito por **[Bibinho1999](https://github.com/Bibinho1999)**.
+Feito por **[Andreas-Pinheiro](https://github.com/Andreas-Pinheiro)**.
+
+## Instalador
+
+A primeira execução também gera o `Media-Downloader-Setup.exe` (um instalador: copia o app para a sua pasta de usuário, cria atalhos na Área de Trabalho e no Menu Iniciar, verifica o WebView2 e adiciona a opção de desinstalar em Aplicativos do Windows). Execute uma vez; depois é só usar o atalho.

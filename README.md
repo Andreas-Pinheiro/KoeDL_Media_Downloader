@@ -1,6 +1,6 @@
 # Media Downloader
 
-**by Bibinho1999** · [Português](README.pt-BR.md)
+**by Andreas-Pinheiro** · [Português](README.pt-BR.md)
 
 Audio and **video downloader** for Windows in a **single file** (`Media-Downloader.bat`). It opens a local web interface, works with over a thousand sites, and keeps playlists organized in folders.
 
@@ -66,4 +66,8 @@ All the heavy lifting is done by [yt-dlp](https://github.com/yt-dlp/yt-dlp), [FF
 
 ---
 
-Made by **[Bibinho1999](https://github.com/Bibinho1999)**.
+Made by **[Andreas-Pinheiro](https://github.com/Andreas-Pinheiro)**.
+
+## Installer
+
+The first run also generates `Media-Downloader-Setup.exe` (an installer: copies the app to your user folder, creates Desktop/Start Menu shortcuts, checks WebView2 and adds an uninstall entry in Windows Apps). Run it once; after that, just use the shortcut.
