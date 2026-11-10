@@ -71,3 +71,15 @@ Made by **[Andreas-Pinheiro](https://github.com/Andreas-Pinheiro)**.
 ## Installer
 
 The first run also generates `Media-Downloader-Setup.exe` (an installer: copies the app to your user folder, creates Desktop/Start Menu shortcuts, checks WebView2 and adds an uninstall entry in Windows Apps). Run it once; after that, just use the shortcut.
+
+## Support the project
+
+<p align="center"><img src="assets/support-banner.png" alt="Support Media Downloader" width="560"></p>
+
+Media Downloader is free and was built with the help of Claude, an AI by Anthropic. If it helps you, you can support it for free:
+
+- ⭐ **Give the repository a star** at the top of this page.
+- 🔗 **Share it** with a friend who also downloads media.
+- 🐞 **Report a problem** in the [Issues](https://github.com/Andreas-Pinheiro/Media-Downloader/issues) tab.
+
+The same options (and a coffee button, when available) are inside the app, in the **♥ Support** tab. Supporting is entirely optional.

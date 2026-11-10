@@ -71,3 +71,15 @@ Feito por **[Andreas-Pinheiro](https://github.com/Andreas-Pinheiro)**.
 ## Instalador
 
 A primeira execução também gera o `Media-Downloader-Setup.exe` (um instalador: copia o app para a sua pasta de usuário, cria atalhos na Área de Trabalho e no Menu Iniciar, verifica o WebView2 e adiciona a opção de desinstalar em Aplicativos do Windows). Execute uma vez; depois é só usar o atalho.
+
+## Apoie o projeto
+
+<p align="center"><img src="assets/support-banner.png" alt="Apoie o Media Downloader" width="560"></p>
+
+O Media Downloader é gratuito e foi feito com a ajuda do Claude, uma IA da Anthropic. Se ele te ajuda, você pode apoiar de graça:
+
+- ⭐ **Dê uma estrela** no repositório, no topo desta página.
+- 🔗 **Compartilhe** com um amigo que também baixa mídia.
+- 🐞 **Avise de um problema** na aba [Issues](https://github.com/Andreas-Pinheiro/Media-Downloader/issues).
+
+As mesmas opções (e um botão de café, quando houver) estão dentro do app, na aba **♥ Apoiar**. Apoiar é totalmente opcional.
