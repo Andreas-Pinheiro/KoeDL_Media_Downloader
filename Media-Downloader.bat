@@ -22,7 +22,7 @@ $sep=[IO.Path]::PathSeparator
 $env:PATH="$bin$sep$env:PATH"; $env:PYTHONUTF8='1'
 $yt=$(if($env:YTDL_BIN){ $env:YTDL_BIN }elseif($WIN){ [IO.Path]::Combine($bin,'yt-dlp.exe') }else{ [IO.Path]::Combine($bin,'yt-dlp') })
 $settingsFile=[IO.Path]::Combine($bin,'settings.json')
-$APPVER='3.1'
+$APPVER='3.2'
 $updFile=[IO.Path]::Combine($bin,'app.update.ps1')
 if(-not $env:YTDL_OVR -and (Test-Path $updFile)){
  try{ $tx=[IO.File]::ReadAllText($updFile,[Text.Encoding]::UTF8); $mm=[regex]::Match($tx,'APPVER=.([0-9.]+).')
@@ -245,7 +245,7 @@ using Microsoft.Win32;
 [assembly: AssemblyProduct("Media Downloader")]
 [assembly: AssemblyCompany("Andreas-Pinheiro")]
 [assembly: AssemblyCopyright("by Andreas-Pinheiro")]
-[assembly: AssemblyVersion("3.1.0.0")]
+[assembly: AssemblyVersion("3.2.0.0")]
 
 namespace MediaDownloaderLauncher
 {
@@ -775,7 +775,7 @@ using System.Windows.Forms;
 [assembly: AssemblyProduct("Media Downloader")]
 [assembly: AssemblyCompany("Andreas-Pinheiro")]
 [assembly: AssemblyCopyright("by Andreas-Pinheiro")]
-[assembly: AssemblyVersion("3.1.0.0")]
+[assembly: AssemblyVersion("3.2.0.0")]
 
 namespace MediaDownloaderLauncher
 {
@@ -1225,7 +1225,7 @@ namespace MediaDownloaderLauncher
                 using (RegistryKey k = Registry.CurrentUser.CreateSubKey(UKey))
                 {
                     k.SetValue("DisplayName", "Media Downloader");
-                    k.SetValue("DisplayVersion", "3.1");
+                    k.SetValue("DisplayVersion", "3.2");
                     k.SetValue("Publisher", "Andreas-Pinheiro");
                     k.SetValue("InstallLocation", target);
                     k.SetValue("DisplayIcon", dst);
