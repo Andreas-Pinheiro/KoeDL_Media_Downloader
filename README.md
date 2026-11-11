@@ -1,4 +1,11 @@
-# Media Downloader
+<p align="center"><img src="assets/banner.png" alt="KoeDL - Media-Downloader" width="520"></p>
+
+# KoeDL · Media-Downloader
+
+**Free video and audio downloader for Windows (yt-dlp) - single file, no install needed.**
+
+<sub>Keywords: video downloader, audio downloader, MP3 downloader, playlist downloader, yt-dlp GUI, Windows, WebView2.</sub>
+
 
 **by Andreas-Pinheiro** · [Português](README.pt-BR.md)
 
@@ -6,25 +13,41 @@ Audio and **video downloader** for Windows in a **single file** (`Media-Download
 
 > **Status:** built and tested on Linux (backend on PowerShell 7 with the real yt-dlp, interface in Chromium). Tested by the author on Windows only lightly: the `.exe` build, browser cookie reading, process termination and shortcuts depend on Windows and may need adjustments. If something fails, open an *issue* with the error message.
 
+## Screenshots
+
+<p align="center"><img src="assets/screens/koedl-demo.gif" alt="KoeDL demo" width="720"></p>
+
+<p align="center">
+<img src="assets/screens/en_download.png" alt="Download tab" width="400">
+<img src="assets/screens/en_queue_done.png" alt="Queue and history" width="400">
+<img src="assets/screens/en_settings.png" alt="Settings" width="400">
+<img src="assets/screens/en_support.png" alt="Support" width="400">
+</p>
+
 ## Features
 
 - **Music or video** from any site supported by [yt-dlp](https://github.com/yt-dlp/yt-dlp) (over a thousand; see its list of supported sites).
 - **Audio:** MP3, M4A, Opus, FLAC or WAV, with quality choice and embedded cover art/metadata.
 - **Video:** MP4 (H.264 + AAC, plays everywhere) or MKV (original, no conversion), with an optional resolution cap.
 - **Organized playlists:** one folder named after the playlist (resumes where it stopped), a new folder every time (name + date and time), or no folder. When you paste several links, everything can go into a "Batch date-time" folder.
-- **"Playlist: pick tracks" tab:** loads the list, you tick what you want and choose audio or video per track. Modes: all audio, all video, or mixed. Optional Music / Videos subfolders.
-- **Resume and history:** remembers what was already downloaded and skips repeats. There is an option to start over.
+- **Playlist next to your links:** on the same tab you can paste links on the left and load a whole playlist on the right, tick the tracks and choose audio or video per track (all audio, all video, or mixed). Optional Music / Videos subfolders.
+- **Resume:** remembers what was already downloaded and skips repeats. There is an option to start over.
+- **Queue:** everything you add goes into a queue and runs one after the other; pause, remove or retry items. Add more while it is downloading.
+- **History:** every finished download is listed, with a button to show the file in its folder.
+- **Speed limit and connections** per file, separate folders for music and videos, and a Windows notification (or close the program / shut down the PC) when the queue finishes.
+- **Handy extras:** the copied link is pasted by itself when you open the program, you can drag links into the window, and there are keyboard shortcuts (Ctrl+Enter downloads, Ctrl+L focuses the link box, Ctrl+1..4 switch tabs).
+- **Themes:** Neon, Midnight, Forest, Sakura, light, dark, plus accent colors and a custom cat-girl cursor.
 - **Blocked or removed videos:** looks for an alternative version and lists what could not be solved, with the reason.
 - **Cookies:** rotates between Firefox, Edge, Chrome, Brave, Opera and Vivaldi when one fails or gets blocked. Also accepts a `cookies.txt` next to the program.
 - **Always up to date:** yt-dlp is updated every time the program opens (stable or nightly channel). ffmpeg and deno are checked now and then. If a download fails because of an outdated extractor, it updates and retries on its own. Dependency downloads retry with increasing waits and fall back to an alternative address.
 - **Shortcuts on the first run:** creates Desktop and Start Menu shortcuts by itself (once) and points them to the `.exe` as soon as it is built. Taskbar pinning cannot be automated by Windows: right-click the shortcut > *Pin to taskbar*.
 - **Self-updating:** besides yt-dlp/ffmpeg/deno, the program checks this repository when it opens and downloads newer versions of itself (works with the `.bat` and the `.exe`; can be turned off in Settings).
 - **Language:** opens in English; switch to Portuguese with the selector at the top. Your choice is remembered.
-- **Builds an `.exe`:** when you open the `.bat`, it tries to create `Media-Downloader.exe` next to it, with an icon and tray menu. A button in Settings creates Desktop and Start Menu shortcuts.
+- **Builds an `.exe`:** when you open the `.bat`, it tries to create `KoeDL.exe` next to it, with an icon and tray menu. A button in Settings creates Desktop and Start Menu shortcuts.
 
 ## How to use
 
-1. Download `Media-Downloader.bat` and put it in a folder of your own (for example `C:\Media-Downloader`).
+1. Download `Media-Downloader.bat` and put it in a folder of your own (for example `C:\KoeDL`).
 2. Double-click it. The first time it downloads yt-dlp, ffmpeg and deno (needs internet and access to GitHub).
 3. The app opens in its own window (Microsoft Edge WebView2, downloaded automatically; if the Windows runtime is missing, it asks to install the latest one). Edge/Chrome in app mode is only a fallback. Paste the links and click **Download**. The window remembers its size and position.
 4. Files go to `Downloads` next to the program (changeable in Settings).
@@ -70,13 +93,13 @@ Made by **[Andreas-Pinheiro](https://github.com/Andreas-Pinheiro)**.
 
 ## Installer
 
-The first run also generates `Media-Downloader-Setup.exe` (an installer: copies the app to your user folder, creates Desktop/Start Menu shortcuts, checks WebView2 and adds an uninstall entry in Windows Apps). Run it once; after that, just use the shortcut.
+The first run also generates `KoeDL-Setup.exe` (an installer: copies the app to your user folder, creates Desktop/Start Menu shortcuts, checks WebView2 and adds an uninstall entry in Windows Apps). Run it once; after that, just use the shortcut.
 
 ## Support the project
 
-<p align="center"><img src="assets/support-banner.png" alt="Support Media Downloader" width="560"></p>
+<p align="center"><img src="assets/support-banner.png" alt="Support KoeDL" width="560"></p>
 
-Media Downloader is free and was built with the help of Claude, an AI by Anthropic. If it helps you, you can support it for free:
+KoeDL is free and was built with the help of Claude, an AI by Anthropic. If it helps you, you can support it for free:
 
 - ⭐ **Give the repository a star** at the top of this page.
 - 🔗 **Share it** with a friend who also downloads media.

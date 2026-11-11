@@ -1,4 +1,11 @@
-# Media Downloader
+<p align="center"><img src="assets/banner.png" alt="KoeDL - Media-Downloader" width="520"></p>
+
+# KoeDL · Media-Downloader
+
+**Baixador de vídeo e áudio grátis para Windows (yt-dlp) - um arquivo só, sem instalar nada.**
+
+<sub>Palavras-chave: baixar vídeo, baixar música, baixar MP3, baixar playlist, interface para yt-dlp, Windows, WebView2.</sub>
+
 
 **by Andreas-Pinheiro** · [English](README.md)
 
@@ -6,25 +13,41 @@ Baixador de **áudio e vídeo** para Windows, em **um único arquivo** (`Media-D
 
 > **Status:** desenvolvido e testado em ambiente Linux (backend em PowerShell 7 com o yt-dlp real e interface no Chromium). **Ainda não foi testado no Windows.** A geração do `.exe`, a leitura de cookies dos navegadores, o encerramento de processos e a criação de atalhos dependem do Windows e podem precisar de ajustes. Se algo falhar, abra uma *issue* com a mensagem de erro.
 
+## Capturas de tela
+
+<p align="center"><img src="assets/screens/koedl-demo.gif" alt="Demonstração do KoeDL" width="720"></p>
+
+<p align="center">
+<img src="assets/screens/pt_download.png" alt="Aba Baixar" width="400">
+<img src="assets/screens/pt_queue_done.png" alt="Fila e histórico" width="400">
+<img src="assets/screens/pt_settings.png" alt="Configurações" width="400">
+<img src="assets/screens/pt_support.png" alt="Apoiar" width="400">
+</p>
+
 ## O que faz
 
 - **Música ou vídeo** de qualquer site suportado pelo [yt-dlp](https://github.com/yt-dlp/yt-dlp) (mais de mil; veja a lista de sites dele).
 - **Áudio:** MP3, M4A, Opus, FLAC ou WAV, com escolha de qualidade e capa/metadados embutidos.
 - **Vídeo:** MP4 (H.264 + AAC, compatível com tudo) ou MKV (original, sem converter), com limite de resolução opcional.
 - **Playlists organizadas:** uma pasta com o nome da playlist (retoma de onde parou), uma pasta nova a cada vez (nome + data e hora) ou sem pasta. Ao colar vários links, pode guardar tudo numa pasta "Lote data-hora".
-- **Aba "Playlist: escolher faixas":** carrega a lista, você marca o que quer e escolhe áudio ou vídeo em cada faixa. Modos: tudo em áudio, tudo em vídeo ou misturado. Opção de separar em subpastas Músicas e Vídeos.
-- **Retomada e histórico:** registra o que já foi baixado e pula repetidos. Há opção de recomeçar do zero.
+- **Playlist ao lado dos links:** na mesma aba você cola links à esquerda e carrega uma playlist inteira à direita, marca as faixas e escolhe áudio ou vídeo em cada uma (tudo áudio, tudo vídeo ou misturado). Opção de subpastas Músicas / Vídeos.
+- **Retomada:** registra o que já foi baixado e pula repetidos. Há opção de recomeçar do zero.
+- **Fila:** tudo que você adiciona entra numa fila e roda um depois do outro; dá para pausar, remover ou tentar de novo. Pode adicionar mais enquanto baixa.
+- **Histórico:** cada download concluído fica numa lista, com botão para mostrar o arquivo na pasta.
+- **Limite de velocidade e conexões** por arquivo, pastas separadas para músicas e vídeos, e aviso do Windows (ou fechar o programa / desligar o PC) quando a fila terminar.
+- **Extras:** o link copiado é colado sozinho ao abrir o programa, dá para arrastar links para a janela e há atalhos (Ctrl+Enter baixa, Ctrl+L vai para o campo do link, Ctrl+1..4 trocam de aba).
+- **Temas:** Neon, Meia-noite, Floresta, Sakura, claro, escuro, cores de destaque e cursor da menina gato.
 - **Vídeos bloqueados ou removidos:** procura uma versão alternativa e lista o que não teve solução, com o motivo.
 - **Cookies:** rodízio entre Firefox, Edge, Chrome, Brave, Opera e Vivaldi quando um falha ou é bloqueado. Também aceita um `cookies.txt` ao lado do programa.
 - **Sempre atualizado:** o yt-dlp é atualizado toda vez que abre (canal estável ou nightly). O ffmpeg e o deno são verificados de tempos em tempos. Se um download falhar por extrator desatualizado, atualiza e tenta de novo sozinho.
 - **Atalhos na primeira abertura:** cria sozinho os atalhos da Área de Trabalho e do Menu Iniciar (uma vez) e os aponta para o `.exe` assim que ele é gerado. O Windows não permite fixar na barra de tarefas por programa: clique com o botão direito no atalho > *Fixar na barra de tarefas*.
 - **Atualiza a si mesmo:** além do yt-dlp/ffmpeg/deno, o programa consulta este repositório ao abrir e baixa versões novas dele mesmo (vale para o `.bat` e para o `.exe`; dá para desligar em Configurações).
 - **Idioma:** abre em inglês; troque para Português no seletor no topo da página. A escolha fica salva para a próxima vez.
-- **Gera um `.exe`:** ao abrir o `.bat`, tenta criar `Media-Downloader.exe` ao lado, com ícone e menu na bandeja do sistema. Também cria atalhos na Área de Trabalho e no Menu Iniciar (botão na aba Configurações).
+- **Gera um `.exe`:** ao abrir o `.bat`, tenta criar `KoeDL.exe` ao lado, com ícone e menu na bandeja do sistema. Também cria atalhos na Área de Trabalho e no Menu Iniciar (botão na aba Configurações).
 
 ## Como usar
 
-1. Baixe `Media-Downloader.bat` e coloque numa pasta sua (por exemplo `C:\Media-Downloader`).
+1. Baixe `Media-Downloader.bat` e coloque numa pasta sua (por exemplo `C:\KoeDL`).
 2. Dê duplo clique. Na primeira vez ele baixa o yt-dlp, o ffmpeg e o deno (precisa de internet e acesso ao GitHub).
 3. O app abre em janela própria (Microsoft Edge WebView2, baixado automaticamente; se o runtime do Windows faltar, ele pergunta se deve instalar a última versão). Edge/Chrome em modo app é só alternativa. Cole os links e clique em **Baixar**. A janela lembra tamanho e posição.
 4. Os arquivos ficam em `Downloads` ao lado do programa (a pasta pode ser trocada em Configurações).
@@ -70,13 +93,13 @@ Feito por **[Andreas-Pinheiro](https://github.com/Andreas-Pinheiro)**.
 
 ## Instalador
 
-A primeira execução também gera o `Media-Downloader-Setup.exe` (um instalador: copia o app para a sua pasta de usuário, cria atalhos na Área de Trabalho e no Menu Iniciar, verifica o WebView2 e adiciona a opção de desinstalar em Aplicativos do Windows). Execute uma vez; depois é só usar o atalho.
+A primeira execução também gera o `KoeDL-Setup.exe` (um instalador: copia o app para a sua pasta de usuário, cria atalhos na Área de Trabalho e no Menu Iniciar, verifica o WebView2 e adiciona a opção de desinstalar em Aplicativos do Windows). Execute uma vez; depois é só usar o atalho.
 
 ## Apoie o projeto
 
-<p align="center"><img src="assets/support-banner.png" alt="Apoie o Media Downloader" width="560"></p>
+<p align="center"><img src="assets/support-banner.png" alt="Apoie o KoeDL" width="560"></p>
 
-O Media Downloader é gratuito e foi feito com a ajuda do Claude, uma IA da Anthropic. Se ele te ajuda, você pode apoiar de graça:
+O KoeDL é gratuito e foi feito com a ajuda do Claude, uma IA da Anthropic. Se ele te ajuda, você pode apoiar de graça:
 
 - ⭐ **Dê uma estrela** no repositório, no topo desta página.
 - 🔗 **Compartilhe** com um amigo que também baixa mídia.
