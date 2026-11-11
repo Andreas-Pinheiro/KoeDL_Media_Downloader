@@ -80,6 +80,7 @@ Media Downloader is free and was built with the help of Claude, an AI by Anthrop
 
 - ⭐ **Give the repository a star** at the top of this page.
 - 🔗 **Share it** with a friend who also downloads media.
+- ☕ **Buy me a coffee** on [Ko-fi](https://ko-fi.com/andreaspinheiro001).
 - 🐞 **Report a problem** in the [Issues](https://github.com/Andreas-Pinheiro/Media-Downloader/issues) tab.
 
-The same options (and a coffee button, when available) are inside the app, in the **♥ Support** tab. Supporting is entirely optional.
+The same options (and the coffee button) are inside the app, in the **♥ Support** tab. Supporting is entirely optional.

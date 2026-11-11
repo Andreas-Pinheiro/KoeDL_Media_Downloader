@@ -80,6 +80,7 @@ O Media Downloader é gratuito e foi feito com a ajuda do Claude, uma IA da Anth
 
 - ⭐ **Dê uma estrela** no repositório, no topo desta página.
 - 🔗 **Compartilhe** com um amigo que também baixa mídia.
+- ☕ **Pague um café** no [Ko-fi](https://ko-fi.com/andreaspinheiro001).
 - 🐞 **Avise de um problema** na aba [Issues](https://github.com/Andreas-Pinheiro/Media-Downloader/issues).
 
-As mesmas opções (e um botão de café, quando houver) estão dentro do app, na aba **♥ Apoiar**. Apoiar é totalmente opcional.
+As mesmas opções (e o botão de café) estão dentro do app, na aba **♥ Apoiar**. Apoiar é totalmente opcional.
