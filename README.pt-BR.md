@@ -93,7 +93,13 @@ Feito por **[Andreas-Pinheiro](https://github.com/Andreas-Pinheiro)**.
 
 ## Instalador
 
-A primeira execução também gera o `KoeDL-Setup.exe` (um instalador: copia o app para a sua pasta de usuário, cria atalhos na Área de Trabalho e no Menu Iniciar, verifica o WebView2 e adiciona a opção de desinstalar em Aplicativos do Windows). Execute uma vez; depois é só usar o atalho.
+Na primeira execução o programa também gera o `KoeDL-Setup.exe`. Abra e escolha:
+
+- **Instalar no computador** (atalhos, entrada em Aplicativos do Windows, desinstalação) ou a **versão portátil** (só copia os arquivos para uma pasta; nada é registrado no Windows, ótima para pendrive).
+- **Onde colocar**: use a pasta padrão ou clique em *Procurar*.
+- **Atualizar**: se o KoeDL já estiver instalado, o instalador detecta e **substitui** (suas configurações, histórico e fila são mantidos). Não precisa desinstalar antes.
+
+> ⚠️ **Administrador:** a pasta padrão (dentro do seu usuário) **não** precisa de administrador. Se escolher uma pasta protegida (como `C:\Arquivos de Programas`), é preciso **clicar com o botão direito no `KoeDL-Setup.exe` > Executar como administrador**. O instalador também avisa e oferece reabrir como administrador.
 
 ## Apoie o projeto
 

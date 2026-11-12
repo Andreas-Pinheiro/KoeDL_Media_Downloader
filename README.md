@@ -93,7 +93,13 @@ Made by **[Andreas-Pinheiro](https://github.com/Andreas-Pinheiro)**.
 
 ## Installer
 
-The first run also generates `KoeDL-Setup.exe` (an installer: copies the app to your user folder, creates Desktop/Start Menu shortcuts, checks WebView2 and adds an uninstall entry in Windows Apps). Run it once; after that, just use the shortcut.
+The first run also generates `KoeDL-Setup.exe`. Open it and choose:
+
+- **Install on this PC** (shortcuts, Windows Apps entry, uninstall) or the **Portable version** (only copies the files to a folder; nothing is registered in Windows, great for a USB stick).
+- **Where to put it**: use the default folder or click *Browse*.
+- **Updating**: if KoeDL is already installed, the installer detects it and **replaces it** (your settings, history and queue are kept). No need to uninstall first.
+
+> ⚠️ **Administrator:** the default folder (inside your user profile) does **not** need administrator rights. If you choose a protected folder (like `C:\Program Files`), you must **right-click `KoeDL-Setup.exe` > Run as administrator**. The installer also warns you and offers to reopen as administrator.
 
 ## Support the project
 
