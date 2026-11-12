@@ -5,7 +5,7 @@ addEventListener('focus',clipPaste);setTimeout(clipPaste,1500);
 addEventListener('keydown',function(e){if(!(e.ctrlKey||e.metaKey))return;var k=e.key;
  if(k==='Enter'){e.preventDefault();go(cur==='links'&&P.items.length&&document.activeElement&&document.activeElement.closest&&document.activeElement.closest('#colR')?'pick':undefined)}
  else if(k==='l'||k==='L'){e.preventDefault();tab('links');$('urls').focus()}
- else if(k>='1'&&k<='4'){e.preventDefault();tab(['links','q','cfg','sup'][+k-1])}});
+ else if(k>='1'&&k<='5'){e.preventDefault();tab(['links','q','lib','cfg','sup'][+k-1])}});
 var _al=applyLang;applyLang=function(){_al.apply(this,arguments);renderQ();renderH()};
 loadHist();renderQ();setTimeout(qLoad,800);
 async function chk(){const u=opts().urls[0];if(!u)return;$('ck').textContent=t('ck_ing');await api('info',{url:u});

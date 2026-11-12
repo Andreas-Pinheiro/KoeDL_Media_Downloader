@@ -1,6 +1,6 @@
 {
   "name": "KoeDL",
-  "version": "3.10",
+  "version": "3.11",
   "outputs": {
     "main": "KoeDL.bat",
     "legacy": "Media-Downloader.bat"

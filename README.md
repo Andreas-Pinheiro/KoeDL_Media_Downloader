@@ -2,14 +2,14 @@
 
 # KoeDL · Media-Downloader
 
-**Free video and audio downloader for Windows (yt-dlp) - single file, no install needed.**
+**Free video and audio downloader for Windows (yt-dlp) - just download the installer and open it.**
 
 <sub>Keywords: video downloader, audio downloader, MP3 downloader, playlist downloader, yt-dlp GUI, Windows, WebView2.</sub>
 
 
 **by Andreas-Pinheiro** · [Português](README.pt-BR.md)
 
-Audio and **video downloader** for Windows in a **single file** (`KoeDL.bat`). It opens a local web interface, works with over a thousand sites, and keeps playlists organized in folders.
+Audio and **video downloader** for Windows. Download the installer (`KoeDL-Setup.exe`) from the [Releases](https://github.com/Andreas-Pinheiro/KoeDL_Media_Downloader/releases/latest) page and you are done; there is also a single-file version (`KoeDL.bat`). It opens a local web interface, works with over a thousand sites, and keeps playlists organized in folders.
 
 > **Status:** built and tested on Linux (backend on PowerShell 7 with the real yt-dlp, interface in Chromium). Tested by the author on Windows only lightly: the `.exe` build, browser cookie reading, process termination and shortcuts depend on Windows and may need adjustments. If something fails, open an *issue* with the error message.
 
@@ -33,9 +33,10 @@ Audio and **video downloader** for Windows in a **single file** (`KoeDL.bat`). I
 - **Playlist next to your links:** on the same tab you can paste links on the left and load a whole playlist on the right, tick the tracks and choose audio or video per track (all audio, all video, or mixed). Optional Music / Videos subfolders.
 - **Resume:** remembers what was already downloaded and skips repeats. There is an option to start over.
 - **Queue:** everything you add goes into a queue and runs one after the other; pause, remove or retry items. Add more while it is downloading.
+- **Library:** a tab that lists everything you downloaded (music and video) and plays it inside KoeDL, with search, filter, previous/next, shuffle and "play next". Formats the built-in player cannot open can be shown in their folder.
 - **History:** every finished download is listed, with a button to show the file in its folder.
 - **Speed limit and connections** per file, separate folders for music and videos, and a Windows notification (or close the program / shut down the PC) when the queue finishes.
-- **Handy extras:** the copied link is pasted by itself when you open the program, you can drag links into the window, and there are keyboard shortcuts (Ctrl+Enter downloads, Ctrl+L focuses the link box, Ctrl+1..4 switch tabs).
+- **Handy extras:** the copied link is pasted by itself when you open the program, you can drag links into the window, and there are keyboard shortcuts (Ctrl+Enter downloads, Ctrl+L focuses the link box, Ctrl+1..5 switch tabs).
 - **Themes:** Neon, Midnight, Forest, Sakura, light, dark, plus accent colors and a custom cat-girl cursor.
 - **Blocked or removed videos:** looks for an alternative version and lists what could not be solved, with the reason.
 - **Cookies:** rotates between Firefox, Edge, Chrome, Brave, Opera and Vivaldi when one fails or gets blocked. Also accepts a `cookies.txt` next to the program.
@@ -47,14 +48,79 @@ Audio and **video downloader** for Windows in a **single file** (`KoeDL.bat`). I
 
 ## How to use
 
-1. Download `KoeDL.bat` and put it in a folder of your own (for example `C:\KoeDL`).
-2. Double-click it. The first time it downloads yt-dlp, ffmpeg and deno (needs internet and access to GitHub).
-3. The app opens in its own window (Microsoft Edge WebView2, downloaded automatically; if the Windows runtime is missing, it asks to install the latest one). Edge/Chrome in app mode is only a fallback. Paste the links and click **Download**. The window remembers its size and position.
-4. Files go to `Downloads` next to the program (changeable in Settings).
+### Easiest way (recommended): the installer
 
-If Windows SmartScreen warns you, it is because the file is not signed: click *More info* and *Run anyway*. If your antivirus complains about the `.exe`, use the `.bat`, which does the same thing.
+1. Go to the [**Releases** page](https://github.com/Andreas-Pinheiro/KoeDL_Media_Downloader/releases/latest) and download **`KoeDL-Setup.exe`** (under *Assets*).
+2. Double-click it. Choose **Install on this PC** (recommended) or **Portable version**, and click **Install**. Nothing else to configure.
+3. Open **KoeDL** from the Desktop or Start Menu. The first time it downloads yt-dlp, ffmpeg and deno by itself (needs internet).
+4. Paste the links and click **Download**. Files go to your `Downloads\KoeDL` folder (changeable in Settings).
 
-Files created next to the program: `bin\` (helper programs, `settings.json`, download history in `archives\`), `Downloads\` and, if built, the `.exe`.
+**Windows shows a blue "Windows protected your PC" screen?** That is normal for free programs that are not digitally signed. Click **More info**, then **Run anyway**. The file is built automatically by GitHub from the source code in this repository, and its SHA-256 is published next to it (see *Verify your download* below).
+
+### Alternative: a single file, no install
+
+Download **`KoeDL.bat`** from the same Releases page, put it in a folder of your own (for example `C:\KoeDL`) and double-click it. It does the same thing and is handy if your antivirus complains about the `.exe`. The app opens in its own window (Microsoft Edge WebView2, downloaded automatically if missing); Edge/Chrome in app mode is only a fallback. The window remembers its size and position.
+
+Files created next to the program (`.bat` version): `bin\` (helper programs, `settings.json`, download history in `archives\`), `Downloads\` and, if built, the `.exe`.
+
+## Requirements
+
+- Windows 10 or 11 (64-bit).
+- Internet access on the first run (downloads yt-dlp, ffmpeg and deno from GitHub) and to download media.
+- Microsoft Edge WebView2 Runtime (comes with Windows 11 and recent Windows 10; the installer offers to download it if missing).
+- No Python, no administrator rights (in the default folder) and nothing else to install.
+
+## Updating and uninstalling
+
+- **Updating:** the program checks the latest GitHub release when it opens and shows an **Update now** banner. You can also click **Settings > Updates > Check for program updates**. Before accepting an update it checks the file against the SHA-256 hash published in the same release; if they do not match, the update is ignored.
+- **Installer:** if KoeDL is already installed, download the newest `KoeDL-Setup.exe` and click **Update**: it replaces the old version and keeps your settings, history and queue. No need to uninstall first.
+- **Uninstalling:** *Windows Settings > Apps > KoeDL > Uninstall*. Your downloads are not deleted. The portable version has no uninstaller: just delete its folder.
+- **Manual update:** download the newest `KoeDL-Setup.exe` (or `KoeDL.bat`) from Releases.
+
+## Verify your download
+
+Each release includes a `SHA256SUMS.txt` with the SHA-256 hash of every file (`KoeDL-Setup.exe`, `KoeDL.exe`, `KoeDL.bat`). To check a file in PowerShell:
+
+```powershell
+Get-FileHash .\KoeDL-Setup.exe -Algorithm SHA256
+```
+
+The result must be identical to the one published.
+
+## FAQ
+
+**Does it work offline?** Only to play what you already downloaded. Downloading and updating need internet.
+
+**Is it safe? My antivirus or Windows warned me.** The `.exe` files are built automatically by GitHub from the source in this repository and are not digitally signed (a certificate costs money), so Windows SmartScreen and some antivirus programs may warn about them. Check the SHA-256 against `SHA256SUMS.txt`. If it still bothers you, use `KoeDL.bat`, which does the same thing and whose code you can read.
+
+**Where do the files go?** To the `Downloads` folder next to the program (installed version: `Downloads\KoeDL` in your user folder). You can change it in Settings, including separate folders for music and video.
+
+**A video failed to download.** Click **Settings > Update everything** and try again. If it keeps failing, open an issue with the link and `bin\app.log`.
+
+**Can I use it on several PCs?** Yes: use the portable version on a USB stick.
+
+**Does KoeDL collect any data?** No. See [SECURITY.md](SECURITY.md).
+
+## Installer
+
+`KoeDL-Setup.exe` (from the Releases page) lets you choose:
+
+- **Install on this PC** (shortcuts, Windows Apps entry, uninstall) or the **Portable version** (only copies the files to a folder; nothing is registered in Windows, great for a USB stick).
+- **Where to put it**: use the default folder or click *Browse*.
+- **Updating**: if KoeDL is already installed, the installer detects it and **replaces it** (your settings, history and queue are kept). No need to uninstall first.
+
+> ⚠️ **Administrator:** the default folder (inside your user profile) does **not** need administrator rights. If you choose a protected folder (like `C:\Program Files`), you must **right-click `KoeDL-Setup.exe` > Run as administrator**. The installer also warns you and offers to reopen as administrator.
+
+## Building from source
+
+The single-file `KoeDL.bat` is generated from readable sources in `src/` (backend, interface, translations, C#). To rebuild it:
+
+```
+python build/build.py          # rewrites KoeDL.bat and Media-Downloader.bat
+python build/build.py --check  # fails if the committed .bat does not match src/
+```
+
+Pushing a tag such as `v3.11` makes GitHub Actions (`.github/workflows/build.yml`) build `KoeDL.bat`, `KoeDL.exe` and `KoeDL-Setup.exe`, generate `SHA256SUMS.txt` and publish everything on the release, using the matching section of `CHANGELOG.md` as the release notes.
 
 ## Technologies
 
@@ -83,6 +149,10 @@ Files created next to the program: `bin\` (helper programs, `settings.json`, dow
 
 Use it only to download content you have the right to download (yours, public domain, licensed, or authorized). Downloading some content may violate site terms of service or copyright laws in your country. The responsibility for use lies with the user. This project is not affiliated with YouTube, Google or any other site mentioned.
 
+## License
+
+[MIT](LICENSE). yt-dlp, FFmpeg and Deno have their own licenses.
+
 ## Credits
 
 All the heavy lifting is done by [yt-dlp](https://github.com/yt-dlp/yt-dlp), [FFmpeg](https://ffmpeg.org/) and [Deno](https://deno.com/), which have their own licenses. This project only orchestrates them.
@@ -90,16 +160,6 @@ All the heavy lifting is done by [yt-dlp](https://github.com/yt-dlp/yt-dlp), [FF
 ---
 
 Made by **[Andreas-Pinheiro](https://github.com/Andreas-Pinheiro)**.
-
-## Installer
-
-The first run also generates `KoeDL-Setup.exe`. Open it and choose:
-
-- **Install on this PC** (shortcuts, Windows Apps entry, uninstall) or the **Portable version** (only copies the files to a folder; nothing is registered in Windows, great for a USB stick).
-- **Where to put it**: use the default folder or click *Browse*.
-- **Updating**: if KoeDL is already installed, the installer detects it and **replaces it** (your settings, history and queue are kept). No need to uninstall first.
-
-> ⚠️ **Administrator:** the default folder (inside your user profile) does **not** need administrator rights. If you choose a protected folder (like `C:\Program Files`), you must **right-click `KoeDL-Setup.exe` > Run as administrator**. The installer also warns you and offers to reopen as administrator.
 
 ## Support the project
 
@@ -110,6 +170,6 @@ KoeDL is free and was built with the help of Claude, an AI by Anthropic. If it h
 - ⭐ **Give the repository a star** at the top of this page.
 - 🔗 **Share it** with a friend who also downloads media.
 - ☕ **Buy me a coffee** on [Ko-fi](https://ko-fi.com/andreaspinheiro001).
-- 🐞 **Report a problem** in the [Issues](https://github.com/Andreas-Pinheiro/Media-Downloader/issues) tab.
+- 🐞 **Report a problem** in the [Issues](https://github.com/Andreas-Pinheiro/KoeDL_Media_Downloader/issues) tab.
 
 The same options (and the coffee button) are inside the app, in the **♥ Support** tab. Supporting is entirely optional.

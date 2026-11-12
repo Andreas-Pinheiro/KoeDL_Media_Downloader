@@ -5,6 +5,8 @@ function GetDl{ $s=ReadSettings; $d=$null; if($s -and $s.dlDir){ $d="$($s.dlDir)
  if(-not $d){ $d=$(if($env:YTDL_INSTALLED){ $(if((-not(Test-Path ([IO.Path]::Combine($env:USERPROFILE,'Downloads','KoeDL')))) -and (Test-Path ([IO.Path]::Combine($env:USERPROFILE,'Downloads','Media Downloader')))){ [IO.Path]::Combine($env:USERPROFILE,'Downloads','Media Downloader') }else{ [IO.Path]::Combine($env:USERPROFILE,'Downloads','KoeDL') }) }else{ [IO.Path]::Combine($dir,'Downloads') }) }
  try{ New-Item -ItemType Directory -Force $d | Out-Null }catch{ $d=[IO.Path]::Combine($dir,'Downloads'); New-Item -ItemType Directory -Force $d | Out-Null }
  return $d }
+function DlRoots{ $sj=ReadSettings; $r=@((GetDl)); if($sj){ foreach($k in 'dirAudio','dirVideo'){ if("$($sj.$k)".Trim()){ $r+="$($sj.$k)".Trim() } } }; return ,$r }
+function InRoots($fp){ if(-not $fp){ return $false }; foreach($r in (DlRoots)){ try{ $rr=[IO.Path]::GetFullPath($r).TrimEnd('\','/'); $ff=[IO.Path]::GetFullPath($fp); if($ff.StartsWith($rr+[IO.Path]::DirectorySeparatorChar,[StringComparison]::OrdinalIgnoreCase)){ return $true } }catch{} }; return $false }
 $wvScript=@'
 @@INCLUDE:src/ui/wv-window.ps1@@
 '@

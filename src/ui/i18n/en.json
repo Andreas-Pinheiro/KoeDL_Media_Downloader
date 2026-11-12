@@ -218,5 +218,17 @@
   "miss": "missing",
   "fails": "Could not download:\n",
   "alts": "Alternative versions downloaded:\n",
-  "noff": "Warning: ffmpeg is not installed (the download failed). Converting to MP3/MP4 may fail. Go to Settings > Update everything now to try again."
+  "noff": "Warning: ffmpeg is not installed (the download failed). Converting to MP3/MP4 may fail. Go to Settings > Update everything now to try again.",
+  "t_lib": "Library",
+  "lib_all": "All",
+  "lib_a": "Music",
+  "lib_v": "Videos",
+  "lib_q": "Search by name…",
+  "lib_refresh": "Refresh",
+  "lib_count": "{n} file(s)",
+  "lib_empty": "Nothing here yet. What you download shows up in this list and plays without leaving KoeDL.",
+  "lib_auto": "Play next",
+  "lib_shuf": "Shuffle",
+  "lib_open": "Show in folder",
+  "lib_err": "This format does not play in here. Use \"Show in folder\" and open it in your player."
 }

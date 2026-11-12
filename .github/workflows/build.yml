@@ -92,8 +92,17 @@ jobs:
         shell: pwsh
         run: |
           $tag = "${{ github.ref_name }}"
+          $ver = $tag -replace '^v', ''
+          # Notas da release: secao "## <versao>" do CHANGELOG.md + os hashes SHA-256
+          $cl = [IO.File]::ReadAllText('CHANGELOG.md', [Text.Encoding]::UTF8)
+          $m = [regex]::Match($cl, "(?ms)^## $([regex]::Escape($ver))[ \t]*\r?\n(.*?)(?=^## |\z)")
+          $body = $(if ($m.Success) { $m.Groups[1].Value.Trim() } else { "KoeDL $tag" })
+          $sums = [IO.File]::ReadAllText('dist/SHA256SUMS.txt').Trim()
+          $notes = "$body`n`n**SHA-256**`n`n``````text`n$sums`n``````"
+          $nf = Join-Path $env:RUNNER_TEMP 'notes.md'
+          [IO.File]::WriteAllText($nf, $notes, (New-Object Text.UTF8Encoding $false))
           gh release view $tag 2>$null | Out-Null
           if ($LASTEXITCODE -ne 0) {
-            gh release create $tag --title "KoeDL $tag" --notes "KoeDL $tag" --verify-tag
+            gh release create $tag --title "KoeDL $tag" --notes-file $nf --verify-tag
           }
           gh release upload $tag dist/KoeDL.bat dist/Media-Downloader.bat dist/KoeDL.exe dist/KoeDL-Setup.exe dist/SHA256SUMS.txt --clobber

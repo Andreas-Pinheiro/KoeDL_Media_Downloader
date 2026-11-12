@@ -1,5 +1,6 @@
 * text=auto
-*.bat text eol=crlf
+# keep the exact CRLF bytes: the SHA-256 of KoeDL.bat must match what is published
+*.bat -text
 *.md text eol=lf
 *.ico binary
 *.png binary
