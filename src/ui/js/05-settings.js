@@ -1,5 +1,5 @@
-function tab(k){cur=k;document.body.dataset.tab=k;for(const x of['links','q','cfg','sup']){$('p_'+x).classList.toggle('on',x===k);$('t_'+x).classList.toggle('on',x===k)}
-updFmt()}
+function tab(k){cur=k;document.body.dataset.tab=k;for(const x of['links','q','lib','cfg','sup']){$('p_'+x).classList.toggle('on',x===k);$('t_'+x).classList.toggle('on',x===k)}
+if(k==='lib')libLoad();updFmt()}
 function common(){const o={};for(const i of IDS){const e=$(i);o[i]=e.type==='checkbox'?e.checked:e.value}
 o.browsers=[...document.querySelectorAll('.br:checked')].map(e=>e.value);o.kind=radio('kind');o.pm=radio('pm');o.plurl=$('plurl').value;return o}
 let sv=null;function save(){clearTimeout(sv);sv=setTimeout(()=>api('settings',common()),400)}

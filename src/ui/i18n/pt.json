@@ -218,5 +218,17 @@
   "miss": "falta",
   "fails": "Não foi possível baixar:\n",
   "alts": "Versões alternativas baixadas:\n",
-  "noff": "Atenção: o ffmpeg não está instalado (o download falhou). A conversão para MP3/MP4 pode falhar. Vá em Configurações > Atualizar tudo agora para tentar de novo."
+  "noff": "Atenção: o ffmpeg não está instalado (o download falhou). A conversão para MP3/MP4 pode falhar. Vá em Configurações > Atualizar tudo agora para tentar de novo.",
+  "t_lib": "Biblioteca",
+  "lib_all": "Tudo",
+  "lib_a": "Músicas",
+  "lib_v": "Vídeos",
+  "lib_q": "Buscar pelo nome…",
+  "lib_refresh": "Atualizar lista",
+  "lib_count": "{n} arquivo(s)",
+  "lib_empty": "Nada por aqui ainda. O que você baixar aparece nesta lista e dá para tocar sem sair do KoeDL.",
+  "lib_auto": "Tocar a próxima",
+  "lib_shuf": "Aleatório",
+  "lib_open": "Mostrar na pasta",
+  "lib_err": "Este formato não toca aqui dentro. Use \"Mostrar na pasta\" e abra no seu player."
 }

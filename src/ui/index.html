@@ -4,7 +4,7 @@
 <style>
 @@INCLUDE_DIR:src/ui/css@@
 </style></head><body data-tab="links"><div class="wrap">
-<header><img id="logo" alt="KoeDL"><img id="brand" alt="KoeDL"><div class="tabs"><button id="t_links" class="on" onclick="tab('links')" data-t="t_links"></button><button id="t_q" onclick="tab('q')"><span data-t="t_q"></span><i id="qn" class="qn"></i></button><button id="t_cfg" onclick="tab('cfg')" data-t="t_cfg"></button><button id="t_sup" onclick="tab('sup')" data-t="t_sup"></button></div><div class="sp"></div>
+<header><img id="logo" alt="KoeDL"><img id="brand" alt="KoeDL"><div class="tabs"><button id="t_links" class="on" onclick="tab('links')" data-t="t_links"></button><button id="t_q" onclick="tab('q')"><span data-t="t_q"></span><i id="qn" class="qn"></i></button><button id="t_lib" onclick="tab('lib')" data-t="t_lib"></button><button id="t_cfg" onclick="tab('cfg')" data-t="t_cfg"></button><button id="t_sup" onclick="tab('sup')" data-t="t_sup"></button></div><div class="sp"></div>
 <label class="fld nf" style="min-width:0"><span data-t="lang"></span><select id="lang"><option value="en">English</option><option value="pt">Português</option></select></label>
 <button id="qbtn" class="s nf" onclick="if(confirm(t('quit_q')))api('quit',{})" data-t="quit"></button></header>
 <div class="sub"><span data-t="sub"></span> <span id="ver"></span></div>
@@ -54,6 +54,9 @@
 <div id="p_q" class="pane"><div id="qcol"><div class="card" id="qcard"><h2><span data-t="q_h"></span><span class="grow"></span><button class="s" id="qpause" onclick="qPause()"></button><button class="s" id="qclr" onclick="qClear()" data-t="q_clearfin"></button></h2><div id="qlist" class="lst"></div></div>
 <div class="card" id="hcard"><h2><span data-t="h_hist"></span><span class="grow"></span><button class="s" id="hclr" onclick="hClear()" data-t="h_clear"></button></h2><div id="hlist" class="lst"></div></div></div></div>
 
+<div id="p_lib" class="pane"><div class="card"><h2><span data-t="t_lib"></span><span class="grow"></span><span id="lcount" class="mu"></span></h2>
+<div class="row" id="lbar"><div class="lf" id="lseg"><button class="s on" data-f="all" data-t="lib_all"></button><button class="s" data-f="a" data-t="lib_a"></button><button class="s" data-f="v" data-t="lib_v"></button></div><div><input type="text" id="lq" data-ph="lib_q"></div><button class="s" id="lref" data-t="lib_refresh"></button></div>
+<div id="lgrid"><div id="lplayer"><video id="pv" controls playsinline preload="none"></video><audio id="pa" controls preload="none"></audio><div id="lnow"></div><div class="row" id="lctl"><button class="s" id="lprev" title="Anterior">&#9198;</button><button class="s" id="lnext" title="Próxima">&#9197;</button><label class="chk"><input type="checkbox" id="lauto" checked><span data-t="lib_auto"></span></label><label class="chk"><input type="checkbox" id="lshuf"><span data-t="lib_shuf"></span></label><button class="s" id="lopen" data-t="lib_open"></button></div><div id="lerr" class="mu"></div></div><div id="llist" class="lst"></div></div></div></div>
 <div id="p_sup" class="pane">
 <div class="card sup"><div class="sup-art" id="supArt"><div class="sup-glow"></div><img id="im_heart" class="on" alt=""><img id="im_coins" alt=""><img id="im_cheer" alt=""><span class="spk k1">✦</span><span class="spk k2">✦</span><span class="spk k3">✦</span></div>
 <div class="sup-body"><h2 data-t="sup_h"></h2><p data-t="sup_p"></p>

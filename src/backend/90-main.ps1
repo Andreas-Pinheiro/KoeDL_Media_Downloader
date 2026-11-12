@@ -65,6 +65,24 @@ while($lst.IsListening){
     '/api/queue'{ $qf=J $bin 'queue.json'
       if($rq.HttpMethod -eq 'POST'){ try{ if($body.Length -gt 2000000){ throw 'fila grande demais' }; $null=$body|ConvertFrom-Json; [IO.File]::WriteAllText($qf,$body,(New-Object Text.UTF8Encoding $false)); $out='{"ok":true}' }catch{ $out=@{error=(ErrTxt (Tr 'salvar a fila' 'save the queue') $_)}|ConvertTo-Json -Compress } }
       else{ if(Test-Path $qf){ $out=[IO.File]::ReadAllText($qf,[Text.Encoding]::UTF8) }else{ $out='[]' } } }
+    '/api/library'{ $ea='.mp3','.m4a','.opus','.ogg','.flac','.wav','.aac'; $ev='.mp4','.mkv','.webm','.mov'; $seen=@{}; $li=New-Object Collections.ArrayList
+      foreach($r in (DlRoots)){ if(-not(Test-Path -LiteralPath $r)){ continue }; $rrf=[IO.Path]::GetFullPath($r)
+        foreach($f in (Get-ChildItem -LiteralPath $r -Recurse -Depth 4 -File -ea 0)){ $x=$f.Extension.ToLower(); $isA=($ea -contains $x); if(-not $isA -and -not ($ev -contains $x)){ continue }
+          if($seen.ContainsKey($f.FullName)){ continue }; $seen[$f.FullName]=1; $dn=$f.Directory.Name; if([IO.Path]::GetFullPath($f.DirectoryName).TrimEnd('\','/') -eq $rrf.TrimEnd('\','/')){ $dn='' }
+          [void]$li.Add([ordered]@{p=$f.FullName;n=$f.BaseName;k=$(if($isA){'a'}else{'v'});s=$f.Length;t=$f.LastWriteTime.ToString('s');d=$dn}) } }
+      $srt=@($li|Sort-Object @{Expression={$_.t};Descending=$true}|Select-Object -First 1500); $out=ConvertTo-Json -InputObject $srt -Depth 3 -Compress }
+    '/api/media'{ $out=''; try{ $fp="$($rq.QueryString['p'])"
+        if(-not (InRoots $fp) -or -not (Test-Path -LiteralPath $fp -PathType Leaf)){ $rs.StatusCode=404 }
+        else{ $fi=New-Object IO.FileInfo $fp; $len=$fi.Length
+          $mt=switch($fi.Extension.ToLower()){ '.mp3'{'audio/mpeg'} '.m4a'{'audio/mp4'} '.aac'{'audio/aac'} '.opus'{'audio/ogg; codecs=opus'} '.ogg'{'audio/ogg'} '.flac'{'audio/flac'} '.wav'{'audio/wav'} '.mp4'{'video/mp4'} '.webm'{'video/webm'} '.mkv'{'video/x-matroska'} '.mov'{'video/quicktime'} default{'application/octet-stream'} }
+          $st=[long]0; $en=$len-1; $rg="$($rq.Headers['Range'])"; $part=$false
+          if($rg -match '^bytes=(\d*)-(\d*)$'){ $part=$true; if($Matches[1] -ne ''){ $st=[long]$Matches[1]; if($Matches[2] -ne ''){ $en=[long]$Matches[2] } }elseif($Matches[2] -ne ''){ $st=[Math]::Max([long]0,$len-[long]$Matches[2]) } }
+          if($en -ge $len){ $en=$len-1 }
+          if($part -and ($en-$st+1) -gt 2097152){ $en=$st+2097152-1 }
+          if($len -eq 0 -or $st -ge $len -or $st -gt $en){ $rs.StatusCode=416; $rs.AddHeader('Content-Range',"bytes */$len") }
+          else{ $n=$en-$st+1; $rs.ContentType=$mt; $rs.AddHeader('Accept-Ranges','bytes'); if($part){ $rs.StatusCode=206; $rs.AddHeader('Content-Range',"bytes $st-$en/$len") }; $rs.ContentLength64=$n
+            $fs=[IO.File]::Open($fp,[IO.FileMode]::Open,[IO.FileAccess]::Read,[IO.FileShare]::ReadWrite); try{ [void]$fs.Seek($st,[IO.SeekOrigin]::Begin); $buf=New-Object byte[] 65536; $left=$n
+              while($left -gt 0){ $rd=$fs.Read($buf,0,[int][Math]::Min([long]$buf.Length,$left)); if($rd -le 0){ break }; $rs.OutputStream.Write($buf,0,$rd); $left-=$rd } }finally{ $fs.Dispose() } } } }catch{} }
     '/api/openfile'{ try{ $fp="$(($body|ConvertFrom-Json).path)"; $sj=ReadSettings; $roots=@((GetDl)); if($sj){ foreach($k in 'dirAudio','dirVideo'){ if("$($sj.$k)".Trim()){ $roots+="$($sj.$k)".Trim() } } }
         $okp=$false; foreach($r in $roots){ try{ $rr=[IO.Path]::GetFullPath($r).TrimEnd('\','/'); $ff=[IO.Path]::GetFullPath($fp); if($ff.StartsWith($rr+[IO.Path]::DirectorySeparatorChar,[StringComparison]::OrdinalIgnoreCase)){ $okp=$true } }catch{} }
         if($okp -and (Test-Path -LiteralPath $fp) -and $WIN -and -not $TEST){ Start-Process explorer.exe "/select,`"$fp`"" }

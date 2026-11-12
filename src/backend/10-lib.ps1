@@ -55,10 +55,16 @@ function Make-Shortcuts($only){
   try{ $l=$ws.CreateShortcut($p); $l.TargetPath=$target; $l.WorkingDirectory=$S.dir; if($icon){ $l.IconLocation=$icon }; $l.Save(); $made+=$loc }catch{ L "[atalho] $loc : $($_.Exception.Message)" } }
  if($made.Count){ return ((Tr 'Atalhos criados/atualizados em:' 'Shortcuts created/updated in:')+"`n"+($made -join "`n")) }
  return (Tr 'Nao consegui criar os atalhos.' 'Could not create the shortcuts.') }
-function GetUpdText([string]$u){
+function GetUpdBytes([string]$u){
  $ProgressPreference='SilentlyContinue'
  $r=Invoke-WebRequest $u -UseBasicParsing -TimeoutSec 40 -Headers @{'User-Agent'='KoeDL'}
- return [Text.Encoding]::UTF8.GetString($r.RawContentStream.ToArray()) }
+ return ,$r.RawContentStream.ToArray() }
+function GetUpdText([string]$u){ return [Text.Encoding]::UTF8.GetString([byte[]](GetUpdBytes $u)) }
+function HashOk([byte[]]$bytes,[string]$sumsUrl){
+ # Confere o SHA-256 do arquivo baixado com a linha "KoeDL.bat" do SHA256SUMS.txt da mesma release.
+ try{ $st=GetUpdText $sumsUrl; $m=[regex]::Match($st,'(?im)^([0-9a-f]{64})\s+\*?KoeDL\.bat\s*$'); if(-not $m.Success){ return $false }
+  $h=([BitConverter]::ToString([Security.Cryptography.SHA256]::Create().ComputeHash($bytes)) -replace '-','').ToLowerInvariant()
+  return ($h -eq $m.Groups[1].Value.ToLowerInvariant()) }catch{ return $false } }
 function AddUpdFrom($txt){
  # Valida o arquivo baixado: precisa ter o marcador e uma versao maior que a atual.
  $m=[regex]::Match($txt,'APPVER=.([0-9.]+).'); $ix=$txt.LastIndexOf('###'+'PS###')
@@ -71,38 +77,53 @@ function AddUpdFrom($txt){
 function SelfUpdate($force){
  if(-not $S.selfUpd -and -not $force){ return }
  try{
-  # URL fixa (testes e forks): compara direto pelo APPVER do arquivo
+  # URL fixa (testes e forks): compara direto pelo APPVER do arquivo. Sem hash so se YTDL_NOHASH estiver definido.
   if($env:YTDL_UPDURL){
-   $txt=GetUpdText $env:YTDL_UPDURL
+   $by=[byte[]](GetUpdBytes $env:YTDL_UPDURL)
+   if(-not $env:YTDL_NOHASH){ $sm=$(if($env:YTDL_UPDSUMS){ $env:YTDL_UPDSUMS }else{ ($env:YTDL_UPDURL -replace '[^/]+$','SHA256SUMS.txt') })
+    if(-not (HashOk $by $sm)){ $S.chk='err'; L (Tr '(atualizacao ignorada: o SHA-256 do arquivo nao confere)' '(update ignored: the file SHA-256 does not match)'); return } }
+   $txt=[Text.Encoding]::UTF8.GetString($by)
    if(-not (AddUpdFrom $txt)){ if($force){ $S.updAvail=''; $S.chk='same'; L (Tr 'O programa ja esta na versao mais recente.' 'The program is already up to date.') } }
    return }
-  # Releases do GitHub: a versao vem da API, o arquivo vem do asset da release (sem ler a branch)
+  $repos='Andreas-Pinheiro/KoeDL_Media_Downloader','Andreas-Pinheiro/Media-Downloader'
+  # 1) Releases do GitHub: a versao vem da API e o arquivo vem do asset da release (sem ler a branch)
   $rel=$null; $why=''
-  foreach($repo in 'Andreas-Pinheiro/KoeDL_Media_Downloader','Andreas-Pinheiro/Media-Downloader'){
+  foreach($repo in $repos){
    $api=$(if($env:YTDL_UPDAPI){ $env:YTDL_UPDAPI }else{ "https://api.github.com/repos/$repo/releases/latest" })
    try{ $rel=Invoke-RestMethod $api -TimeoutSec 30 -Headers @{'User-Agent'='KoeDL';'Accept'='application/vnd.github+json'}
     if($rel -and $rel.tag_name){ break } }
    catch{ $rel=$null; $why=$_.Exception.Message }
    if($env:YTDL_UPDAPI){ break } }
-  if(-not $rel){ if($why){ L "[upd] $why" }
-   $S.chk='err'; L (Tr 'Nao consegui consultar as versoes no GitHub. Verifique sua conexao e tente de novo.' 'Could not check the versions on GitHub. Check your connection and try again.'); return }
-  $tag="$($rel.tag_name)".Trim(); $nv=($tag -replace '^[vV]','')
-  if(-not($nv -match '^\d+(\.\d+){1,3}$')){ $S.chk='err'; L (Tr "A release mais recente ($tag) tem um numero de versao que eu nao entendi." "The latest release ($tag) has a version number I could not read."); return }
-  if(([version]$nv) -le ([version]$S.appver)){
-   $S.updAvail=''
-   if($force){ $S.chk='same'; L (Tr 'O programa ja esta na versao mais recente.' 'The program is already up to date.') }
-   return }
-  $urls=@()
-  foreach($a in @($rel.assets)){ if("$($a.name)" -eq 'KoeDL.bat' -and $a.browser_download_url){ $urls+="$($a.browser_download_url)" } }
-  $urls+="https://github.com/Andreas-Pinheiro/KoeDL_Media_Downloader/releases/download/$tag/KoeDL.bat"
-  $urls+="https://github.com/Andreas-Pinheiro/Media-Downloader/releases/download/$tag/KoeDL.bat"
-  foreach($u in $urls){
-   try{ $txt=GetUpdText $u
-    if($txt -match '###'+'PS###'){ if(AddUpdFrom $txt){ return } }
-    $why='conteudo inesperado' }
+  $cands=@(); $nv=''
+  if($rel){
+   $tag="$($rel.tag_name)".Trim(); $nv=($tag -replace '^[vV]','')
+   if(-not($nv -match '^\d+(\.\d+){1,3}$')){ $S.chk='err'; L (Tr "A release mais recente ($tag) tem um numero de versao que eu nao entendi." "The latest release ($tag) has a version number I could not read."); return }
+   if(([version]$nv) -le ([version]$S.appver)){
+    $S.updAvail=''
+    if($force){ $S.chk='same'; L (Tr 'O programa ja esta na versao mais recente.' 'The program is already up to date.') }
+    return }
+   $ub=''; $us=''
+   foreach($a in @($rel.assets)){ if($a.browser_download_url){ if("$($a.name)" -eq 'KoeDL.bat'){ $ub="$($a.browser_download_url)" } elseif("$($a.name)" -eq 'SHA256SUMS.txt'){ $us="$($a.browser_download_url)" } } }
+   if($ub){ $cands+=,@($ub,$(if($us){ $us }else{ $ub -replace '[^/]+$','SHA256SUMS.txt' })) }
+   foreach($repo in $repos){ $cands+=,@("https://github.com/$repo/releases/download/$tag/KoeDL.bat","https://github.com/$repo/releases/download/$tag/SHA256SUMS.txt") } }
+  else{
+   # 2) Plano B: a API falhou (limite de consultas, rede da empresa...). O link "latest/download" nao usa a API.
+   if($why){ L "[upd] $why" }
+   foreach($repo in $repos){ $cands+=,@("https://github.com/$repo/releases/latest/download/KoeDL.bat","https://github.com/$repo/releases/latest/download/SHA256SUMS.txt") } }
+  $why=''; $reached=$false
+  foreach($c in $cands){
+   try{ $by=[byte[]](GetUpdBytes $c[0]); $txt=[Text.Encoding]::UTF8.GetString($by)
+    if($txt -notmatch '###'+'PS###'){ $why='conteudo inesperado'; continue }
+    $reached=$true
+    $m=[regex]::Match($txt,'APPVER=.([0-9.]+).')
+    if($m.Success -and ([version]$m.Groups[1].Value) -le ([version]$S.appver)){ $S.updAvail=''; if($force){ $S.chk='same'; L (Tr 'O programa ja esta na versao mais recente.' 'The program is already up to date.') }; return }
+    if(-not (HashOk $by $c[1])){ $S.chk='err'; L (Tr '(atualizacao ignorada: o SHA-256 do arquivo nao confere com o da release)' '(update ignored: the file SHA-256 does not match the release)'); return }
+    if(AddUpdFrom $txt){ return }
+    $why='arquivo invalido'; break }
    catch{ $why=$_.Exception.Message } }
   $S.chk='err'
-  L (Tr "A versao $nv existe, mas nao consegui baixar o arquivo dela agora. Tente de novo mais tarde." "Version $nv exists, but its file could not be downloaded right now. Try again later.")
+  if($nv){ L (Tr "A versao $nv existe, mas nao consegui baixar o arquivo dela agora. Tente de novo mais tarde." "Version $nv exists, but its file could not be downloaded right now. Try again later.") }
+  else{ L (Tr 'Nao consegui consultar as versoes no GitHub. Verifique sua conexao e tente de novo.' 'Could not check the versions on GitHub. Check your connection and try again.') }
   if($why){ L "[upd] $why" }
  }catch{ $S.chk='err'; L (Tr 'Nao consegui verificar atualizacoes do programa agora. Tente de novo mais tarde.' 'Could not check for program updates right now. Try again later.'); L "[upd] $($_.Exception.Message)" } }
 function Run($u,$c,$base,$o,$fl){
