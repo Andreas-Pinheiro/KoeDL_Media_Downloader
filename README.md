@@ -9,7 +9,7 @@
 
 **by Andreas-Pinheiro** · [Português](README.pt-BR.md)
 
-Audio and **video downloader** for Windows in a **single file** (`Media-Downloader.bat`). It opens a local web interface, works with over a thousand sites, and keeps playlists organized in folders.
+Audio and **video downloader** for Windows in a **single file** (`KoeDL.bat`). It opens a local web interface, works with over a thousand sites, and keeps playlists organized in folders.
 
 > **Status:** built and tested on Linux (backend on PowerShell 7 with the real yt-dlp, interface in Chromium). Tested by the author on Windows only lightly: the `.exe` build, browser cookie reading, process termination and shortcuts depend on Windows and may need adjustments. If something fails, open an *issue* with the error message.
 
@@ -47,7 +47,7 @@ Audio and **video downloader** for Windows in a **single file** (`Media-Download
 
 ## How to use
 
-1. Download `Media-Downloader.bat` and put it in a folder of your own (for example `C:\KoeDL`).
+1. Download `KoeDL.bat` and put it in a folder of your own (for example `C:\KoeDL`).
 2. Double-click it. The first time it downloads yt-dlp, ffmpeg and deno (needs internet and access to GitHub).
 3. The app opens in its own window (Microsoft Edge WebView2, downloaded automatically; if the Windows runtime is missing, it asks to install the latest one). Edge/Chrome in app mode is only a fallback. Paste the links and click **Download**. The window remembers its size and position.
 4. Files go to `Downloads` next to the program (changeable in Settings).

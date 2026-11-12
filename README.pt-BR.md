@@ -9,7 +9,7 @@
 
 **by Andreas-Pinheiro** · [English](README.md)
 
-Baixador de **áudio e vídeo** para Windows, em **um único arquivo** (`Media-Downloader.bat`). Abre uma interface em janela própria, funciona com mais de mil sites e organiza as playlists em pastas.
+Baixador de **áudio e vídeo** para Windows, em **um único arquivo** (`KoeDL.bat`). Abre uma interface em janela própria, funciona com mais de mil sites e organiza as playlists em pastas.
 
 > **Status:** desenvolvido e testado em ambiente Linux (backend em PowerShell 7 com o yt-dlp real e interface no Chromium). **Ainda não foi testado no Windows.** A geração do `.exe`, a leitura de cookies dos navegadores, o encerramento de processos e a criação de atalhos dependem do Windows e podem precisar de ajustes. Se algo falhar, abra uma *issue* com a mensagem de erro.
 
@@ -47,7 +47,7 @@ Baixador de **áudio e vídeo** para Windows, em **um único arquivo** (`Media-D
 
 ## Como usar
 
-1. Baixe `Media-Downloader.bat` e coloque numa pasta sua (por exemplo `C:\KoeDL`).
+1. Baixe `KoeDL.bat` e coloque numa pasta sua (por exemplo `C:\KoeDL`).
 2. Dê duplo clique. Na primeira vez ele baixa o yt-dlp, o ffmpeg e o deno (precisa de internet e acesso ao GitHub).
 3. O app abre em janela própria (Microsoft Edge WebView2, baixado automaticamente; se o runtime do Windows faltar, ele pergunta se deve instalar a última versão). Edge/Chrome em modo app é só alternativa. Cole os links e clique em **Baixar**. A janela lembra tamanho e posição.
 4. Os arquivos ficam em `Downloads` ao lado do programa (a pasta pode ser trocada em Configurações).
