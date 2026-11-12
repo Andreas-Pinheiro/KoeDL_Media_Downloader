@@ -92,8 +92,34 @@ jobs:
         shell: pwsh
         run: |
           $tag = "${{ github.ref_name }}"
+          $files = 'dist/KoeDL.bat', 'dist/Media-Downloader.bat', 'dist/KoeDL.exe', 'dist/KoeDL-Setup.exe', 'dist/SHA256SUMS.txt'
+          foreach ($f in $files) { if (-not (Test-Path $f)) { throw "faltou o artefato $f" } }
+
+          # confere que todo arquivo publicado aparece no SHA256SUMS.txt
+          $sums = Get-Content 'dist/SHA256SUMS.txt'
+          $sums | ForEach-Object { Write-Host $_ }
+          foreach ($f in $files) {
+            $name = Split-Path $f -Leaf
+            if ($name -eq 'SHA256SUMS.txt') { continue }
+            $pattern = '  ' + [regex]::Escape($name) + '$'
+            if (-not ($sums -match $pattern)) { throw "$name nao esta no SHA256SUMS.txt" }
+          }
+
+          $notes = Join-Path 'release-notes' "$tag.md"
           gh release view $tag 2>$null | Out-Null
           if ($LASTEXITCODE -ne 0) {
-            gh release create $tag --title "KoeDL $tag" --notes "KoeDL $tag" --verify-tag
+            if (Test-Path $notes) {
+              Write-Host "notas: $notes"
+              gh release create $tag --title "KoeDL_$tag" --notes-file $notes --verify-tag
+            }
+            else {
+              gh release create $tag --title "KoeDL_$tag" --notes "KoeDL $tag" --verify-tag
+            }
+            if ($LASTEXITCODE -ne 0) { throw 'gh release create falhou.' }
           }
-          gh release upload $tag dist/KoeDL.bat dist/Media-Downloader.bat dist/KoeDL.exe dist/KoeDL-Setup.exe dist/SHA256SUMS.txt --clobber
+
+          gh release upload $tag @files --clobber
+          if ($LASTEXITCODE -ne 0) { throw 'gh release upload falhou.' }
+
+          Write-Host 'anexos na release:'
+          gh release view $tag --json assets --jq '.assets[].name'

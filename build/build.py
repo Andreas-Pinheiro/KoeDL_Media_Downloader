@@ -19,6 +19,9 @@ Usage:
     python3 build/build.py --check      # build in memory, fail if the files drifted
     python3 build/build.py --out dist   # also write fresh copies to dist/
     python3 build/build.py --version    # print the version from the manifest
+
+The checksums file is written by build/build-exe.ps1, which is the step that
+knows every artifact (.bat and .exe); this script only reports its own hash.
 """
 
 import base64
@@ -143,9 +146,6 @@ def main(argv):
         for name in targets:
             with open(abs_path(os.path.join(out, name)), "wb") as handle:
                 handle.write(data)
-        with open(abs_path(os.path.join(out, "SHA256SUMS.txt")), "w", encoding="ascii", newline="\n") as handle:
-            handle.write("%s  %s\n" % (digest, outputs["main"]))
-            handle.write("%s  %s\n" % (digest, outputs["legacy"]))
         print("wrote    %s/" % out)
 
     print("sha256   %s  (%d bytes)" % (digest, len(data)))
