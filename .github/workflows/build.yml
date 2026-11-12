@@ -1,0 +1,99 @@
+name: build
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: windows-latest
+    env:
+      # Opcional: para assinar os .exe, cadastre estes segredos no repositorio.
+      # Sem eles o passo de assinatura e simplesmente pulado.
+      SIGN_PFX_BASE64: ${{ secrets.WINDOWS_CERT_PFX_BASE64 }}
+      SIGN_PFX_PASSWORD: ${{ secrets.WINDOWS_CERT_PASSWORD }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: KoeDL.bat commitado confere com as fontes
+        shell: pwsh
+        run: python build/build.py --check
+
+      - name: Versao da tag confere com o manifest
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: pwsh
+        run: |
+          $manifest = python build/build.py --version
+          $tag = "${{ github.ref_name }}" -replace '^v', ''
+          if ($manifest -ne $tag) { throw "manifest.json diz $manifest mas a tag e $tag" }
+          Write-Host "versao $manifest"
+
+      - name: Gera KoeDL.bat, os .exe e o SHA256
+        shell: pwsh
+        run: powershell -NoProfile -ExecutionPolicy Bypass -File build/build-exe.ps1 -OutDir dist
+
+      - name: Assina os executaveis (opcional)
+        if: env.SIGN_PFX_BASE64 != ''
+        shell: pwsh
+        run: |
+          $pfx = Join-Path $env:RUNNER_TEMP 'sign.pfx'
+          $st = Get-ChildItem "${env:ProgramFiles(x86)}\Windows Kits\10\bin\*\x64\signtool.exe" -ErrorAction SilentlyContinue |
+                Sort-Object FullName -Descending | Select-Object -First 1
+          if (-not $st) { throw 'signtool.exe nao encontrado no runner.' }
+          try {
+            [IO.File]::WriteAllBytes($pfx, [Convert]::FromBase64String($env:SIGN_PFX_BASE64))
+            foreach ($f in 'dist/KoeDL.exe', 'dist/KoeDL-Setup.exe') {
+              & $st.FullName sign /fd SHA256 /f $pfx /p $env:SIGN_PFX_PASSWORD /tr http://timestamp.digicert.com /td SHA256 $f
+              if ($LASTEXITCODE -ne 0) { throw "signtool falhou em $f" }
+            }
+            Write-Host 'assinatura aplicada.'
+          }
+          finally {
+            Remove-Item $pfx -Force -ErrorAction SilentlyContinue
+          }
+
+      - name: Recalcula o SHA256 depois da assinatura
+        shell: pwsh
+        run: |
+          $lines = foreach ($name in 'KoeDL.bat', 'Media-Downloader.bat', 'KoeDL.exe', 'KoeDL-Setup.exe') {
+            $hash = (Get-FileHash (Join-Path 'dist' $name) -Algorithm SHA256).Hash.ToLowerInvariant()
+            Write-Host ("{0}  {1}" -f $hash, $name)
+            "{0}  {1}" -f $hash, $name
+          }
+          [IO.File]::WriteAllLines('dist/SHA256SUMS.txt', $lines, (New-Object Text.UTF8Encoding $false))
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: koedl
+          path: |
+            dist/KoeDL.bat
+            dist/Media-Downloader.bat
+            dist/KoeDL.exe
+            dist/KoeDL-Setup.exe
+            dist/SHA256SUMS.txt
+
+      - name: Publica os artefatos na release
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: pwsh
+        run: |
+          $tag = "${{ github.ref_name }}"
+          gh release view $tag 2>$null | Out-Null
+          if ($LASTEXITCODE -ne 0) {
+            gh release create $tag --title "KoeDL $tag" --notes "KoeDL $tag" --verify-tag
+          }
+          gh release upload $tag dist/KoeDL.bat dist/Media-Downloader.bat dist/KoeDL.exe dist/KoeDL-Setup.exe dist/SHA256SUMS.txt --clobber

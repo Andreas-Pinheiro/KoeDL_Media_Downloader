@@ -1,0 +1,40 @@
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}.row>*{flex:1;min-width:140px}.row>.nf{flex:none;min-width:0}
+.fld{display:block}.fld>span{display:block;font-size:.8rem;color:var(--mu);margin-bottom:3px}
+label.chk{display:flex;gap:8px;align-items:flex-start;margin:7px 0;cursor:pointer}
+label.chk input{margin-top:.3rem}
+label.chk small{display:block;color:var(--mu);font-size:.8rem}
+button{background:var(--ac);color:var(--acfg);border:0;border-radius:calc(var(--r) - 4px);padding:9px 16px;font:inherit;font-weight:600;cursor:pointer}
+button:hover{filter:brightness(1.08)}
+button.s{background:var(--card2);color:var(--fg);border:1px solid var(--line);font-weight:500}
+button.big{padding:12px 26px;font-size:1.05rem}button.big.alt{background:transparent;color:var(--fg);border:1px solid var(--ac);box-shadow:none}button.big.alt:hover{background:rgba(124,58,237,.18)}button.big.alt:disabled{opacity:.5}
+button:disabled{opacity:.45;cursor:default;filter:none}
+.tabs{display:flex;gap:6px;margin:12px 0 0;border-bottom:1px solid var(--line)}
+.tabs button{background:transparent;color:var(--mu);border-radius:10px 10px 0 0;border-bottom:3px solid transparent;font-weight:600;padding:10px 14px}
+.tabs button.on{color:var(--fg);border-bottom-color:var(--ac)}
+.pane{display:none}.pane.on{display:block}
+.seg{display:inline-flex;background:var(--card2);border:1px solid var(--line);border-radius:calc(var(--r) - 2px);padding:3px;gap:3px;flex-wrap:wrap}
+.seg label{position:relative}.seg input{position:absolute;opacity:0;inset:0;cursor:pointer}
+.seg span{display:block;padding:8px 16px;border-radius:calc(var(--r) - 5px);font-weight:600;color:var(--mu);white-space:nowrap}
+.seg input:checked+span{background:var(--ac);color:var(--acfg)}
+.seg input:focus-visible+span{outline:2px solid var(--ac);outline-offset:2px}
+details{margin-top:10px}summary{cursor:pointer;color:var(--ac);font-weight:600;padding:4px 0}
+details[open]>summary{margin-bottom:6px}
+#banner{background:var(--warn);border:1px solid var(--warnln);border-radius:10px;padding:10px 12px;margin:10px 0;display:none;white-space:pre-wrap;font-size:.9rem}
+.tw{max-height:360px;overflow:auto;border:1px solid var(--line);border-radius:10px;background:var(--card)}
+table{width:100%;border-collapse:collapse;font-size:.9rem}th,td{padding:7px 8px;text-align:left;border-bottom:1px solid var(--line)}
+th{position:sticky;top:0;background:var(--card2);z-index:1}tr.na{opacity:.45}td select{padding:3px 6px;width:auto}.num{text-align:right;color:var(--mu)}
+pre{background:#0a0d14;color:#9ef0b4;padding:10px;border-radius:10px;height:220px;overflow:auto;font-size:.75rem;white-space:pre-wrap;margin:6px 0 0}
+#fails{color:var(--bad);white-space:pre-wrap;font-size:.85rem;margin-top:8px}#alts{color:var(--ok);white-space:pre-wrap;font-size:.85rem;margin-top:8px}
+progress{width:100%;height:10px;accent-color:var(--ac)}
+#bar{flex:none;margin:0 -16px;background:var(--card);border-top:1px solid var(--line);box-shadow:0 -6px 20px rgba(0,0,0,.12);padding:10px 16px;z-index:5}
+#bar .in{max-width:1500px;margin:0 auto;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+#bar .st{flex:1;min-width:200px}#bar .st b{display:block;font-size:.95rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#cur{color:var(--mu);font-size:.8rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sw{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.sw button{width:30px;height:30px;padding:0;border-radius:50%;border:2px solid var(--card);box-shadow:0 0 0 1px var(--line)}
+.sw button.on{box-shadow:0 0 0 2px var(--fg)}
+.sw input[type=color]{width:36px;height:30px;padding:0;border:0;background:none}
+hr{border:0;border-top:1px solid var(--line);margin:12px 0}
+footer{position:relative;flex:none;margin:4px 0 6px;text-align:center;color:var(--mu);font-size:.75rem}footer a{color:inherit}#appver{position:absolute;right:2px;top:50%;transform:translateY(-50%);padding:2px 9px;border:1px solid var(--ac);border-radius:999px;color:var(--fg);font-weight:700;font-size:.72rem;background:color-mix(in srgb,var(--ac) 18%,transparent)}@media(max-width:560px){#appver{position:static;transform:none;display:inline-block;margin-left:8px}}
+.hide{display:none!important}
+body:not([data-tab=cfg]) #dt:not(.has){display:none}
+@media(max-width:560px){.row>*{min-width:100%}#bar .in{gap:8px}}

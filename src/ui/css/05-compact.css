@@ -1,0 +1,20 @@
+/* compact, app-like */
+:root{--r:10px;--pad:10px;--gap:8px}
+.wrap{padding:8px 12px 0}
+header{flex-wrap:nowrap;gap:10px;margin:0 0 8px;padding-bottom:6px;border-bottom:1px solid var(--line)}
+header img{width:30px;height:30px}h1{font-size:1rem;white-space:nowrap}.by,.sub{display:none}
+header .fld>span{display:none}header select{padding:5px 8px;width:auto}header button{padding:6px 12px}
+.tabs{margin:0 0 0 6px;gap:2px;border:0}
+.tabs button{padding:6px 12px;border-radius:8px;border:0;font-weight:600}
+.tabs button.on{background:var(--card2);color:var(--fg);box-shadow:inset 0 -2px 0 var(--ac)}
+.card{margin:0;border-radius:var(--r)}.card h2{font-size:.95rem;margin:0 0 6px}
+.n{width:1.3rem;height:1.3rem;font-size:.72rem}
+textarea,select,input[type=number],input[type=text]{padding:6px 8px}
+button{padding:6px 12px}button.big{padding:8px 18px;font-size:1rem}
+label.chk{margin:5px 0}.fld>span{margin-bottom:2px}
+#lk textarea{min-height:60px}
+#bar{padding:7px 12px;margin:0 -12px}#bar .in{gap:8px}
+footer{margin:2px 0 3px;font-size:.7rem}
+#main{padding-right:2px}
+.tw table td,.tw table th{padding-top:4px;padding-bottom:4px}
+.tabs button,header button{white-space:nowrap}header select{min-width:0}@media(max-width:700px){h1{display:none}header{gap:6px}.tabs{margin-left:0}.tabs button{padding:6px 8px}header select{max-width:96px}}
