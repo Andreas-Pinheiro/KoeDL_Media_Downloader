@@ -1,0 +1,21 @@
+{
+  "name": "KoeDL",
+  "version": "3.9",
+  "outputs": {
+    "main": "KoeDL.bat",
+    "legacy": "Media-Downloader.bat"
+  },
+  "parts": [
+    "src/launcher/boot.cmd",
+    "src/backend/00-bootstrap.ps1",
+    "src/backend/10-lib.ps1",
+    "src/backend/20-deps.ps1",
+    "src/backend/30-exe-builder.ps1",
+    "src/backend/40-download.ps1",
+    "src/backend/50-playlist.ps1",
+    "src/backend/60-linkcheck.ps1",
+    "src/backend/65-ui-page.ps1",
+    "src/backend/70-window.ps1",
+    "src/backend/90-main.ps1"
+  ]
+}

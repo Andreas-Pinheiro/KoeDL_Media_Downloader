@@ -1,0 +1,133 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>KoeDL</title>
+<link id="fav" rel="icon" href="">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+@@INCLUDE_DIR:src/ui/css@@
+</style></head><body data-tab="links"><div class="wrap">
+<header><img id="logo" alt="KoeDL"><img id="brand" alt="KoeDL"><div class="tabs"><button id="t_links" class="on" onclick="tab('links')" data-t="t_links"></button><button id="t_q" onclick="tab('q')"><span data-t="t_q"></span><i id="qn" class="qn"></i></button><button id="t_cfg" onclick="tab('cfg')" data-t="t_cfg"></button><button id="t_sup" onclick="tab('sup')" data-t="t_sup"></button></div><div class="sp"></div>
+<label class="fld nf" style="min-width:0"><span data-t="lang"></span><select id="lang"><option value="en">English</option><option value="pt">Português</option></select></label>
+<button id="qbtn" class="s nf" onclick="if(confirm(t('quit_q')))api('quit',{})" data-t="quit"></button></header>
+<div class="sub"><span data-t="sub"></span> <span id="ver"></span></div>
+<div id="banner"></div>
+<div id="updb" class="hide"><b>⬆</b><span id="updt"></span><span class="grow"></span><button class="nf" id="updgo" data-t="upd_go"></button><button class="s nf" id="updlater" data-t="upd_later"></button></div>
+
+
+<div id="main">
+<div id="p_links" class="pane on">
+<div id="colL">
+<div class="card" id="lk"><h2><span class="n">1</span><span data-t="s1_links"></span></h2>
+<textarea id="urls" data-ph="urlsph"></textarea>
+<div class="row" style="margin-top:8px;align-items:center"><button class="s nf k-search" onclick="chk()" data-t="chk"></button><span id="ck" class="mu"></span></div></div>
+<div id="s2" class="card"><h2><span class="n">2</span><span data-t="s2"></span></h2>
+<div id="kindbox" style="margin-bottom:10px"><div class="seg">
+<label><input type="radio" name="kind" value="a" checked><span data-t="ka"></span></label>
+<label><input type="radio" name="kind" value="v"><span data-t="kv"></span></label></div></div>
+<div id="gA" class="row"><label class="fld"><span data-t="afmt"></span><select id="afmt"><option value="mp3" data-t="f_mp3"></option><option value="m4a" data-t="f_m4a"></option><option value="opus">Opus</option><option value="flac" data-t="f_flac"></option><option value="wav" data-t="f_wav"></option></select></label>
+<label class="fld"><span data-t="aq"></span><select id="aq"><option value="0" data-t="q_best"></option><option value="320K" data-t="q_high"></option><option value="192K" data-t="q_mid"></option><option value="128K" data-t="q_low"></option></select></label></div>
+<div id="gV" class="row"><label class="fld"><span data-t="vq"></span><select id="vq"><option value="best" data-t="q_best"></option><option value="1080">1080p (Full HD)</option><option value="720">720p (HD)</option><option value="480">480p</option><option value="360">360p</option></select></label>
+<label class="fld"><span data-t="vcont"></span><select id="vcont"><option value="mp4" data-t="mp4o"></option><option value="mkv" data-t="mkvo"></option></select></label></div>
+<div class="mu" style="margin-top:6px" data-t="qnote"></div>
+<details><summary data-t="more"></summary>
+<label class="fld"><span data-t="plm"></span><select id="plmode"><option value="name" data-t="plm1"></option><option value="new" data-t="plm2"></option><option value="none" data-t="plm3"></option></select></label>
+<label class="chk"><input type="checkbox" id="num"><div><span data-t="num"></span></div></label>
+<label class="chk" id="rowBatch"><input type="checkbox" id="batch"><div><span data-t="batch"></span></div></label>
+<label class="chk" id="rowSplit"><input type="checkbox" id="splitType"><div><span data-t="split"></span></div></label>
+<div id="rowRange" class="row"><label class="fld"><span data-t="from"></span><input type="number" id="st" min="0" placeholder="1"></label><label class="fld"><span data-t="to"></span><input type="number" id="en" min="0" data-ph="all"></label></div>
+<label class="chk" id="rowNoPl"><input type="checkbox" id="noPl"><div><span data-t="nopl"></span></div></label>
+</details></div>
+</div>
+<div id="colR">
+<div class="card"><h2><span data-t="s1_pick"></span></h2>
+<div class="row"><div style="flex:4"><input type="text" id="plurl" data-ph="plph"></div>
+<button class="nf" id="plbtn" onclick="plLoad()" data-t="plload"></button><button class="s nf" onclick="api('pl/stop',{})" data-t="stop"></button></div>
+<div id="plinfo" class="mu" style="margin:8px 0" data-t="plhint"></div>
+<div class="row" style="align-items:center"><span class="nf"><button class="s" onclick="mark(1)" data-t="selall"></button> <button class="s" onclick="mark(0)" data-t="selnone"></button> <button class="s" onclick="mark(2)" data-t="selinv"></button></span>
+<input type="text" id="plfilter" data-ph="filt" oninput="render()"></div>
+<div style="margin:10px 0"><span class="mu" data-t="as"></span><br><div class="seg" style="margin-top:4px">
+<label><input type="radio" name="pm" value="a" checked><span data-t="pm_a"></span></label>
+<label><input type="radio" name="pm" value="v"><span data-t="pm_v"></span></label>
+<label><input type="radio" name="pm" value="m"><span data-t="pm_m"></span></label></div></div>
+<div class="tw"><table><thead><tr><th></th><th class="num">#</th><th data-t="th_title"></th><th data-t="th_ch"></th><th data-t="th_dur"></th><th data-t="th_type"></th></tr></thead><tbody id="tb"></tbody></table></div></div>
+</div>
+</div>
+
+<div id="p_q" class="pane"><div id="qcol"><div class="card" id="qcard"><h2><span data-t="q_h"></span><span class="grow"></span><button class="s" id="qpause" onclick="qPause()"></button><button class="s" id="qclr" onclick="qClear()" data-t="q_clearfin"></button></h2><div id="qlist" class="lst"></div></div>
+<div class="card" id="hcard"><h2><span data-t="h_hist"></span><span class="grow"></span><button class="s" id="hclr" onclick="hClear()" data-t="h_clear"></button></h2><div id="hlist" class="lst"></div></div></div></div>
+
+<div id="p_sup" class="pane">
+<div class="card sup"><div class="sup-art" id="supArt"><div class="sup-glow"></div><img id="im_heart" class="on" alt=""><img id="im_coins" alt=""><img id="im_cheer" alt=""><span class="spk k1">✦</span><span class="spk k2">✦</span><span class="spk k3">✦</span></div>
+<div class="sup-body"><h2 data-t="sup_h"></h2><p data-t="sup_p"></p>
+<div class="sup-act" id="supDon"></div>
+<div class="sup-pix" id="supPix" hidden><img id="pixQr" alt="QR Pix"><div class="pix-b"><b data-t="sup_pix_h"></b><small data-t="sup_pix_s"></small><button id="pixCp" data-t="sup_pix_cp"></button></div></div>
+<div class="sup-tiles"><button class="tile" id="supStar"><b>⭐</b><span data-t="sup_star"></span><small data-t="sup_star_s"></small></button><button class="tile" id="supShare"><b>🔗</b><span data-t="sup_share"></span><small data-t="sup_share_s"></small></button><button class="tile" id="supBug"><b>🐞</b><span data-t="sup_bug"></span><small data-t="sup_bug_s"></small></button></div>
+<p class="mu sup-note" data-t="sup_note"></p><div id="supThx" class="sup-thx"></div></div></div>
+</div>
+<div id="p_cfg" class="pane">
+<nav id="cfgnav"></nav><div id="cfgbody">
+<div class="card"><h2 data-t="h_look"></h2>
+<input type="hidden" id="lookv"><div class="row"><label class="fld"><span data-t="theme"></span><select id="theme"><option value="auto" data-t="th_auto"></option><option value="light" data-t="th_light"></option><option value="dark" data-t="th_dark"></option><option value="neon" selected data-t="th_neon"></option><option value="midnight" data-t="th_midnight"></option><option value="sakura" data-t="th_sakura"></option><option value="forest" data-t="th_forest"></option></select></label>
+<label class="fld"><span data-t="fsize"></span><select id="fsize"><option value="s" data-t="fs_s"></option><option value="m" selected data-t="fs_m"></option><option value="l" data-t="fs_l"></option><option value="xl" data-t="fs_xl"></option></select></label>
+<label class="fld"><span data-t="dens"></span><select id="density"><option value="comfy" data-t="d_comfy"></option><option value="compact" selected data-t="d_compact"></option></select></label>
+<label class="fld"><span data-t="corner"></span><select id="corner"><option value="round" data-t="c_round"></option><option value="square" data-t="c_square"></option></select></label>
+<label class="fld"><span data-t="cursor"></span><select id="curmode"><option value="default" data-t="cur_def"></option><option value="pack" selected data-t="cur_girl"></option><option value="custom" data-t="cur_custom"></option></select></label></div>
+<div class="row hide" id="curanimrow" style="margin-top:8px"><label class="fld" style="max-width:360px"><span data-t="cur_anim"></span><select id="curanim"><option value="off" data-t="ca_off"></option><option value="glow" data-t="ca_glow"></option><option value="full" selected data-t="ca_full"></option></select></label></div>
+<div class="row hide" id="cursz" style="margin-top:8px"><label class="fld" style="max-width:260px"><span data-t="cur_size"></span><select id="curpx2"><option value="24" data-t="cs_xs"></option><option value="32" selected data-t="cs_s"></option><option value="48" data-t="cs_m"></option><option value="64" data-t="cs_l"></option></select></label></div>
+<div class="row hide" id="curpick" style="margin-top:8px;align-items:center"><button class="s nf" onclick="$('curfile').click()" data-t="cur_pick"></button><input type="file" id="curfile" accept="image/png,image/jpeg,image/webp,image/gif" class="hide"><span class="mu" data-t="cur_note"></span></div>
+<div style="margin-top:10px"><span class="mu" data-t="accent"></span><div class="sw" id="sw" style="margin-top:6px">
+<button data-c="#0e7490" title="Cyan"></button><button data-c="#7c3aed" title="Violet"></button><button data-c="#be185d" title="Pink"></button><button data-c="#15803d" title="Green"></button><button data-c="#c2410c" title="Orange"></button><button data-c="#b91c1c" title="Red"></button>
+<input type="color" id="accent" value="#7c3aed" title="Custom"><button class="s" style="width:auto;height:auto;border-radius:8px;padding:6px 10px" onclick="resetLook()" data-t="reset_look"></button></div></div></div>
+
+<div class="card"><h2 data-t="h_where"></h2>
+<label class="fld"><span data-t="dldir"></span><input type="text" id="dlDir" placeholder="C:\Users\you\Music"></label>
+<label class="fld" style="margin-top:10px"><span data-t="openm"></span><select id="openMode"><option value="app" data-t="openm_a"></option><option value="browser" data-t="openm_b"></option></select></label>
+<div class="row" style="margin-top:10px"><button class="s nf" onclick="shortcuts()" data-t="shortc"></button><button class="s nf" onclick="api('open',{what:'bin'})" data-t="openbin"></button></div></div>
+
+<div class="card"><h2 data-t="h_dl"></h2>
+<div class="row"><label class="fld"><span data-t="rate"></span><select id="rate"><option value="" data-t="rate_0"></option><option value="500K">500 KB/s</option><option value="1M">1 MB/s</option><option value="2M">2 MB/s</option><option value="5M">5 MB/s</option><option value="10M">10 MB/s</option></select></label>
+<label class="fld"><span data-t="frag"></span><select id="frag"><option value="1">1</option><option value="2">2</option><option value="4" selected>4</option><option value="8">8</option></select></label></div>
+<div class="mu" data-t="frag_s"></div>
+<div class="row"><label class="fld"><span data-t="dirA"></span><input type="text" id="dirAudio"></label><label class="fld"><span data-t="dirV"></span><input type="text" id="dirVideo"></label></div>
+<label class="chk"><input type="checkbox" id="notif" checked><span data-t="notif"></span></label>
+<label class="chk"><input type="checkbox" id="autoclip" checked><span data-t="autoclip"></span></label>
+<div class="row"><label class="fld"><span data-t="after"></span><select id="after"><option value="none" data-t="after_0"></option><option value="quit" data-t="after_q"></option><option value="off" data-t="after_o"></option></select></label></div></div>
+<div class="card"><h2 data-t="h_behav"></h2>
+<label class="chk"><input type="checkbox" id="selfUpd" checked><div><span data-t="selfupd"></span></div></label>
+<label class="chk"><input type="checkbox" id="meta" checked><div><span data-t="meta"></span></div></label>
+<label class="chk"><input type="checkbox" id="safe" checked><div><span data-t="safe"></span></div></label>
+<label class="chk"><input type="checkbox" id="alt" checked><div><span data-t="alt"></span></div></label>
+<label class="chk"><input type="checkbox" id="addId"><div><span data-t="addid"></span></div></label>
+<label class="chk"><input type="checkbox" id="reset"><div><span data-t="reset"></span></div></label></div>
+
+<div class="card"><h2 data-t="h_acc"></h2>
+<div class="mu" data-t="accnote"></div>
+<div class="row" style="margin-top:8px">
+<label class="chk nf"><input type="checkbox" class="br" value="firefox" checked><div>Firefox</div></label>
+<label class="chk nf"><input type="checkbox" class="br" value="edge" checked><div>Edge</div></label>
+<label class="chk nf"><input type="checkbox" class="br" value="chrome" checked><div>Chrome</div></label>
+<label class="chk nf"><input type="checkbox" class="br" value="brave"><div>Brave</div></label>
+<label class="chk nf"><input type="checkbox" class="br" value="opera"><div>Opera</div></label>
+<label class="chk nf"><input type="checkbox" class="br" value="vivaldi"><div>Vivaldi</div></label></div>
+<label class="chk"><input type="checkbox" id="nock"><div><span data-t="nock"></span></div></label>
+<label class="fld" style="max-width:380px"><span data-t="wait"></span><input type="number" id="wait" value="15" min="0"></label>
+<div class="mu" style="margin-top:6px" data-t="cknote"></div></div>
+
+<div class="card"><h2 data-t="h_upd"></h2>
+<label class="fld" style="max-width:380px"><span data-t="chan"></span><select id="chan"><option value="stable" data-t="chan_s"></option><option value="nightly" data-t="chan_n"></option></select></label>
+<div class="row" style="margin-top:10px"><button class="s nf k-reload" id="chkbtn" onclick="chkUpd()" data-t="chkupd"></button><button class="s nf k-reload" onclick="upd()" data-t="updall"></button></div>
+<div class="mu" id="chkmsg" style="margin-top:6px"></div>
+<div class="mu" style="margin-top:6px" data-t="updnote"></div></div>
+</div>
+</div>
+
+<details id="dt" class="card"><summary data-t="details"></summary><div id="cur2" class="mu"></div><pre id="log"></pre><div id="alts"></div><div id="fails"></div></details>
+</div>
+<footer>KoeDL · by <a data-href="https://github.com/Andreas-Pinheiro" role="link" tabindex="0" style="cursor:pointer;text-decoration:underline">Andreas-Pinheiro</a><span id="appver"></span></footer>
+
+<div id="rs" hidden><span id="rst"></span><button class="s" id="rsgo" onclick="rsGo()" data-t="rs_go"></button><button class="s" id="rsx" onclick="rsDrop()" data-t="rs_drop"></button></div>
+<div id="cd" hidden><span id="cdt"></span><button class="s" id="cdx" onclick="cdCancel()" data-t="cd_cancel"></button></div>
+<div id="bar"><div class="in"><div class="st"><b id="stline"></b><progress id="bar2" max="100" value="0"></progress><div id="cur"></div></div>
+<button id="gop" class="big alt" onclick="go('pick')"></button><button id="go" class="big" onclick="go()"></button><button id="stopb" class="s" onclick="stopQ()" data-t="stop"></button><button class="s k-open" onclick="api('open',{what:'dl'})" data-t="openfolder"></button></div></div>
+</div>
+<script>
+@@INCLUDE_DIR:src/ui/js@@
+</script></body></html>
