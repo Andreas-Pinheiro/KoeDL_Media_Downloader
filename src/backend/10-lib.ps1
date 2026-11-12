@@ -3,6 +3,12 @@ $lib=@'
 function J{ [IO.Path]::Combine([string[]]$args) }
 function Tr($pt,$en){ if($S.lang -eq 'pt'){ return $pt }else{ return $en } }
 function L($m){ [void]$S.log.Add([string]$m); if($S.log.Count -gt 600){ $S.log.RemoveRange(0,100) } }
+function ErrTxt($ctx,$e){
+ # Loga o detalhe tecnico e devolve uma frase amigavel para a interface.
+ $d=''; try{ if($e){ $d="$($e.Exception.Message)"; if($e.ScriptStackTrace){ $d="$d | $($e.ScriptStackTrace -replace "`r?`n",' <- ')" } } }catch{}
+ if($d){ L "[erro] ${ctx}: $d" }
+ if($S){ $S.lastErr="${ctx}: $d" }
+ return (Tr "Nao consegui $ctx. Tente de novo em instantes; se continuar, veja o log em Detalhes." "Could not $ctx. Please try again in a moment; if it keeps happening, check the log under Details.") }
 function IntOf($v){ $i=0; if([int]::TryParse("$v",[ref]$i)){ return $i } ; return 0 }
 function Sanit($s){ $r=(("$s" -replace '[\\/:*?"<>|]','_') -replace '%','%%').Trim().TrimEnd('.'); if(-not $r){ $r='Playlist' }; return $r }
 function Md5($t){ ([BitConverter]::ToString([Security.Cryptography.MD5]::Create().ComputeHash([Text.Encoding]::UTF8.GetBytes($t))) -replace '-','') }
@@ -41,28 +47,64 @@ function UpdYt{ $ch=$S.chan; if(-not $ch){ $ch='stable' }
 function Make-Shortcuts($only){
  if(-not $S.win){ return (Tr 'So funciona no Windows.' 'Windows only.') }
  $exe=J $S.dir 'KoeDL.exe'; $target=$S.self; if(Test-Path $exe){ $target=$exe }
- $icon=''; try{ $f=J $S.bin 'app.ico'; [IO.File]::WriteAllBytes($f,[Convert]::FromBase64String($S.icoB64)); $icon="$f,0" }catch{}
+ $icon=''; try{ $f=J $S.bin 'app.ico'; [IO.File]::WriteAllBytes($f,[Convert]::FromBase64String($S.icoB64)); $icon="$f,0" }catch{ L "[atalho] icone: $($_.Exception.Message)" }
  $ws=New-Object -ComObject WScript.Shell; $made=@()
  foreach($loc in @([Environment]::GetFolderPath('Desktop'),[Environment]::GetFolderPath('Programs'))){
   $p=J $loc 'KoeDL.lnk'; $oldp=J $loc 'Media Downloader.lnk'; $migr=(Test-Path $oldp); if($migr){ try{ Remove-Item $oldp -Force -ea 0 }catch{} }
   if($only -and -not(Test-Path $p) -and -not $migr){ continue }
-  try{ $l=$ws.CreateShortcut($p); $l.TargetPath=$target; $l.WorkingDirectory=$S.dir; if($icon){ $l.IconLocation=$icon }; $l.Save(); $made+=$loc }catch{} }
+  try{ $l=$ws.CreateShortcut($p); $l.TargetPath=$target; $l.WorkingDirectory=$S.dir; if($icon){ $l.IconLocation=$icon }; $l.Save(); $made+=$loc }catch{ L "[atalho] $loc : $($_.Exception.Message)" } }
  if($made.Count){ return ((Tr 'Atalhos criados/atualizados em:' 'Shortcuts created/updated in:')+"`n"+($made -join "`n")) }
  return (Tr 'Nao consegui criar os atalhos.' 'Could not create the shortcuts.') }
+function GetUpdText([string]$u){
+ $ProgressPreference='SilentlyContinue'
+ $r=Invoke-WebRequest $u -UseBasicParsing -TimeoutSec 40 -Headers @{'User-Agent'='KoeDL'}
+ return [Text.Encoding]::UTF8.GetString($r.RawContentStream.ToArray()) }
+function AddUpdFrom($txt){
+ # Valida o arquivo baixado: precisa ter o marcador e uma versao maior que a atual.
+ $m=[regex]::Match($txt,'APPVER=.([0-9.]+).'); $ix=$txt.LastIndexOf('###'+'PS###')
+ if(-not($m.Success -and $ix -ge 0 -and ([version]$m.Groups[1].Value) -gt ([version]$S.appver))){ return $false }
+ $pl=$txt.Substring($ix+8); $t=$null; $e=$null; [void][Management.Automation.Language.Parser]::ParseInput($pl,[ref]$t,[ref]$e)
+ if($e.Count -ne 0){ $S.chk='err'; L (Tr '(atualizacao do programa ignorada: arquivo invalido)' '(program update ignored: invalid file)'); return $false }
+ $v=$m.Groups[1].Value; $S.updText=$pl; $S.chk='new'
+ if($S.updAvail -ne $v){ $S.updAvail=$v; L (Tr "Ha uma versao nova do programa: $v (voce usa a $($S.appver))." "A new program version is available: $v (you have $($S.appver)).") }
+ return $true }
 function SelfUpdate($force){
  if(-not $S.selfUpd -and -not $force){ return }
- try{ $ProgressPreference='SilentlyContinue'
-  $u=$(if($env:YTDL_UPDURL){ $env:YTDL_UPDURL }else{ 'https://raw.githubusercontent.com/Andreas-Pinheiro/Media-Downloader/main/KoeDL.bat' })
-  $r=Invoke-WebRequest $u -UseBasicParsing -TimeoutSec 40
-  $txt=[Text.Encoding]::UTF8.GetString($r.RawContentStream.ToArray())
-  $m=[regex]::Match($txt,'APPVER=.([0-9.]+).'); $ix=$txt.LastIndexOf('###'+'PS###')
-  if($m.Success -and $ix -ge 0 -and ([version]$m.Groups[1].Value) -gt ([version]$S.appver)){
-   $pl=$txt.Substring($ix+8); $t=$null; $e=$null; [void][Management.Automation.Language.Parser]::ParseInput($pl,[ref]$t,[ref]$e)
-   if($e.Count -eq 0){ $S.updText=$pl; $nv=$m.Groups[1].Value; $S.chk='new'
-    if($S.updAvail -ne $nv){ $S.updAvail=$nv; L (Tr "Ha uma versao nova do programa: $nv (voce usa a $($S.appver))." "A new program version is available: $nv (you have $($S.appver)).") } }
-   else{ $S.chk='err'; L (Tr '(atualizacao do programa ignorada: arquivo invalido)' '(program update ignored: invalid file)') } }
-  elseif($force){ $S.updAvail=''; $S.chk='same'; L (Tr 'O programa ja esta na versao mais recente.' 'The program is already up to date.') }
- }catch{ L (Tr "(nao consegui verificar atualizacoes do programa: $($_.Exception.Message))" "(could not check for program updates: $($_.Exception.Message))") } }
+ try{
+  # URL fixa (testes e forks): compara direto pelo APPVER do arquivo
+  if($env:YTDL_UPDURL){
+   $txt=GetUpdText $env:YTDL_UPDURL
+   if(-not (AddUpdFrom $txt)){ if($force){ $S.updAvail=''; $S.chk='same'; L (Tr 'O programa ja esta na versao mais recente.' 'The program is already up to date.') } }
+   return }
+  # Releases do GitHub: a versao vem da API, o arquivo vem do asset da release (sem ler a branch)
+  $rel=$null; $why=''
+  foreach($repo in 'Andreas-Pinheiro/KoeDL_Media_Downloader','Andreas-Pinheiro/Media-Downloader'){
+   $api=$(if($env:YTDL_UPDAPI){ $env:YTDL_UPDAPI }else{ "https://api.github.com/repos/$repo/releases/latest" })
+   try{ $rel=Invoke-RestMethod $api -TimeoutSec 30 -Headers @{'User-Agent'='KoeDL';'Accept'='application/vnd.github+json'}
+    if($rel -and $rel.tag_name){ break } }
+   catch{ $rel=$null; $why=$_.Exception.Message }
+   if($env:YTDL_UPDAPI){ break } }
+  if(-not $rel){ if($why){ L "[upd] $why" }
+   $S.chk='err'; L (Tr 'Nao consegui consultar as versoes no GitHub. Verifique sua conexao e tente de novo.' 'Could not check the versions on GitHub. Check your connection and try again.'); return }
+  $tag="$($rel.tag_name)".Trim(); $nv=($tag -replace '^[vV]','')
+  if(-not($nv -match '^\d+(\.\d+){1,3}$')){ $S.chk='err'; L (Tr "A release mais recente ($tag) tem um numero de versao que eu nao entendi." "The latest release ($tag) has a version number I could not read."); return }
+  if(([version]$nv) -le ([version]$S.appver)){
+   $S.updAvail=''
+   if($force){ $S.chk='same'; L (Tr 'O programa ja esta na versao mais recente.' 'The program is already up to date.') }
+   return }
+  $urls=@()
+  foreach($a in @($rel.assets)){ if("$($a.name)" -eq 'KoeDL.bat' -and $a.browser_download_url){ $urls+="$($a.browser_download_url)" } }
+  $urls+="https://github.com/Andreas-Pinheiro/KoeDL_Media_Downloader/releases/download/$tag/KoeDL.bat"
+  $urls+="https://github.com/Andreas-Pinheiro/Media-Downloader/releases/download/$tag/KoeDL.bat"
+  foreach($u in $urls){
+   try{ $txt=GetUpdText $u
+    if($txt -match '###'+'PS###'){ if(AddUpdFrom $txt){ return } }
+    $why='conteudo inesperado' }
+   catch{ $why=$_.Exception.Message } }
+  $S.chk='err'
+  L (Tr "A versao $nv existe, mas nao consegui baixar o arquivo dela agora. Tente de novo mais tarde." "Version $nv exists, but its file could not be downloaded right now. Try again later.")
+  if($why){ L "[upd] $why" }
+ }catch{ $S.chk='err'; L (Tr 'Nao consegui verificar atualizacoes do programa agora. Tente de novo mais tarde.' 'Could not check for program updates right now. Try again later.'); L "[upd] $($_.Exception.Message)" } }
 function Run($u,$c,$base,$o,$fl){
  $cfg=Cfg ($base+$c+@($u))
  $p=Spawn $cfg 'pid'; $S.status=(Tr 'Baixando' 'Downloading')

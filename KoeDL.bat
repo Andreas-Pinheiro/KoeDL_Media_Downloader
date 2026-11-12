@@ -22,7 +22,7 @@ $sep=[IO.Path]::PathSeparator
 $env:PATH="$bin$sep$env:PATH"; $env:PYTHONUTF8='1'
 $yt=$(if($env:YTDL_BIN){ $env:YTDL_BIN }elseif($WIN){ [IO.Path]::Combine($bin,'yt-dlp.exe') }else{ [IO.Path]::Combine($bin,'yt-dlp') })
 $settingsFile=[IO.Path]::Combine($bin,'settings.json')
-$APPVER='3.9'
+$APPVER='3.10'
 $updFile=[IO.Path]::Combine($bin,'app.update.ps1')
 if(-not $env:YTDL_OVR -and (Test-Path $updFile)){
  try{ $tx=[IO.File]::ReadAllText($updFile,[Text.Encoding]::UTF8); $mm=[regex]::Match($tx,'APPVER=.([0-9.]+).')
@@ -46,6 +46,12 @@ $lib=@'
 function J{ [IO.Path]::Combine([string[]]$args) }
 function Tr($pt,$en){ if($S.lang -eq 'pt'){ return $pt }else{ return $en } }
 function L($m){ [void]$S.log.Add([string]$m); if($S.log.Count -gt 600){ $S.log.RemoveRange(0,100) } }
+function ErrTxt($ctx,$e){
+ # Loga o detalhe tecnico e devolve uma frase amigavel para a interface.
+ $d=''; try{ if($e){ $d="$($e.Exception.Message)"; if($e.ScriptStackTrace){ $d="$d | $($e.ScriptStackTrace -replace "`r?`n",' <- ')" } } }catch{}
+ if($d){ L "[erro] ${ctx}: $d" }
+ if($S){ $S.lastErr="${ctx}: $d" }
+ return (Tr "Nao consegui $ctx. Tente de novo em instantes; se continuar, veja o log em Detalhes." "Could not $ctx. Please try again in a moment; if it keeps happening, check the log under Details.") }
 function IntOf($v){ $i=0; if([int]::TryParse("$v",[ref]$i)){ return $i } ; return 0 }
 function Sanit($s){ $r=(("$s" -replace '[\\/:*?"<>|]','_') -replace '%','%%').Trim().TrimEnd('.'); if(-not $r){ $r='Playlist' }; return $r }
 function Md5($t){ ([BitConverter]::ToString([Security.Cryptography.MD5]::Create().ComputeHash([Text.Encoding]::UTF8.GetBytes($t))) -replace '-','') }
@@ -84,28 +90,64 @@ function UpdYt{ $ch=$S.chan; if(-not $ch){ $ch='stable' }
 function Make-Shortcuts($only){
  if(-not $S.win){ return (Tr 'So funciona no Windows.' 'Windows only.') }
  $exe=J $S.dir 'KoeDL.exe'; $target=$S.self; if(Test-Path $exe){ $target=$exe }
- $icon=''; try{ $f=J $S.bin 'app.ico'; [IO.File]::WriteAllBytes($f,[Convert]::FromBase64String($S.icoB64)); $icon="$f,0" }catch{}
+ $icon=''; try{ $f=J $S.bin 'app.ico'; [IO.File]::WriteAllBytes($f,[Convert]::FromBase64String($S.icoB64)); $icon="$f,0" }catch{ L "[atalho] icone: $($_.Exception.Message)" }
  $ws=New-Object -ComObject WScript.Shell; $made=@()
  foreach($loc in @([Environment]::GetFolderPath('Desktop'),[Environment]::GetFolderPath('Programs'))){
   $p=J $loc 'KoeDL.lnk'; $oldp=J $loc 'Media Downloader.lnk'; $migr=(Test-Path $oldp); if($migr){ try{ Remove-Item $oldp -Force -ea 0 }catch{} }
   if($only -and -not(Test-Path $p) -and -not $migr){ continue }
-  try{ $l=$ws.CreateShortcut($p); $l.TargetPath=$target; $l.WorkingDirectory=$S.dir; if($icon){ $l.IconLocation=$icon }; $l.Save(); $made+=$loc }catch{} }
+  try{ $l=$ws.CreateShortcut($p); $l.TargetPath=$target; $l.WorkingDirectory=$S.dir; if($icon){ $l.IconLocation=$icon }; $l.Save(); $made+=$loc }catch{ L "[atalho] $loc : $($_.Exception.Message)" } }
  if($made.Count){ return ((Tr 'Atalhos criados/atualizados em:' 'Shortcuts created/updated in:')+"`n"+($made -join "`n")) }
  return (Tr 'Nao consegui criar os atalhos.' 'Could not create the shortcuts.') }
+function GetUpdText([string]$u){
+ $ProgressPreference='SilentlyContinue'
+ $r=Invoke-WebRequest $u -UseBasicParsing -TimeoutSec 40 -Headers @{'User-Agent'='KoeDL'}
+ return [Text.Encoding]::UTF8.GetString($r.RawContentStream.ToArray()) }
+function AddUpdFrom($txt){
+ # Valida o arquivo baixado: precisa ter o marcador e uma versao maior que a atual.
+ $m=[regex]::Match($txt,'APPVER=.([0-9.]+).'); $ix=$txt.LastIndexOf('###'+'PS###')
+ if(-not($m.Success -and $ix -ge 0 -and ([version]$m.Groups[1].Value) -gt ([version]$S.appver))){ return $false }
+ $pl=$txt.Substring($ix+8); $t=$null; $e=$null; [void][Management.Automation.Language.Parser]::ParseInput($pl,[ref]$t,[ref]$e)
+ if($e.Count -ne 0){ $S.chk='err'; L (Tr '(atualizacao do programa ignorada: arquivo invalido)' '(program update ignored: invalid file)'); return $false }
+ $v=$m.Groups[1].Value; $S.updText=$pl; $S.chk='new'
+ if($S.updAvail -ne $v){ $S.updAvail=$v; L (Tr "Ha uma versao nova do programa: $v (voce usa a $($S.appver))." "A new program version is available: $v (you have $($S.appver)).") }
+ return $true }
 function SelfUpdate($force){
  if(-not $S.selfUpd -and -not $force){ return }
- try{ $ProgressPreference='SilentlyContinue'
-  $u=$(if($env:YTDL_UPDURL){ $env:YTDL_UPDURL }else{ 'https://raw.githubusercontent.com/Andreas-Pinheiro/Media-Downloader/main/KoeDL.bat' })
-  $r=Invoke-WebRequest $u -UseBasicParsing -TimeoutSec 40
-  $txt=[Text.Encoding]::UTF8.GetString($r.RawContentStream.ToArray())
-  $m=[regex]::Match($txt,'APPVER=.([0-9.]+).'); $ix=$txt.LastIndexOf('###'+'PS###')
-  if($m.Success -and $ix -ge 0 -and ([version]$m.Groups[1].Value) -gt ([version]$S.appver)){
-   $pl=$txt.Substring($ix+8); $t=$null; $e=$null; [void][Management.Automation.Language.Parser]::ParseInput($pl,[ref]$t,[ref]$e)
-   if($e.Count -eq 0){ $S.updText=$pl; $nv=$m.Groups[1].Value; $S.chk='new'
-    if($S.updAvail -ne $nv){ $S.updAvail=$nv; L (Tr "Ha uma versao nova do programa: $nv (voce usa a $($S.appver))." "A new program version is available: $nv (you have $($S.appver)).") } }
-   else{ $S.chk='err'; L (Tr '(atualizacao do programa ignorada: arquivo invalido)' '(program update ignored: invalid file)') } }
-  elseif($force){ $S.updAvail=''; $S.chk='same'; L (Tr 'O programa ja esta na versao mais recente.' 'The program is already up to date.') }
- }catch{ L (Tr "(nao consegui verificar atualizacoes do programa: $($_.Exception.Message))" "(could not check for program updates: $($_.Exception.Message))") } }
+ try{
+  # URL fixa (testes e forks): compara direto pelo APPVER do arquivo
+  if($env:YTDL_UPDURL){
+   $txt=GetUpdText $env:YTDL_UPDURL
+   if(-not (AddUpdFrom $txt)){ if($force){ $S.updAvail=''; $S.chk='same'; L (Tr 'O programa ja esta na versao mais recente.' 'The program is already up to date.') } }
+   return }
+  # Releases do GitHub: a versao vem da API, o arquivo vem do asset da release (sem ler a branch)
+  $rel=$null; $why=''
+  foreach($repo in 'Andreas-Pinheiro/KoeDL_Media_Downloader','Andreas-Pinheiro/Media-Downloader'){
+   $api=$(if($env:YTDL_UPDAPI){ $env:YTDL_UPDAPI }else{ "https://api.github.com/repos/$repo/releases/latest" })
+   try{ $rel=Invoke-RestMethod $api -TimeoutSec 30 -Headers @{'User-Agent'='KoeDL';'Accept'='application/vnd.github+json'}
+    if($rel -and $rel.tag_name){ break } }
+   catch{ $rel=$null; $why=$_.Exception.Message }
+   if($env:YTDL_UPDAPI){ break } }
+  if(-not $rel){ if($why){ L "[upd] $why" }
+   $S.chk='err'; L (Tr 'Nao consegui consultar as versoes no GitHub. Verifique sua conexao e tente de novo.' 'Could not check the versions on GitHub. Check your connection and try again.'); return }
+  $tag="$($rel.tag_name)".Trim(); $nv=($tag -replace '^[vV]','')
+  if(-not($nv -match '^\d+(\.\d+){1,3}$')){ $S.chk='err'; L (Tr "A release mais recente ($tag) tem um numero de versao que eu nao entendi." "The latest release ($tag) has a version number I could not read."); return }
+  if(([version]$nv) -le ([version]$S.appver)){
+   $S.updAvail=''
+   if($force){ $S.chk='same'; L (Tr 'O programa ja esta na versao mais recente.' 'The program is already up to date.') }
+   return }
+  $urls=@()
+  foreach($a in @($rel.assets)){ if("$($a.name)" -eq 'KoeDL.bat' -and $a.browser_download_url){ $urls+="$($a.browser_download_url)" } }
+  $urls+="https://github.com/Andreas-Pinheiro/KoeDL_Media_Downloader/releases/download/$tag/KoeDL.bat"
+  $urls+="https://github.com/Andreas-Pinheiro/Media-Downloader/releases/download/$tag/KoeDL.bat"
+  foreach($u in $urls){
+   try{ $txt=GetUpdText $u
+    if($txt -match '###'+'PS###'){ if(AddUpdFrom $txt){ return } }
+    $why='conteudo inesperado' }
+   catch{ $why=$_.Exception.Message } }
+  $S.chk='err'
+  L (Tr "A versao $nv existe, mas nao consegui baixar o arquivo dela agora. Tente de novo mais tarde." "Version $nv exists, but its file could not be downloaded right now. Try again later.")
+  if($why){ L "[upd] $why" }
+ }catch{ $S.chk='err'; L (Tr 'Nao consegui verificar atualizacoes do programa agora. Tente de novo mais tarde.' 'Could not check for program updates right now. Try again later.'); L "[upd] $($_.Exception.Message)" } }
 function Run($u,$c,$base,$o,$fl){
  $cfg=Cfg ($base+$c+@($u))
  $p=Spawn $cfg 'pid'; $S.status=(Tr 'Baixando' 'Downloading')
@@ -2446,7 +2488,7 @@ applyCursor();
 '@
 function Bg($sb,$a){ $rsp=[runspacefactory]::CreateRunspace(); $rsp.Open(); $p=[powershell]::Create(); $p.Runspace=$rsp
  [void]$p.AddScript($sb.ToString()); foreach($x in $a){ [void]$p.AddArgument($x) }; [void]$p.BeginInvoke() }
-function ReadSettings{ if(Test-Path $settingsFile){ try{ return (Get-Content $settingsFile -Raw -Encoding UTF8|ConvertFrom-Json) }catch{} }; return $null }
+function ReadSettings{ if(Test-Path $settingsFile){ try{ return (Get-Content $settingsFile -Raw -Encoding UTF8|ConvertFrom-Json) }catch{ if(-not $script:warnCfg){ $script:warnCfg=$true; L "[config] nao consegui ler o settings.json: $($_.Exception.Message)" } } }; return $null }
 function GetDl{ $s=ReadSettings; $d=$null; if($s -and $s.dlDir){ $d="$($s.dlDir)".Trim() }
  if(-not $d){ $d=$(if($env:YTDL_INSTALLED){ $(if((-not(Test-Path ([IO.Path]::Combine($env:USERPROFILE,'Downloads','KoeDL')))) -and (Test-Path ([IO.Path]::Combine($env:USERPROFILE,'Downloads','Media Downloader')))){ [IO.Path]::Combine($env:USERPROFILE,'Downloads','Media Downloader') }else{ [IO.Path]::Combine($env:USERPROFILE,'Downloads','KoeDL') }) }else{ [IO.Path]::Combine($dir,'Downloads') }) }
  try{ New-Item -ItemType Directory -Force $d | Out-Null }catch{ $d=[IO.Path]::Combine($dir,'Downloads'); New-Item -ItemType Directory -Force $d | Out-Null }
@@ -2531,13 +2573,13 @@ if($self -and $self -match '\.(bat|ps1|cmd)$' -and (Test-Path $self) -and -not $
  $S.payload=$(if($ix -ge 0){ $raw.Substring($ix+8) }else{ $raw }) }
 elseif($env:YTDL_EXE){
  # Rodando pelo .exe: o titulo, a bandeja e o icone ficam dentro do .exe, entao o .exe precisa ser refeito quando o programa atualiza.
- try{ $pf=$(if($env:YTDL_OVR -and (Test-Path $updFile)){ $updFile }else{ [IO.Path]::Combine($bin,'app.ps1') }); if(Test-Path $pf){ $S.payload=[IO.File]::ReadAllText($pf,[Text.Encoding]::UTF8) } }catch{} }
+ try{ $pf=$(if($env:YTDL_OVR -and (Test-Path $updFile)){ $updFile }else{ [IO.Path]::Combine($bin,'app.ps1') }); if(Test-Path $pf){ $S.payload=[IO.File]::ReadAllText($pf,[Text.Encoding]::UTF8) } }catch{ L "[app] nao consegui ler o codigo do .exe: $($_.Exception.Message)" } }
 Bg $prepSb @($S,$lib,$false)
 if(($WIN -and -not $TEST) -or $env:YTDL_WV2TEST){ Bg $wv2Sb @($S,$lib) }
 if(-not $TEST){ Bg $schedSb @($S,$lib,$prepSb.ToString()) }
 $lst=$null; $port=8765
 while($port -lt 8790){ $l=New-Object Net.HttpListener; $l.Prefixes.Add("http://127.0.0.1:$port/"); try{ $l.Start(); $lst=$l; break }catch{ $port++ } }
-if(-not $lst){ Write-Host 'ERROR: no free port (8765-8789) / nenhuma porta livre.'; return }
+if(-not $lst){ Write-Host (Tr 'Nao encontrei uma porta livre para a interface (8765-8789). Feche outras copias do KoeDL e abra de novo.' 'Could not find a free port for the interface (8765-8789). Close other KoeDL copies and open it again.'); return }
 [IO.File]::WriteAllText([IO.Path]::Combine($bin,'port.txt'),"$port")
 Write-Host "Ready! Opening http://127.0.0.1:$port/"
 if($S.payload -and -not $TEST -and $WIN){ Bg $exeSb @($S,$lib,$cs,$csBasic,$setupCs); Write-Host '(building/updating KoeDL.exe in the background)' }
@@ -2560,7 +2602,7 @@ while($lst.IsListening){
    switch($path){
     '/api/status'{ $out=@{appver=$S.appver;updavail="$($S.updAvail)";chk="$($S.chk)";running=$S.running;ready=$S.ready;prep=$S.prep;note=$S.note;ver=$S.ver;status=$S.status;pct=$S.pct;speed=$S.speed;eta=$S.eta;item=$S.item;cur=$S.cur;browser=$S.browser;done=$S.done;total=$S.total;
        files=@($S.files.ToArray()|Select-Object -First 60);nfiles=$S.files.Count;log=@($S.log.ToArray()|Select-Object -Last 90);fails=@($S.fails.ToArray());alts=@($S.alts.ToArray())}|ConvertTo-Json -Depth 4 -Compress }
-    '/api/settings'{ if($rq.HttpMethod -eq 'POST'){ try{ $null=$body|ConvertFrom-Json; [IO.File]::WriteAllText($settingsFile,$body,(New-Object Text.UTF8Encoding $false)); $sj=$body|ConvertFrom-Json; if($sj.chan){ $S.chan="$($sj.chan)" }; $S.lang=$(if($sj.lang -eq 'pt'){ 'pt' }else{ 'en' }); if($sj.PSObject.Properties['selfUpd']){ $S.selfUpd=[bool]$sj.selfUpd } }catch{} }
+    '/api/settings'{ if($rq.HttpMethod -eq 'POST'){ try{ $null=$body|ConvertFrom-Json; [IO.File]::WriteAllText($settingsFile,$body,(New-Object Text.UTF8Encoding $false)); $sj=$body|ConvertFrom-Json; if($sj.chan){ $S.chan="$($sj.chan)" }; $S.lang=$(if($sj.lang -eq 'pt'){ 'pt' }else{ 'en' }); if($sj.PSObject.Properties['selfUpd']){ $S.selfUpd=[bool]$sj.selfUpd } }catch{ L "[config] nao consegui salvar o settings.json: $($_.Exception.Message)" } }
        else{ if(Test-Path $settingsFile){ $out=[IO.File]::ReadAllText($settingsFile,[Text.Encoding]::UTF8) } } }
     '/api/start'{
      if($S.running){ $out=@{error=(Tr 'Ja existe um download em andamento.' 'A download is already running.')}|ConvertTo-Json -Compress }
@@ -2574,23 +2616,23 @@ while($lst.IsListening){
     '/api/pl'{ $f=0; [void][int]::TryParse($rq.QueryString['from'],[ref]$f); $all=@($PL.items.ToArray()); $sl=@(); if($f -lt $all.Count){ $sl=@($all[$f..($all.Count-1)]) }
        $out=@{items=$sl;total=$all.Count;title="$($PL.title)";busy=[bool]$PL.busy;err="$($PL.err)"}|ConvertTo-Json -Depth 4 -Compress }
     '/api/pl/stop'{ $PL.stop=$true; KillTree $S.lpid }
-    '/api/chkupd'{ if($S.chk -ne 'run'){ $S.chk='run'; Bg { param($S,$lib) . ([scriptblock]::Create($lib)); try{ SelfUpdate $true }catch{}; if($S.chk -eq 'run'){ $S.chk='err' } } @($S,$lib) } }
+    '/api/chkupd'{ if($S.chk -ne 'run'){ $S.chk='run'; Bg { param($S,$lib) . ([scriptblock]::Create($lib)); try{ SelfUpdate $true }catch{ L "[upd] $($_.Exception.Message)" }; if($S.chk -eq 'run'){ $S.chk='err' } } @($S,$lib) } }
     '/api/update'{ if($S.running){ $out=@{error=(Tr 'Espere o download terminar para atualizar.' 'Wait for the download to finish before updating.')}|ConvertTo-Json -Compress }else{ Bg $prepSb @($S,$lib,$true) } }
-    '/api/winsize'{ try{ $o=$body|ConvertFrom-Json; if($o.w -ge 600 -and $o.h -ge 500){ Set-Content ([IO.Path]::Combine($bin,'win.txt')) "$([int]$o.x),$([int]$o.y),$([int]$o.w),$([int]$o.h),0" } }catch{} }
+    '/api/winsize'{ try{ $o=$body|ConvertFrom-Json; if($o.w -ge 600 -and $o.h -ge 500){ Set-Content ([IO.Path]::Combine($bin,'win.txt')) "$([int]$o.x),$([int]$o.y),$([int]$o.w),$([int]$o.h),0" } }catch{ L "[janela] nao consegui guardar o tamanho: $($_.Exception.Message)" } }
     '/api/clip'{ $ct=''; try{ if($WIN -and -not $TEST){ $ps=New-Object Diagnostics.ProcessStartInfo 'powershell.exe'; $ps.Arguments='-NoProfile -STA -Command "[Console]::OutputEncoding=[Text.Encoding]::UTF8; Add-Type -AssemblyName System.Windows.Forms; [Windows.Forms.Clipboard]::GetText()"'; $ps.UseShellExecute=$false; $ps.CreateNoWindow=$true; $ps.RedirectStandardOutput=$true; $pr=[Diagnostics.Process]::Start($ps); $cx=$pr.StandardOutput.ReadToEnd(); [void]$pr.WaitForExit(4000); $cx=$cx.Trim(); if($cx -match '^https?://\S+$' -and $cx.Length -lt 2000){ $ct=$cx } } }catch{}; $out=@{text=$ct}|ConvertTo-Json -Compress }
     '/api/openurl'{ try{ $u="$(($body|ConvertFrom-Json).url)"; if($u -match '^https://[^\s"]+$' -and $WIN -and -not $TEST){ Start-Process $u } }catch{} }
     '/api/history'{ $hf=J $bin 'history.json'
       if($rq.HttpMethod -eq 'POST'){ try{ $hb=$body|ConvertFrom-Json; $cur=@(); if(Test-Path $hf){ try{ $cur=@(Get-Content $hf -Raw -Encoding UTF8|ConvertFrom-Json) }catch{} }
          if($hb.clear){ $cur=@() }else{ $cur=@($hb.entry)+$cur }
-         $cur=@($cur|Select-Object -First 300); [IO.File]::WriteAllText($hf,(ConvertTo-Json -InputObject @($cur) -Depth 5),(New-Object Text.UTF8Encoding $false)); $out='{"ok":true}' }catch{ $out=@{error="$($_.Exception.Message)"}|ConvertTo-Json -Compress } }
+         $cur=@($cur|Select-Object -First 300); [IO.File]::WriteAllText($hf,(ConvertTo-Json -InputObject @($cur) -Depth 5),(New-Object Text.UTF8Encoding $false)); $out='{"ok":true}' }catch{ $out=@{error=(ErrTxt (Tr 'salvar o historico' 'save the history') $_)}|ConvertTo-Json -Compress } }
       else{ if(Test-Path $hf){ $out=[IO.File]::ReadAllText($hf,[Text.Encoding]::UTF8) }else{ $out='[]' } } }
     '/api/queue'{ $qf=J $bin 'queue.json'
-      if($rq.HttpMethod -eq 'POST'){ try{ if($body.Length -gt 2000000){ throw 'too big' }; $null=$body|ConvertFrom-Json; [IO.File]::WriteAllText($qf,$body,(New-Object Text.UTF8Encoding $false)); $out='{"ok":true}' }catch{ $out=@{error="$($_.Exception.Message)"}|ConvertTo-Json -Compress } }
+      if($rq.HttpMethod -eq 'POST'){ try{ if($body.Length -gt 2000000){ throw 'fila grande demais' }; $null=$body|ConvertFrom-Json; [IO.File]::WriteAllText($qf,$body,(New-Object Text.UTF8Encoding $false)); $out='{"ok":true}' }catch{ $out=@{error=(ErrTxt (Tr 'salvar a fila' 'save the queue') $_)}|ConvertTo-Json -Compress } }
       else{ if(Test-Path $qf){ $out=[IO.File]::ReadAllText($qf,[Text.Encoding]::UTF8) }else{ $out='[]' } } }
     '/api/openfile'{ try{ $fp="$(($body|ConvertFrom-Json).path)"; $sj=ReadSettings; $roots=@((GetDl)); if($sj){ foreach($k in 'dirAudio','dirVideo'){ if("$($sj.$k)".Trim()){ $roots+="$($sj.$k)".Trim() } } }
         $okp=$false; foreach($r in $roots){ try{ $rr=[IO.Path]::GetFullPath($r).TrimEnd('\','/'); $ff=[IO.Path]::GetFullPath($fp); if($ff.StartsWith($rr+[IO.Path]::DirectorySeparatorChar,[StringComparison]::OrdinalIgnoreCase)){ $okp=$true } }catch{} }
         if($okp -and (Test-Path -LiteralPath $fp) -and $WIN -and -not $TEST){ Start-Process explorer.exe "/select,`"$fp`"" }
-        elseif(-not $okp){ $out=@{error='path outside the download folders'}|ConvertTo-Json -Compress } }catch{} }
+        elseif(-not $okp){ $out=@{error=(Tr 'O arquivo nao esta nas pastas de download.' 'The file is not inside the download folders.')}|ConvertTo-Json -Compress } }catch{ L "[abrir] $($_.Exception.Message)" } }
     '/api/notify'{ try{ $nb=$body|ConvertFrom-Json; if($WIN -and -not $TEST){ Bg {param($t,$m) Add-Type -AssemblyName System.Windows.Forms,System.Drawing; $ni=New-Object Windows.Forms.NotifyIcon; $ni.Icon=[Drawing.SystemIcons]::Information; $ni.Visible=$true; $ni.ShowBalloonTip(6000,$t,$m,[Windows.Forms.ToolTipIcon]::Info); Start-Sleep 8; $ni.Dispose() } @("$($nb.title)","$($nb.text)") } }catch{} }
     '/api/poweroff'{ if($WIN -and -not $TEST -and -not $S.running){ try{ Start-Process shutdown.exe -ArgumentList '/s','/t','8' -WindowStyle Hidden }catch{} } }
     '/api/poweroff/cancel'{ if($WIN -and -not $TEST){ try{ Start-Process shutdown.exe -ArgumentList '/a' -WindowStyle Hidden }catch{} } }
@@ -2599,13 +2641,19 @@ while($lst.IsListening){
       elseif(-not $S.updText){ $out=@{error=(Tr 'Nao ha atualizacao pronta.' 'No update is ready.')}|ConvertTo-Json -Compress }
       else{ try{ [IO.File]::WriteAllText((J $bin 'app.update.ps1'),$S.updText,(New-Object Text.UTF8Encoding $false)); $out=@{ok=$true}|ConvertTo-Json -Compress
         if($WIN -and -not $TEST -and $S.self){ Start-Process cmd.exe -ArgumentList '/c',('ping 127.0.0.1 -n 4 >nul & start "" "'+$S.self+'"') -WindowStyle Hidden
-          $S.stop=$true; $PL.stop=$true; KillTree $S.pid; KillTree $S.lpid; KillTree $S.ipid; $quitSoon=$true } }catch{ $out=@{error="$($_.Exception.Message)"}|ConvertTo-Json -Compress } } }
+          $S.stop=$true; $PL.stop=$true; KillTree $S.pid; KillTree $S.lpid; KillTree $S.ipid; $quitSoon=$true } }catch{ $out=@{error=(ErrTxt (Tr 'aplicar a atualizacao' 'apply the update') $_)}|ConvertTo-Json -Compress } } }
     '/api/quit'{ $S.stop=$true; $PL.stop=$true; KillTree $S.pid; KillTree $S.lpid; KillTree $S.ipid; $lst.Stop() }
    }
   }
   if($lst.IsListening -and $out){ $b=[Text.Encoding]::UTF8.GetBytes($out); $rs.ContentType=$ct; $rs.OutputStream.Write($b,0,$b.Length) }
   if($quitSoon){ try{ $rs.Close() }catch{}; $lst.Stop() }
- }catch{ try{ $rs.StatusCode=500 }catch{} }
+ }catch{
+  # Requisicao abortada pelo navegador/fechamento da janela nao e erro do app: nao poluir o log.
+  $gone=("$($_.Exception.Message)" -match 'disposed|aborted|Connection reset|The remote|Length Required')
+  if(-not $gone){
+   $msg=ErrTxt (Tr 'atender uma requisicao da interface' 'handle an interface request') $_
+   try{ $rs.StatusCode=500; $rs.ContentType='application/json; charset=utf-8'
+    $eb=[Text.Encoding]::UTF8.GetBytes((@{error=$msg}|ConvertTo-Json -Compress)); $rs.OutputStream.Write($eb,0,$eb.Length) }catch{ } } }
  finally{ try{ $rs.Close() }catch{} }
 }
 try{ Remove-Item ([IO.Path]::Combine($bin,'port.txt')) -ea 0 }catch{}
