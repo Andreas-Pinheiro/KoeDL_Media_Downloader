@@ -2,6 +2,10 @@
 
 Formato: versões mais novas primeiro. / Newest versions first.
 
+## 3.13
+**PT:** o aviso de versão nova agora aparece logo que o programa abre, antes de baixar ou atualizar o yt-dlp e o ffmpeg — antes, se essa etapa falhasse ou demorasse, o aviso só aparecia no fim (ou não aparecia).
+**EN:** the new-version notice now shows as soon as the program opens, before downloading or updating yt-dlp and ffmpeg — before, if that step failed or was slow, the notice only appeared at the end (or not at all).
+
 ## 3.12
 **PT:** versão de manutenção, sem mudanças visíveis na interface; a publicação automática das releases passou a conferir o `SHA256SUMS.txt` linha a linha, porque a checagem anterior abortava o envio dos arquivos.
 **EN:** maintenance release with no visible interface changes; the automatic release publishing now checks `SHA256SUMS.txt` line by line, because the previous check aborted the file upload.
