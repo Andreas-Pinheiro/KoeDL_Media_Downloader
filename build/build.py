@@ -143,9 +143,6 @@ def main(argv):
         for name in targets:
             with open(abs_path(os.path.join(out, name)), "wb") as handle:
                 handle.write(data)
-        with open(abs_path(os.path.join(out, "SHA256SUMS.txt")), "w", encoding="ascii", newline="\n") as handle:
-            handle.write("%s  %s\n" % (digest, outputs["main"]))
-            handle.write("%s  %s\n" % (digest, outputs["legacy"]))
         print("wrote    %s/" % out)
 
     print("sha256   %s  (%d bytes)" % (digest, len(data)))
