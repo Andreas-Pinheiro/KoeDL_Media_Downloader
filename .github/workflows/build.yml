@@ -98,12 +98,14 @@ jobs:
           # 1) todo artefato existe e tem linha no SHA256SUMS.txt
           foreach ($f in $files) { if (-not (Test-Path $f)) { throw "faltou o artefato $f" } }
           $sums = [IO.File]::ReadAllText('dist/SHA256SUMS.txt').Trim()
-          $sums | ForEach-Object { Write-Host $_ }
+          # compara linha a linha: sem (?m) o '$' de -match so casa no fim do arquivo inteiro
+          $sumLines = @($sums -split "`r?`n" | Where-Object { $_ })
+          $sumLines | ForEach-Object { Write-Host $_ }
           foreach ($f in $files) {
             $name = Split-Path $f -Leaf
             if ($name -eq 'SHA256SUMS.txt') { continue }
             $pattern = '  ' + [regex]::Escape($name) + '$'
-            if (-not ($sums -match $pattern)) { throw "$name nao esta no SHA256SUMS.txt" }
+            if (-not ($sumLines | Where-Object { $_ -match $pattern })) { throw "$name nao esta no SHA256SUMS.txt" }
           }
 
           # 2) notas: secao "## <versao>" do CHANGELOG.md + os hashes
