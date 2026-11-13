@@ -17,10 +17,15 @@ function libRender(){var a=lshown();LSHOW=a;$('lcount').textContent=t('lib_count
  $('llist').innerHTML=a.length?a.map(function(x,i){return'<div class="li'+(x.p===LCUR?' on':'')+'" data-i="'+i+'"><span class="ic">'+(x.k==='v'?'🎬':'♪')+'</span><span class="lt"><b>'+esc(x.n)+'</b><small>'+esc((x.d?x.d+' · ':'')+lsize(x.s))+'</small></span><button class="lo" type="button" data-o="'+i+'" title="'+esc(t('lib_open'))+'">📂</button></div>'}).join(''):'<div class="emp">'+esc(t('lib_empty'))+'</div>';libTitles();lui()}
 function libCur(){for(var i=0;i<LIB.length;i++)if(LIB[i].p===LCUR)return LIB[i];return null}
 function libPlay(x){if(!x)return;var v=x.k==='v',m=v?$('pv'):$('pa'),o=v?$('pa'):$('pv');try{o.pause();o.removeAttribute('src');o.load()}catch(e){}
- LM=m;LCUR=x.p;$('lerr').textContent='';$('lstage').classList.toggle('vid',v);$('lnow').textContent=x.n;$('lsub').textContent=(x.d?x.d+' · ':'')+(v?t('lib_v'):t('lib_a'))+' · '+lsize(x.s);
+ LM=m;LCUR=x.p;$('lerr').textContent='';$('lstage').classList.toggle('vid',v);$('lnow').textContent=x.n;$('lsub').textContent=(x.d?x.d+' · ':'')+(v?t('lib_v'):t('lib_a'))+(x.s?' · '+lsize(x.s):'');
  m.volume=+$('lvol').value/100;m.playbackRate=+$('lspd').value;m.src='/api/media?t='+encodeURIComponent(T)+'&p='+encodeURIComponent(x.p);var pr=m.play();if(pr&&pr.catch)pr.catch(function(){});
  try{if('mediaSession' in navigator){navigator.mediaSession.metadata=new MediaMetadata({title:x.n,artist:x.d||'KoeDL'});navigator.mediaSession.setActionHandler('previoustrack',function(){libStep(-1)});navigator.mediaSession.setActionHandler('nexttrack',function(){libStep(1)})}}catch(e){}
  libRender();var el=$('llist').querySelector('.li.on');if(el&&el.scrollIntoView)try{el.scrollIntoView({block:'nearest'})}catch(e){}}
+/* toca um arquivo qualquer no player embutido (botao ▶ da fila e do historico), mesmo que a lista ainda nao o tenha */
+function libPlayFile(p,n,k){if(!p)return;tab('lib');var x=null;for(var i=0;i<LIB.length;i++){if(LIB[i].p===p){x=LIB[i];break}}
+ if(!x){var nm=String(n||'').trim()||String(p).split(/[\\/]/).pop();var ext=(nm.indexOf('.')>=0?nm.split('.').pop():'').toLowerCase();
+  x={p:p,n:nm.replace(/\.[^.]+$/,''),k:(k==='v'||k==='a'?k:(['mp4','mkv','webm','mov','m4v','avi'].indexOf(ext)>=0?'v':'a')),s:0,d:'',t:''}}
+ libPlay(x)}
 function libToggle(){if(!LM||!LM.src){var a=LSHOW.length?LSHOW:lshown();if(a.length)libPlay(LSHUF?a[Math.floor(Math.random()*a.length)]:a[0]);return}if(LM.paused){var p=LM.play();if(p&&p.catch)p.catch(function(){})}else LM.pause()}
 function libStep(d,auto){var a=LSHOW;if(!a.length)return;var i=-1;for(var k=0;k<a.length;k++)if(a[k].p===LCUR){i=k;break}
  if(auto&&LREP===2&&i>=0){LM.currentTime=0;LM.play();return}

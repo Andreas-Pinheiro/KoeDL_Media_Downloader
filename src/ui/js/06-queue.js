@@ -35,18 +35,19 @@ function renderQ(light){var L=$('qlist');if(!L)return;if(!light)qSave();var n=Q.
   else if(st==='done')meta=j.n?j.n+t('q_files'):t('q_nonew');else if(st==='failed')meta=j.err||((j.fails||0)+' ✕');else if(st==='stopped')meta=qpaused?t('q_paused_note'):'';
   var b='';if(st==='queued'||st==='done'||st==='failed'||st==='stopped')b+='<button class="s" data-qa="rm" data-id="'+j.id+'" title="'+qe(t('q_remove'))+'">✕</button>';
   if(st==='failed'||st==='stopped')b='<button class="s" data-qa="retry" data-id="'+j.id+'" title="'+qe(t('q_retry'))+'">↻</button>'+b;
-  if(st==='done'&&j.files&&j.files.length)b='<button class="s" data-qa="open" data-id="'+j.id+'" title="'+qe(t('q_open'))+'">📂</button>'+b;
+  if(st==='done'&&j.files&&j.files.length)b='<button class="s" data-qa="play" data-id="'+j.id+'" title="'+qe(t('q_play'))+'">▶</button><button class="s" data-qa="open" data-id="'+j.id+'" title="'+qe(t('q_open'))+'">📂</button>'+b;
   return '<div class="qi st-'+st+'"><span class="qs">'+qe(t('q_st_'+st))+'</span><div class="qt"><b title="'+qe(j.label)+'">'+qe(j.label)+'</b><small>'+qe(meta)+'</small></div><div class="qa">'+b+'</div></div>'}).join('');if(L.dataset.h!==hh){L.innerHTML=hh;L.dataset.h=hh}}
 function renderH(){var L=$('hlist');if(!L)return;if(!HIST.length){L.innerHTML='<div class="emp">'+qe(t('h_empty'))+'</div>';return}
  L.innerHTML=HIST.map(function(h,i){var d=new Date(h.t),ds=isNaN(d)?'':d.toLocaleString([],{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
   var meta=ds+' · '+(h.n?h.n+t('q_files'):t('q_nonew'))+(h.fails?' · '+h.fails+' ✕':'');
-  return '<div class="qi st-'+(h.ok?'done':'failed')+'"><span class="qs">'+(h.kind==='v'?'🎬':'🎵')+'</span><div class="qt"><b title="'+qe(h.label)+'">'+qe(h.label)+'</b><small>'+qe(meta)+'</small></div><div class="qa">'+((h.files&&h.files.length)?'<button class="s" data-ha="open" data-i="'+i+'" title="'+qe(t('q_open'))+'">📂</button>':'')+'</div></div>'}).join('')}
+  return '<div class="qi st-'+(h.ok?'done':'failed')+'"><span class="qs">'+(h.kind==='v'?'🎬':'🎵')+'</span><div class="qt"><b title="'+qe(h.label)+'">'+qe(h.label)+'</b><small>'+qe(meta)+'</small></div><div class="qa">'+((h.files&&h.files.length)?'<button class="s" data-ha="play" data-i="'+i+'" title="'+qe(t('q_play'))+'">▶</button><button class="s" data-ha="open" data-i="'+i+'" title="'+qe(t('q_open'))+'">📂</button>':'')+'</div></div>'}).join('')}
 document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('button[data-qa],button[data-ha]');if(!b)return;
  if(b.dataset.qa){var j=Q.find(function(x){return x.id==b.dataset.id});if(!j)return;
   if(b.dataset.qa==='rm'){Q=Q.filter(function(x){return x!==j});renderQ()}
   else if(b.dataset.qa==='retry'){j.state='queued';j.stopped=false;j.err='';qpaused=false;renderQ();pump()}
+  else if(b.dataset.qa==='play'&&j.files&&j.files[0])libPlayFile(j.files[0],'',j.kind)
   else if(b.dataset.qa==='open'&&j.files&&j.files[0])api('openfile',{path:j.files[0]})}
- else if(b.dataset.ha==='open'){var h=HIST[+b.dataset.i];if(h&&h.files&&h.files[0])api('openfile',{path:h.files[0]})}});
+ else if(b.dataset.ha==='play'||b.dataset.ha==='open'){var h=HIST[+b.dataset.i];if(h&&h.files&&h.files[0]){if(b.dataset.ha==='play')libPlayFile(h.files[0],'',h.kind);else api('openfile',{path:h.files[0]})}}});
 /* arrastar e soltar links */
 addEventListener('dragover',function(e){e.preventDefault()});
 addEventListener('drop',function(e){e.preventDefault();var dt=e.dataTransfer;if(!dt)return;var tx=(dt.getData('text/uri-list')||dt.getData('text/plain')||'').split(/\r?\n/).map(function(x){return x.trim()}).filter(function(x){return /^https?:\/\//.test(x)});
