@@ -5,6 +5,10 @@
     "main": "KoeDL.bat",
     "legacy": "Media-Downloader.bat"
   },
+  "linux": {
+    "launcher": "src/launcher/linux.sh",
+    "output": "koedl.sh"
+  },
   "parts": [
     "src/launcher/boot.cmd",
     "src/backend/00-bootstrap.ps1",

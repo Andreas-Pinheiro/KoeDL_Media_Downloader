@@ -29,5 +29,8 @@ function Open-Ui($port){
  if($app){ $b=Find-Browser
   if($b){ try{ $prof=[IO.Path]::Combine($bin,'appwin'); $q=$(if($WIN){ '"' }else{ '' })
    Start-Process $b -ArgumentList @("--app=$url",'--window-size=1040,940','--no-first-run',"--user-data-dir=$q$prof$q"); return }catch{} } }
+ if(-not $WIN){ if(Get-Command xdg-open -ea 0){ try{ Start-Process xdg-open -ArgumentList $url; return }catch{} }; Write-Host "Abra no navegador: $url"; return }
  if($WIN -and -not $TEST){ Start-Process $url } }
-function Open-Folder($p){ if($TEST){ return }; if($WIN){ Start-Process explorer.exe "`"$p`"" } }
+function Open-Folder($p){ if($TEST){ return }
+ if($WIN){ Start-Process explorer.exe "`"$p`"" }
+ elseif(Get-Command xdg-open -ea 0){ try{ Start-Process xdg-open -ArgumentList $p }catch{} } }

@@ -70,7 +70,7 @@ jobs:
       - name: Recalcula o SHA256 depois da assinatura
         shell: pwsh
         run: |
-          $lines = foreach ($name in 'KoeDL.bat', 'Media-Downloader.bat', 'KoeDL.exe', 'KoeDL-Setup.exe') {
+          $lines = foreach ($name in 'KoeDL.bat', 'Media-Downloader.bat', 'koedl.sh', 'KoeDL.exe', 'KoeDL-Setup.exe') {
             $hash = (Get-FileHash (Join-Path 'dist' $name) -Algorithm SHA256).Hash.ToLowerInvariant()
             Write-Host ("{0}  {1}" -f $hash, $name)
             "{0}  {1}" -f $hash, $name
@@ -83,6 +83,7 @@ jobs:
           path: |
             dist/KoeDL.bat
             dist/Media-Downloader.bat
+            dist/koedl.sh
             dist/KoeDL.exe
             dist/KoeDL-Setup.exe
             dist/SHA256SUMS.txt
@@ -93,7 +94,7 @@ jobs:
         run: |
           $tag = "${{ github.ref_name }}"
           $ver = $tag -replace '^v', ''
-          $files = 'dist/KoeDL.bat', 'dist/Media-Downloader.bat', 'dist/KoeDL.exe', 'dist/KoeDL-Setup.exe', 'dist/SHA256SUMS.txt'
+          $files = 'dist/KoeDL.bat', 'dist/Media-Downloader.bat', 'dist/koedl.sh', 'dist/KoeDL.exe', 'dist/KoeDL-Setup.exe', 'dist/SHA256SUMS.txt'
 
           # 1) todo artefato existe e tem linha no SHA256SUMS.txt
           foreach ($f in $files) { if (-not (Test-Path $f)) { throw "faltou o artefato $f" } }

@@ -302,6 +302,12 @@ $prepSb={ param($S,$lib,$force)
   DepsVer @{'yt-dlp'="$v";'ffmpeg'=(FfVer);'deno'=(DenoVer)} }
  function Deps($force){
   $ext=$(if($S.win){'.exe'}else{''})
+  # No Linux quem instala yt-dlp/ffmpeg e o koedl.sh: aqui so conferimos o que chegou.
+  if(-not $S.win){
+   $miss=@(); foreach($t in 'yt-dlp','ffmpeg','ffprobe'){ if(-not(Get-Command $t -ea 0)){ $miss+=$t } }
+   if($miss.Count){ L (Tr "AVISO: faltam $($miss -join ', '). Rode o koedl.sh de novo para instalar." "WARNING: missing $($miss -join ', '). Run koedl.sh again to install.") }
+   else{ L (Tr 'Linux: yt-dlp e ffmpeg ja estao instalados (mantidos pelo koedl.sh).' 'Linux: yt-dlp and ffmpeg are already installed (managed by koedl.sh).') }
+   return }
   $apiFF=$(if($env:YTDL_API_FF){ $env:YTDL_API_FF }else{ 'https://api.github.com/repos/yt-dlp/FFmpeg-Builds/releases/tags/latest' })
   $zipFF=$(if($env:YTDL_ZIP_FF){ @($env:YTDL_ZIP_FF) }else{ @('https://github.com/yt-dlp/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-win64-gpl.zip','https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-win64-gpl.zip') })
   $sumFF=$(if($env:YTDL_SUM_FF){ @($env:YTDL_SUM_FF) }else{ @('https://github.com/yt-dlp/FFmpeg-Builds/releases/download/latest/checksums.sha256','https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/checksums.sha256') })
@@ -348,14 +354,15 @@ $prepSb={ param($S,$lib,$force)
   if(-not $S.test -or $env:YTDL_UPDURL){ try{ SelfUpdate $force }catch{ L "[upd] $($_.Exception.Message)" } }
   if($S.test){ if($env:YTDL_DEPSTEST){ $b0=VerYt; UpdYt; $b1=VerYt; if($b0 -ne $b1){ L "yt-dlp: $b0 -> $b1" }; Deps $force }; Ver; $S.prep=''; $S.ready=$true; return }
   $ch=$S.chan; if(-not $ch){ $ch='stable' }
-  $u1='https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp.exe'; $u2='https://github.com/yt-dlp/yt-dlp-nightly-builds/releases/latest/download/yt-dlp.exe'; $u3='https://github.com/yt-dlp/yt-dlp-master-builds/releases/latest/download/yt-dlp.exe'
+  $an=$(if($S.win){'yt-dlp.exe'}elseif("$([System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture)" -eq 'Arm64'){'yt-dlp_linux_aarch64'}else{'yt-dlp_linux'})
+  $u1="https://github.com/yt-dlp/yt-dlp/releases/latest/download/$an"; $u2="https://github.com/yt-dlp/yt-dlp-nightly-builds/releases/latest/download/$an"; $u3="https://github.com/yt-dlp/yt-dlp-master-builds/releases/latest/download/$an"
   $s1='https://github.com/yt-dlp/yt-dlp/releases/latest/download/SHA2-256SUMS'; $s2='https://github.com/yt-dlp/yt-dlp-nightly-builds/releases/latest/download/SHA2-256SUMS'; $s3='https://github.com/yt-dlp/yt-dlp-master-builds/releases/latest/download/SHA2-256SUMS'
   $ytUrl=$(if($ch -eq 'nightly'){ @($u2,$u1,$u3) }else{ @($u1,$u2,$u3) })
   $ytSum=$(if($ch -eq 'nightly'){ @($s2,$s1,$s3) }else{ @($s1,$s2,$s3) })
   if(-not(Test-Path $yt)){ $got=$false
    for($rd=1;$rd -le 8 -and -not $got;$rd++){
     $S.prep=(Tr "Baixando yt-dlp... (rodada $rd/8)" "Downloading yt-dlp... (round $rd/8)")
-    $got=DepGet $ytUrl $yt $ytSum 'yt-dlp.exe' $ch
+    $got=DepGet $ytUrl $yt $ytSum $an $ch
     if(-not $got -and $rd -lt 8){ for($w=90;$w -gt 0;$w--){ $S.prep=(Tr "O GitHub nao respondeu (erro: $($S.lastErr)). Tentando de novo em $w s (rodada $rd/8). Pode deixar esta janela aberta." "GitHub did not respond (error: $($S.lastErr)). Retrying in $w s (round $rd/8). You can leave this window open."); Start-Sleep 1 } } }
    if(-not $got){ $S.prep=(Tr "ERRO: nao consegui baixar o yt-dlp (sem internet, GitHub fora do ar ou bloqueado por rede/antivirus/proxy). Ultimo erro: $($S.lastErr)`n`nPara tentar de novo: Configuracoes > Atualizar tudo agora. Alternativa manual: baixe yt-dlp.exe em github.com/yt-dlp/yt-dlp/releases/latest e coloque na pasta: $bin" "ERROR: could not download yt-dlp (no internet, GitHub down, or blocked by network/antivirus/proxy). Last error: $($S.lastErr)`n`nTo retry: Settings > Update everything now. Manual alternative: download yt-dlp.exe from github.com/yt-dlp/yt-dlp/releases/latest and put it in this folder: $bin"); return } }
   else{ $S.prep=(Tr 'Verificando a versao do yt-dlp...' 'Checking the yt-dlp version...'); $b0=VerYt; UpdYt; $b1=VerYt; if($b0 -ne $b1){ L (Tr "yt-dlp: atualizado $b0 -> $b1" "yt-dlp: updated $b0 -> $b1") }else{ L (Tr "yt-dlp: ja esta na versao mais recente ($b1)." "yt-dlp: already up to date ($b1).") } }
@@ -2828,8 +2835,11 @@ function Open-Ui($port){
  if($app){ $b=Find-Browser
   if($b){ try{ $prof=[IO.Path]::Combine($bin,'appwin'); $q=$(if($WIN){ '"' }else{ '' })
    Start-Process $b -ArgumentList @("--app=$url",'--window-size=1040,940','--no-first-run',"--user-data-dir=$q$prof$q"); return }catch{} } }
+ if(-not $WIN){ if(Get-Command xdg-open -ea 0){ try{ Start-Process xdg-open -ArgumentList $url; return }catch{} }; Write-Host "Abra no navegador: $url"; return }
  if($WIN -and -not $TEST){ Start-Process $url } }
-function Open-Folder($p){ if($TEST){ return }; if($WIN){ Start-Process explorer.exe "`"$p`"" } }
+function Open-Folder($p){ if($TEST){ return }
+ if($WIN){ Start-Process explorer.exe "`"$p`"" }
+ elseif(Get-Command xdg-open -ea 0){ try{ Start-Process xdg-open -ArgumentList $p }catch{} } }
 # ------------------------------------------------------------------ inicio
 Write-Host "== KoeDL $APPVER - by Andreas-Pinheiro =="
 $S.chan=$(if($(ReadSettings).chan){ "$((ReadSettings).chan)" }else{ 'stable' })
@@ -2895,7 +2905,9 @@ while($lst.IsListening){
     '/api/chkupd'{ if($S.chk -ne 'run'){ $S.chk='run'; Bg { param($S,$lib) . ([scriptblock]::Create($lib)); try{ SelfUpdate $true }catch{ L "[upd] $($_.Exception.Message)" }; if($S.chk -eq 'run'){ $S.chk='err' } } @($S,$lib) } }
     '/api/update'{ if($S.running){ $out=@{error=(Tr 'Espere o download terminar para atualizar.' 'Wait for the download to finish before updating.')}|ConvertTo-Json -Compress }else{ Bg $prepSb @($S,$lib,$true) } }
     '/api/winsize'{ try{ $o=$body|ConvertFrom-Json; if($o.w -ge 600 -and $o.h -ge 500){ Set-Content ([IO.Path]::Combine($bin,'win.txt')) "$([int]$o.x),$([int]$o.y),$([int]$o.w),$([int]$o.h),0" } }catch{ L "[janela] nao consegui guardar o tamanho: $($_.Exception.Message)" } }
-    '/api/clip'{ $ct=''; try{ if($WIN -and -not $TEST){ $ps=New-Object Diagnostics.ProcessStartInfo 'powershell.exe'; $ps.Arguments='-NoProfile -STA -Command "[Console]::OutputEncoding=[Text.Encoding]::UTF8; Add-Type -AssemblyName System.Windows.Forms; [Windows.Forms.Clipboard]::GetText()"'; $ps.UseShellExecute=$false; $ps.CreateNoWindow=$true; $ps.RedirectStandardOutput=$true; $pr=[Diagnostics.Process]::Start($ps); $cx=$pr.StandardOutput.ReadToEnd(); [void]$pr.WaitForExit(4000); $cx=$cx.Trim(); if($cx -match '^https?://\S+$' -and $cx.Length -lt 2000){ $ct=$cx } } }catch{}; $out=@{text=$ct}|ConvertTo-Json -Compress }
+    '/api/clip'{ $ct=''; try{ if($WIN -and -not $TEST){ $ps=New-Object Diagnostics.ProcessStartInfo 'powershell.exe'; $ps.Arguments='-NoProfile -STA -Command "[Console]::OutputEncoding=[Text.Encoding]::UTF8; Add-Type -AssemblyName System.Windows.Forms; [Windows.Forms.Clipboard]::GetText()"'; $ps.UseShellExecute=$false; $ps.CreateNoWindow=$true; $ps.RedirectStandardOutput=$true; $pr=[Diagnostics.Process]::Start($ps); $cx=$pr.StandardOutput.ReadToEnd(); [void]$pr.WaitForExit(4000); $cx=$cx.Trim(); if($cx -match '^https?://\S+$' -and $cx.Length -lt 2000){ $ct=$cx } }
+   elseif(-not $WIN){ foreach($c in @('wl-paste','xclip','xsel')){ if(Get-Command $c -ea 0){ try{ $t=$(if($c -eq 'wl-paste'){ (& wl-paste -n 2>$null|Out-String) }elseif($c -eq 'xclip'){ (& xclip -selection clipboard -o 2>$null|Out-String) }else{ (& xsel -b 2>$null|Out-String) }).Trim(); if($t -match '^https?://\S+$' -and $t.Length -lt 2000){ $ct=$t; break } }catch{} } } }
+  }catch{}; $out=@{text=$ct}|ConvertTo-Json -Compress }
     '/api/openurl'{ try{ $u="$(($body|ConvertFrom-Json).url)"; if($u -match '^https://[^\s"]+$' -and $WIN -and -not $TEST){ Start-Process $u } }catch{} }
     '/api/history'{ $hf=J $bin 'history.json'
       if($rq.HttpMethod -eq 'POST'){ try{ $hb=$body|ConvertFrom-Json; $cur=@(); if(Test-Path $hf){ try{ $cur=@(Get-Content $hf -Raw -Encoding UTF8|ConvertFrom-Json) }catch{} }
@@ -2956,6 +2968,10 @@ while($lst.IsListening){
         elseif($WIN -and -not $TEST){
           if($md -eq 'open'){ if($MediaExt.ContainsKey([IO.Path]::GetExtension($fp).ToLower())){ Start-Process -FilePath $fp }else{ $out=@{error=(Tr 'Tipo de arquivo nao permitido.' 'File type not allowed.')}|ConvertTo-Json -Compress } }
           else{ $psi=New-Object Diagnostics.ProcessStartInfo 'explorer.exe'; $psi.Arguments='/select,"'+$fp+'"'; $psi.UseShellExecute=$true; [void][Diagnostics.Process]::Start($psi) } }
+        elseif(-not $WIN){
+          try{ if($md -eq 'open'){ if($MediaExt.ContainsKey([IO.Path]::GetExtension($fp).ToLower())){ Start-Process xdg-open -ArgumentList $fp }else{ $out=@{error=(Tr 'Tipo de arquivo nao permitido.' 'File type not allowed.')}|ConvertTo-Json -Compress } }
+            else{ Start-Process xdg-open -ArgumentList (Split-Path -Parent $fp) } }
+          catch{ $out=@{error=(ErrTxt (Tr 'abrir o arquivo' 'open the file') $_)|ConvertTo-Json -Compress } } }
       }catch{ L "[abrir] $($_.Exception.Message)"; $out=@{error=(ErrTxt (Tr 'abrir o arquivo' 'open the file') $_)}|ConvertTo-Json -Compress } }
     '/api/notify'{ try{ $nb=$body|ConvertFrom-Json; if($WIN -and -not $TEST){ Bg {param($t,$m) Add-Type -AssemblyName System.Windows.Forms,System.Drawing; $ni=New-Object Windows.Forms.NotifyIcon; $ni.Icon=[Drawing.SystemIcons]::Information; $ni.Visible=$true; $ni.ShowBalloonTip(6000,$t,$m,[Windows.Forms.ToolTipIcon]::Info); Start-Sleep 8; $ni.Dispose() } @("$($nb.title)","$($nb.text)") } }catch{} }
     '/api/poweroff'{ if($WIN -and -not $TEST -and -not $S.running){ try{ Start-Process shutdown.exe -ArgumentList '/s','/t','8' -WindowStyle Hidden }catch{} } }

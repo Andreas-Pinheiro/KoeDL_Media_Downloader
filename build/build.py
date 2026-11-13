@@ -15,7 +15,7 @@ Markers allowed inside a part (or inside an included file):
     @@I18N:dir@@        compact JSON of dir/pt.json and dir/en.json
 
 Usage:
-    python3 build/build.py              # rewrite KoeDL.bat and Media-Downloader.bat
+    python3 build/build.py              # rewrite KoeDL.bat, Media-Downloader.bat and koedl.sh
     python3 build/build.py --check      # build in memory, fail if the files drifted
     python3 build/build.py --out dist   # also write fresh copies to dist/
     python3 build/build.py --version    # print the version from the manifest
@@ -98,12 +98,32 @@ def expand(text, version, depth=0, origin=""):
     return TOKEN.sub(replace, text)
 
 
-def assembly(manifest):
+def payload(manifest):
+    """The PowerShell program itself, LF endings (shared by the .bat and the .sh)."""
     version = str(manifest["version"])
-    body = "\n".join(
+    return "\n".join(
         expand(read_text(part), version, origin=part) for part in manifest["parts"]
     )
-    return (body.replace("\n", "\r\n") + "\r\n").encode("utf-8")
+
+
+def assembly(manifest):
+    return (payload(manifest).replace("\n", "\r\n") + "\r\n").encode("utf-8")
+
+
+def assembly_linux(manifest):
+    """Bash launcher + the PowerShell program, so the .sh is self-contained like the .bat.
+
+    The Windows launcher (boot.cmd) is dropped: the .sh only needs the part from
+    the ###PS### marker on.
+    """
+    linux = manifest["linux"]
+    version = str(manifest["version"])
+    body = payload(manifest)
+    marker = body.find("###" + "PS###")
+    if marker >= 0:
+        body = body[marker:]
+    head = expand(read_text(linux["launcher"]), version, origin=linux["launcher"])
+    return (head + "\n" + body + "\n__KOEDL_PAYLOAD_END__\n").encode("utf-8")
 
 
 def main(argv):
@@ -115,37 +135,39 @@ def main(argv):
         return 0
 
     data = assembly(manifest)
-    digest = hashlib.sha256(data).hexdigest()
+    shdata = assembly_linux(manifest)
     outputs = manifest["outputs"]
     targets = [outputs["main"], outputs["legacy"]]
+    built = [(name, data) for name in targets] + [(manifest["linux"]["output"], shdata)]
 
     if "--check" in argv:
         status = 0
-        for name in targets:
+        for name, blob in built:
             path = abs_path(name)
             current = read_binary(name) if os.path.exists(path) else b""
-            if current == data:
+            if current == blob:
                 print("ok       %s" % name)
             else:
                 print("drifted  %s" % name)
                 status = 1
-        print("sha256   %s  (%d bytes)" % (digest, len(data)))
+            print("sha256   %s  (%d bytes)" % (hashlib.sha256(blob).hexdigest(), len(blob)))
         return status
 
-    for name in targets:
+    for name, blob in built:
         with open(abs_path(name), "wb") as handle:
-            handle.write(data)
+            handle.write(blob)
         print("wrote    %s" % name)
 
     if "--out" in argv:
         out = argv[argv.index("--out") + 1]
         os.makedirs(abs_path(out), exist_ok=True)
-        for name in targets:
+        for name, blob in built:
             with open(abs_path(os.path.join(out, name)), "wb") as handle:
-                handle.write(data)
+                handle.write(blob)
         print("wrote    %s/" % out)
 
-    print("sha256   %s  (%d bytes)" % (digest, len(data)))
+    for name, blob in built:
+        print("sha256   %s  (%d bytes)  %s" % (hashlib.sha256(blob).hexdigest(), len(blob), name))
     return 0
 
 
