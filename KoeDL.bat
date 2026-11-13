@@ -22,7 +22,7 @@ $sep=[IO.Path]::PathSeparator
 $env:PATH="$bin$sep$env:PATH"; $env:PYTHONUTF8='1'
 $yt=$(if($env:YTDL_BIN){ $env:YTDL_BIN }elseif($WIN){ [IO.Path]::Combine($bin,'yt-dlp.exe') }else{ [IO.Path]::Combine($bin,'yt-dlp') })
 $settingsFile=[IO.Path]::Combine($bin,'settings.json')
-$APPVER='3.15.1'
+$APPVER='3.15.2'
 $updFile=[IO.Path]::Combine($bin,'app.update.ps1')
 if(-not $env:YTDL_OVR -and (Test-Path $updFile)){
  try{ $tx=[IO.File]::ReadAllText($updFile,[Text.Encoding]::UTF8); $mm=[regex]::Match($tx,'APPVER=.([0-9.]+).')
@@ -251,7 +251,7 @@ function DepsAdd($n,$v,$sha,$src,$ok,$sig){ $f=J $S.bin 'deps.json'; $a=@()
 function DepsVer($map){ $f=J $S.bin 'deps.json'; if(-not(Test-Path $f)){ return }
  $a=@(); try{ $a=@([IO.File]::ReadAllText($f,[Text.Encoding]::UTF8)|ConvertFrom-Json) }catch{ return }
  $ch=$false
- foreach($r in $a){ foreach($k in $map.Keys){ if("$($r.n)" -like "*$k*"){ if($map[$k] -and "$($r.v)" -ne "$($map[$k])"){ $r.v="$($map[$k])"; $ch=$true } } } }
+ foreach($r in $a){ foreach($k in $map.Keys){ if("$($r.n)" -like "*$k*"){ if($map[$k] -and "$($r.v)" -ne "$($map[$k])"){ $r|Add-Member -NotePropertyName v -NotePropertyValue "$($map[$k])" -Force; $ch=$true } } } }
  if($ch){ try{ [IO.File]::WriteAllText($f,(ConvertTo-Json -InputObject @($a) -Depth 4),(New-Object Text.UTF8Encoding $false)) }catch{} } }
 function DepGet($urls,$out,$sumUrls,$name,$ver){
  # Baixa para um temporario, confere o SHA-256 publicado pela mesma release e so entao grava em $out.

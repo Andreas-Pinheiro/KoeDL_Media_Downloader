@@ -2,6 +2,10 @@
 
 Formato: versões mais novas primeiro. / Newest versions first.
 
+## 3.15.2
+**PT:** corrige o aviso **"Setup ERROR: A propriedade 'v' não foi encontrada"** que aparecia ao abrir o programa em instalações antigas (o registro de dependências de versões anteriores não tinha o campo de versão).
+**EN:** fixes the **"Setup ERROR: property 'v' cannot be found"** notice shown on startup on older installs (the dependency record from earlier versions had no version field).
+
 ## 3.15.1
 **PT:** visual novo: o **logo** do cabeçalho agora tem fundo transparente (o brilho acompanha o desenho) e o **ícone** do programa ficou com a borda limpa, sem serrilhado; o README ganhou um aviso sobre **falso positivo de antivírus** (o `.exe` pode ser marcado por heurística; o `KoeDL.bat` tem resultado melhor, e o SHA-256 permite conferir o arquivo).
 **EN:** new look: the header **logo** now has a transparent background (the glow follows the shape) and the program **icon** has clean edges, no jaggies; the README has a note about **antivirus false positives** (the `.exe` may be flagged by heuristics; `KoeDL.bat` scores better, and the SHA-256 lets you verify the file).
