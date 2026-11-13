@@ -1,8 +1,5 @@
-* text=auto
-# keep the exact CRLF bytes: the SHA-256 of KoeDL.bat must match what is published
-*.bat -text
-*.md text eol=lf
-*.ico binary
-*.png binary
-*.webp binary
-*.gif binary
+# O build compara os bytes do arquivo gerado com o que esta no repositorio,
+# entao o fim de linha precisa ser o mesmo em qualquer sistema que faca checkout.
+*.sh  text eol=lf
+*.bat text eol=crlf
+*.cmd text eol=crlf
