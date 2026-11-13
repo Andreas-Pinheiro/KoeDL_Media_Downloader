@@ -65,16 +65,40 @@ while($lst.IsListening){
     '/api/queue'{ $qf=J $bin 'queue.json'
       if($rq.HttpMethod -eq 'POST'){ try{ if($body.Length -gt 2000000){ throw 'fila grande demais' }; $null=$body|ConvertFrom-Json; [IO.File]::WriteAllText($qf,$body,(New-Object Text.UTF8Encoding $false)); $out='{"ok":true}' }catch{ $out=@{error=(ErrTxt (Tr 'salvar a fila' 'save the queue') $_)}|ConvertTo-Json -Compress } }
       else{ if(Test-Path $qf){ $out=[IO.File]::ReadAllText($qf,[Text.Encoding]::UTF8) }else{ $out='[]' } } }
-    '/api/library'{ $ea='.mp3','.m4a','.opus','.ogg','.flac','.wav','.aac'; $ev='.mp4','.mkv','.webm','.mov'; $seen=@{}; $li=New-Object Collections.ArrayList
-      foreach($r in (DlRoots)){ if(-not(Test-Path -LiteralPath $r)){ continue }; $rrf=[IO.Path]::GetFullPath($r)
-        foreach($f in (Get-ChildItem -LiteralPath $r -Recurse -Depth 4 -File -ea 0)){ $x=$f.Extension.ToLower(); $isA=($ea -contains $x); if(-not $isA -and -not ($ev -contains $x)){ continue }
-          if($seen.ContainsKey($f.FullName)){ continue }; $seen[$f.FullName]=1; $dn=$f.Directory.Name; if([IO.Path]::GetFullPath($f.DirectoryName).TrimEnd('\','/') -eq $rrf.TrimEnd('\','/')){ $dn='' }
+    '/api/library'{ $ea='.mp3','.m4a','.opus','.ogg','.flac','.wav','.aac','.wma'; $ev='.mp4','.mkv','.webm','.mov','.m4v','.avi'; $seen=@{}; $li=New-Object Collections.ArrayList
+      foreach($r in (DlRoots)){ if(-not(Test-Path -LiteralPath $r)){ continue }; $rrf=[IO.Path]::GetFullPath($r).TrimEnd('\','/')
+        foreach($f in (Get-ChildItem -LiteralPath $r -Recurse -Depth 6 -File -ea 0)){ $x=$f.Extension.ToLower(); $isA=($ea -contains $x); if(-not $isA -and -not ($ev -contains $x)){ continue }
+          if($seen.ContainsKey($f.FullName)){ continue }; $seen[$f.FullName]=1; $dn=$f.Directory.Name; if([IO.Path]::GetFullPath($f.DirectoryName).TrimEnd('\','/') -eq $rrf){ $dn='' }
           [void]$li.Add([ordered]@{p=$f.FullName;n=$f.BaseName;k=$(if($isA){'a'}else{'v'});s=$f.Length;t=$f.LastWriteTime.ToString('s');d=$dn}) } }
-      $srt=@($li|Sort-Object @{Expression={$_.t};Descending=$true}|Select-Object -First 1500); $out=ConvertTo-Json -InputObject $srt -Depth 3 -Compress }
+      $srt=@($li|Sort-Object @{Expression={$_.t};Descending=$true}|Select-Object -First 5000); $out=ConvertTo-Json -InputObject $srt -Depth 3 -Compress }
+    '/api/libdirs'{ $lf=LibFile
+      if($rq.HttpMethod -eq 'POST'){ try{ $ok=@(); $bad=@()
+          foreach($d in @(($body|ConvertFrom-Json).dirs)){ $d="$d".Trim(); if(-not $d){ continue }
+            try{ if(-not [IO.Path]::IsPathRooted($d) -or -not (Test-Path -LiteralPath $d -PathType Container)){ $bad+=$d; continue }
+              $fu=[IO.Path]::GetFullPath($d); if($fu.TrimEnd('\','/').Length -le 2){ $bad+=$d; continue }; $fu=$fu.TrimEnd('\','/')
+              if(-not ($ok | Where-Object { $_ -ieq $fu })){ $ok+=$fu } }catch{ $bad+=$d } }
+          [IO.File]::WriteAllText($lf,(ConvertTo-Json -InputObject @($ok) -Compress),(New-Object Text.UTF8Encoding $false))
+          $out=@{ok=$true;dirs=$ok;bad=$bad}|ConvertTo-Json -Compress -Depth 3
+        }catch{ $out=@{error=(ErrTxt (Tr 'salvar as pastas' 'save the folders') $_)}|ConvertTo-Json -Compress } }
+      else{ $ds=@(); foreach($d in (LibDirs)){ $ds+=[ordered]@{p=$d;ok=[bool](Test-Path -LiteralPath $d -PathType Container)} }
+        $bs=@(); foreach($d in (DlBase)){ $bs+=$d }
+        $out=@{dirs=$ds;base=$bs}|ConvertTo-Json -Compress -Depth 4 } }
+    '/api/pickfolder'{ if($rq.HttpMethod -eq 'POST'){
+        if($S.pick -and $S.pick.busy){ $out='{"busy":true}' }
+        elseif($WIN -and -not $TEST){ $S.pick=@{busy=$true;path=''}
+          Bg { param($S)
+            try{ $cmd='[Console]::OutputEncoding=[Text.Encoding]::UTF8; Add-Type -AssemblyName System.Windows.Forms; $o=New-Object Windows.Forms.Form; $o.TopMost=$true; $o.ShowInTaskbar=$false; $o.Opacity=0; $o.StartPosition="CenterScreen"; $o.Show(); $f=New-Object Windows.Forms.FolderBrowserDialog; $f.Description="KoeDL"; if($f.ShowDialog($o) -eq "OK"){ $f.SelectedPath }; $o.Close()'
+              $psi=New-Object Diagnostics.ProcessStartInfo 'powershell.exe'; $psi.Arguments='-NoProfile -STA -WindowStyle Hidden -EncodedCommand '+[Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($cmd))
+              $psi.UseShellExecute=$false; $psi.RedirectStandardOutput=$true; $psi.CreateNoWindow=$true; $psi.StandardOutputEncoding=[Text.Encoding]::UTF8
+              $pr=[Diagnostics.Process]::Start($psi); $o2=$pr.StandardOutput.ReadToEnd(); [void]$pr.WaitForExit(600000); $S.pick=@{busy=$false;path=("$o2".Trim())}
+            }catch{ $S.pick=@{busy=$false;path=''} } } @($S)
+          $out='{"busy":true}' }
+        else{ $out='{"busy":false,"path":""}' } }
+      else{ $pk=$S.pick; if($pk){ $out=@{busy=[bool]$pk.busy;path="$($pk.path)"}|ConvertTo-Json -Compress }else{ $out='{"busy":false,"path":""}' } } }
     '/api/media'{ $out=''; try{ $fp="$($rq.QueryString['p'])"
-        if(-not (InRoots $fp) -or -not (Test-Path -LiteralPath $fp -PathType Leaf)){ $rs.StatusCode=404 }
+        if(-not (InRoots $fp) -or -not (Test-Path -LiteralPath $fp -PathType Leaf) -or -not $MediaExt.ContainsKey([IO.Path]::GetExtension($fp).ToLower())){ $rs.StatusCode=404 }
         else{ $fi=New-Object IO.FileInfo $fp; $len=$fi.Length
-          $mt=switch($fi.Extension.ToLower()){ '.mp3'{'audio/mpeg'} '.m4a'{'audio/mp4'} '.aac'{'audio/aac'} '.opus'{'audio/ogg; codecs=opus'} '.ogg'{'audio/ogg'} '.flac'{'audio/flac'} '.wav'{'audio/wav'} '.mp4'{'video/mp4'} '.webm'{'video/webm'} '.mkv'{'video/x-matroska'} '.mov'{'video/quicktime'} default{'application/octet-stream'} }
+          $mt=$MediaExt[$fi.Extension.ToLower()]; if(-not $mt){ $mt='application/octet-stream' }
           $st=[long]0; $en=$len-1; $rg="$($rq.Headers['Range'])"; $part=$false
           if($rg -match '^bytes=(\d*)-(\d*)$'){ $part=$true; if($Matches[1] -ne ''){ $st=[long]$Matches[1]; if($Matches[2] -ne ''){ $en=[long]$Matches[2] } }elseif($Matches[2] -ne ''){ $st=[Math]::Max([long]0,$len-[long]$Matches[2]) } }
           if($en -ge $len){ $en=$len-1 }
@@ -83,10 +107,15 @@ while($lst.IsListening){
           else{ $n=$en-$st+1; $rs.ContentType=$mt; $rs.AddHeader('Accept-Ranges','bytes'); if($part){ $rs.StatusCode=206; $rs.AddHeader('Content-Range',"bytes $st-$en/$len") }; $rs.ContentLength64=$n
             $fs=[IO.File]::Open($fp,[IO.FileMode]::Open,[IO.FileAccess]::Read,[IO.FileShare]::ReadWrite); try{ [void]$fs.Seek($st,[IO.SeekOrigin]::Begin); $buf=New-Object byte[] 65536; $left=$n
               while($left -gt 0){ $rd=$fs.Read($buf,0,[int][Math]::Min([long]$buf.Length,$left)); if($rd -le 0){ break }; $rs.OutputStream.Write($buf,0,$rd); $left-=$rd } }finally{ $fs.Dispose() } } } }catch{} }
-    '/api/openfile'{ try{ $fp="$(($body|ConvertFrom-Json).path)"; $sj=ReadSettings; $roots=@((GetDl)); if($sj){ foreach($k in 'dirAudio','dirVideo'){ if("$($sj.$k)".Trim()){ $roots+="$($sj.$k)".Trim() } } }
-        $okp=$false; foreach($r in $roots){ try{ $rr=[IO.Path]::GetFullPath($r).TrimEnd('\','/'); $ff=[IO.Path]::GetFullPath($fp); if($ff.StartsWith($rr+[IO.Path]::DirectorySeparatorChar,[StringComparison]::OrdinalIgnoreCase)){ $okp=$true } }catch{} }
-        if($okp -and (Test-Path -LiteralPath $fp) -and $WIN -and -not $TEST){ Start-Process explorer.exe "/select,`"$fp`"" }
-        elseif(-not $okp){ $out=@{error=(Tr 'O arquivo nao esta nas pastas de download.' 'The file is not inside the download folders.')}|ConvertTo-Json -Compress } }catch{ L "[abrir] $($_.Exception.Message)" } }
+    '/api/openfile'{ try{ $ob=$body|ConvertFrom-Json; $fp="$($ob.path)"; $md="$($ob.mode)"; $out='{"ok":true}'
+        # normaliza barras (o Explorer ignora o /select, quando o caminho vem com "/")
+        try{ $fp=[IO.Path]::GetFullPath($fp) }catch{}
+        if(-not (InRoots $fp)){ $out=@{error=(Tr 'O arquivo nao esta nas pastas de download nem nas da biblioteca.' 'The file is not inside the download or library folders.')}|ConvertTo-Json -Compress }
+        elseif(-not (Test-Path -LiteralPath $fp -PathType Leaf)){ $out=@{error=(Tr 'Arquivo nao encontrado (foi movido ou apagado?).' 'File not found (moved or deleted?).')}|ConvertTo-Json -Compress }
+        elseif($WIN -and -not $TEST){
+          if($md -eq 'open'){ if($MediaExt.ContainsKey([IO.Path]::GetExtension($fp).ToLower())){ Start-Process -FilePath $fp }else{ $out=@{error=(Tr 'Tipo de arquivo nao permitido.' 'File type not allowed.')}|ConvertTo-Json -Compress } }
+          else{ $psi=New-Object Diagnostics.ProcessStartInfo 'explorer.exe'; $psi.Arguments='/select,"'+$fp+'"'; $psi.UseShellExecute=$true; [void][Diagnostics.Process]::Start($psi) } }
+      }catch{ L "[abrir] $($_.Exception.Message)"; $out=@{error=(ErrTxt (Tr 'abrir o arquivo' 'open the file') $_)}|ConvertTo-Json -Compress } }
     '/api/notify'{ try{ $nb=$body|ConvertFrom-Json; if($WIN -and -not $TEST){ Bg {param($t,$m) Add-Type -AssemblyName System.Windows.Forms,System.Drawing; $ni=New-Object Windows.Forms.NotifyIcon; $ni.Icon=[Drawing.SystemIcons]::Information; $ni.Visible=$true; $ni.ShowBalloonTip(6000,$t,$m,[Windows.Forms.ToolTipIcon]::Info); Start-Sleep 8; $ni.Dispose() } @("$($nb.title)","$($nb.text)") } }catch{} }
     '/api/poweroff'{ if($WIN -and -not $TEST -and -not $S.running){ try{ Start-Process shutdown.exe -ArgumentList '/s','/t','8' -WindowStyle Hidden }catch{} } }
     '/api/poweroff/cancel'{ if($WIN -and -not $TEST){ try{ Start-Process shutdown.exe -ArgumentList '/a' -WindowStyle Hidden }catch{} } }

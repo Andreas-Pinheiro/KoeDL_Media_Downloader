@@ -5,7 +5,11 @@ function GetDl{ $s=ReadSettings; $d=$null; if($s -and $s.dlDir){ $d="$($s.dlDir)
  if(-not $d){ $d=$(if($env:YTDL_INSTALLED){ $(if((-not(Test-Path ([IO.Path]::Combine($env:USERPROFILE,'Downloads','KoeDL')))) -and (Test-Path ([IO.Path]::Combine($env:USERPROFILE,'Downloads','Media Downloader')))){ [IO.Path]::Combine($env:USERPROFILE,'Downloads','Media Downloader') }else{ [IO.Path]::Combine($env:USERPROFILE,'Downloads','KoeDL') }) }else{ [IO.Path]::Combine($dir,'Downloads') }) }
  try{ New-Item -ItemType Directory -Force $d | Out-Null }catch{ $d=[IO.Path]::Combine($dir,'Downloads'); New-Item -ItemType Directory -Force $d | Out-Null }
  return $d }
-function DlRoots{ $sj=ReadSettings; $r=@((GetDl)); if($sj){ foreach($k in 'dirAudio','dirVideo'){ if("$($sj.$k)".Trim()){ $r+="$($sj.$k)".Trim() } } }; return ,$r }
+function LibFile{ return [IO.Path]::Combine($bin,'library.json') }
+function LibDirs{ $f=LibFile; $o=@(); if(Test-Path -LiteralPath $f){ try{ foreach($d in @([IO.File]::ReadAllText($f,[Text.Encoding]::UTF8)|ConvertFrom-Json)){ if("$d".Trim()){ $o+="$d".Trim() } } }catch{} }; return ,$o }
+function DlBase{ $sj=ReadSettings; $r=@((GetDl)); if($sj){ foreach($k in 'dirAudio','dirVideo'){ if("$($sj.$k)".Trim()){ $r+="$($sj.$k)".Trim() } } }; return ,$r }
+function DlRoots{ $r=@(DlBase); foreach($d in (LibDirs)){ $r+=$d }; return ,$r }
+$MediaExt=@{'.mp3'='audio/mpeg';'.m4a'='audio/mp4';'.aac'='audio/aac';'.opus'='audio/ogg; codecs=opus';'.ogg'='audio/ogg';'.flac'='audio/flac';'.wav'='audio/wav';'.wma'='audio/x-ms-wma';'.mp4'='video/mp4';'.m4v'='video/mp4';'.webm'='video/webm';'.mkv'='video/x-matroska';'.mov'='video/quicktime';'.avi'='video/x-msvideo'}
 function InRoots($fp){ if(-not $fp){ return $false }; foreach($r in (DlRoots)){ try{ $rr=[IO.Path]::GetFullPath($r).TrimEnd('\','/'); $ff=[IO.Path]::GetFullPath($fp); if($ff.StartsWith($rr+[IO.Path]::DirectorySeparatorChar,[StringComparison]::OrdinalIgnoreCase)){ return $true } }catch{} }; return $false }
 $wvScript=@'
 @@INCLUDE:src/ui/wv-window.ps1@@
