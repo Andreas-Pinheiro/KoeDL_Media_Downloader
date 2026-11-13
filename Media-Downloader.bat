@@ -22,7 +22,7 @@ $sep=[IO.Path]::PathSeparator
 $env:PATH="$bin$sep$env:PATH"; $env:PYTHONUTF8='1'
 $yt=$(if($env:YTDL_BIN){ $env:YTDL_BIN }elseif($WIN){ [IO.Path]::Combine($bin,'yt-dlp.exe') }else{ [IO.Path]::Combine($bin,'yt-dlp') })
 $settingsFile=[IO.Path]::Combine($bin,'settings.json')
-$APPVER='3.12'
+$APPVER='3.13'
 $updFile=[IO.Path]::Combine($bin,'app.update.ps1')
 if(-not $env:YTDL_OVR -and (Test-Path $updFile)){
  try{ $tx=[IO.File]::ReadAllText($updFile,[Text.Encoding]::UTF8); $mm=[regex]::Match($tx,'APPVER=.([0-9.]+).')
@@ -272,7 +272,10 @@ $prepSb={ param($S,$lib,$force)
   foreach($t in 'ffmpeg','deno'){ if(-not(Get-Command $t -ea 0)){ L (Tr "AVISO: $t nao instalado (o download falhou). Alguns formatos/videos podem falhar. Clique em Configuracoes > Atualizar tudo para tentar de novo." "WARNING: $t is not installed (the download failed). Some formats/videos may fail. Click Settings > Update everything to try again.") } } }
  try{
   $S.ready=$false; $S.prep=(Tr 'Verificando dependencias...' 'Checking dependencies...')
-  if($S.test){ if($env:YTDL_DEPSTEST){ $b0=VerYt; UpdYt; $b1=VerYt; if($b0 -ne $b1){ L "yt-dlp: $b0 -> $b1" }; Deps $force }; Ver; $S.prep=''; $S.ready=$true; if($env:YTDL_UPDURL){ SelfUpdate $force }; return }
+  # Procura versao nova do programa ANTES das dependencias: o aviso de atualizacao
+  # aparece em qualquer versao, mesmo que o download do yt-dlp/ffmpeg falhe ou demore.
+  if(-not $S.test -or $env:YTDL_UPDURL){ try{ SelfUpdate $force }catch{ L "[upd] $($_.Exception.Message)" } }
+  if($S.test){ if($env:YTDL_DEPSTEST){ $b0=VerYt; UpdYt; $b1=VerYt; if($b0 -ne $b1){ L "yt-dlp: $b0 -> $b1" }; Deps $force }; Ver; $S.prep=''; $S.ready=$true; return }
   $ch=$S.chan; if(-not $ch){ $ch='stable' }
   $u1='https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp.exe'; $u2='https://github.com/yt-dlp/yt-dlp-nightly-builds/releases/latest/download/yt-dlp.exe'; $u3='https://github.com/yt-dlp/yt-dlp-master-builds/releases/latest/download/yt-dlp.exe'
   $ytUrl=$(if($ch -eq 'nightly'){ @($u2,$u1,$u3) }else{ @($u1,$u2,$u3) })
@@ -285,7 +288,6 @@ $prepSb={ param($S,$lib,$force)
   else{ $S.prep=(Tr 'Verificando a versao do yt-dlp...' 'Checking the yt-dlp version...'); $b0=VerYt; UpdYt; $b1=VerYt; if($b0 -ne $b1){ L (Tr "yt-dlp: atualizado $b0 -> $b1" "yt-dlp: updated $b0 -> $b1") }else{ L (Tr "yt-dlp: ja esta na versao mais recente ($b1)." "yt-dlp: already up to date ($b1).") } }
   Deps $force
   Ver; $S.prep=''; $S.ready=$true
-  SelfUpdate $force
  }catch{ $m=(Tr "ERRO no preparo: $($_.Exception.Message)" "Setup ERROR: $($_.Exception.Message)"); L $m; $S.prep=$m }
 }
 
