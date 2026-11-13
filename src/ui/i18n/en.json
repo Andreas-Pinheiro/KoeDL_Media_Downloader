@@ -146,6 +146,7 @@
   "q_remove": "Remove",
   "q_retry": "Retry",
   "q_open": "Show in folder",
+  "q_play": "Play in KoeDL",
   "h_hist": "History",
   "h_clear": "Clear history",
   "h_empty": "Nothing downloaded yet.",
