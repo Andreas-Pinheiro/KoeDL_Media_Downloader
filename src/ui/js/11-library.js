@@ -21,12 +21,17 @@ function libRender(){var a=lshown();LSHOW=a;$('lcount').textContent=t('lib_count
   +(a.length>LMAX?'<div class="emp">'+esc(t('lib_more').replace('{a}',LMAX).replace('{b}',a.length))+'</div>':''):'<div class="emp">'+esc(t('lib_empty'))+'</div>';libTitles();lui()}
 /* mostra/esconde o video do palco direto no elemento: nao depende da classe CSS chegar junto com o src */
 function libShowStage(v){var s=$('lstage'),e=$('pv');if(s)s.classList.toggle('vid',v);if(e)e.style.display=v?'block':'none';try{void e.offsetHeight}catch(x){}}
+/* rola so a lista ate o item atual: scrollIntoView() mexia no container da pagina e jogava o player para fora da tela */
+function libListReveal(){var l=$('llist'),el=l&&l.querySelector('.li.on');if(!el)return;var lt=l.getBoundingClientRect(),it=el.getBoundingClientRect();
+ if(it.top<lt.top)l.scrollTop-=(lt.top-it.top)+4;else if(it.bottom>lt.bottom)l.scrollTop+=(it.bottom-lt.bottom)+4}
+/* com a janela estreita o player fica ACIMA da lista: ao dar play num video, traz ele de volta se estiver fora da tela */
+function libRevealStage(){var s=$('lstage');if(!s)return;var r=s.getBoundingClientRect();if(r.top>=-4&&r.bottom<=innerHeight+4)return;try{s.scrollIntoView({block:'nearest'})}catch(e){}}
 function libCur(){for(var i=0;i<LIB.length;i++)if(LIB[i].p===LCUR)return LIB[i];return null}
 function libPlay(x){if(!x)return;var v=x.k==='v',m=v?$('pv'):$('pa'),o=v?$('pa'):$('pv');try{o.pause();o.removeAttribute('src');o.load()}catch(e){}
  LM=m;LCUR=x.p;$('lerr').textContent='';libShowStage(v);$('lnow').textContent=x.n;$('lsub').textContent=(x.d?x.d+' · ':'')+(v?t('lib_v'):t('lib_a'))+(x.s?' · '+lsize(x.s):'');
  m.volume=+$('lvol').value/100;m.playbackRate=+$('lspd').value;m.src='/api/media?t='+encodeURIComponent(T)+'&p='+encodeURIComponent(x.p);var pr=m.play();if(pr&&pr.catch)pr.catch(function(){});
  try{if('mediaSession' in navigator){navigator.mediaSession.metadata=new MediaMetadata({title:x.n,artist:x.d||'KoeDL'});navigator.mediaSession.setActionHandler('previoustrack',function(){libStep(-1)});navigator.mediaSession.setActionHandler('nexttrack',function(){libStep(1)})}}catch(e){}
- libMark();var el=$('llist').querySelector('.li.on');if(el&&el.scrollIntoView)try{el.scrollIntoView({block:'nearest'})}catch(e){}}
+ libMark();libListReveal();if(v)libRevealStage()}
 /* toca um arquivo qualquer no player embutido (botao ▶ da fila e do historico), mesmo que a lista ainda nao o tenha */
 function libPlayFile(p,n,k){if(!p)return;tab('lib');var x=null;for(var i=0;i<LIB.length;i++){if(LIB[i].p===p){x=LIB[i];break}}
  if(!x){var nm=String(n||'').trim()||String(p).split(/[\\/]/).pop();var ext=(nm.indexOf('.')>=0?nm.split('.').pop():'').toLowerCase();
