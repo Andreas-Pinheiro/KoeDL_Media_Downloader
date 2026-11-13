@@ -22,7 +22,7 @@ $sep=[IO.Path]::PathSeparator
 $env:PATH="$bin$sep$env:PATH"; $env:PYTHONUTF8='1'
 $yt=$(if($env:YTDL_BIN){ $env:YTDL_BIN }elseif($WIN){ [IO.Path]::Combine($bin,'yt-dlp.exe') }else{ [IO.Path]::Combine($bin,'yt-dlp') })
 $settingsFile=[IO.Path]::Combine($bin,'settings.json')
-$APPVER='3.14'
+$APPVER='3.15'
 $updFile=[IO.Path]::Combine($bin,'app.update.ps1')
 if(-not $env:YTDL_OVR -and (Test-Path $updFile)){
  try{ $tx=[IO.File]::ReadAllText($updFile,[Text.Encoding]::UTF8); $mm=[regex]::Match($tx,'APPVER=.([0-9.]+).')
