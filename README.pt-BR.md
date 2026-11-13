@@ -92,7 +92,7 @@ O resultado deve ser idêntico ao publicado.
 
 **Funciona sem internet?** Só para tocar o que você já baixou. Baixar e atualizar precisam de internet.
 
-**É seguro? Meu antivírus ou o Windows avisou.** Os `.exe` são gerados automaticamente pelo GitHub a partir do código deste repositório e não têm assinatura digital (o certificado é pago), então o Windows SmartScreen e alguns antivírus podem avisar. Confira o SHA-256 no `SHA256SUMS.txt`. Se ainda assim incomodar, use o `KoeDL.bat`, que faz a mesma coisa e cujo código dá para ler.
+**É seguro? Meu antivírus ou o Windows avisou.** Pode aparecer um **falso positivo**. Os `.exe` são gerados automaticamente pelo GitHub a partir do código deste repositório e não têm assinatura digital (o certificado é pago), então o Windows SmartScreen e alguns antivírus podem avisar. No VirusTotal, só poucos motores (detecções genéricas de heurística/aprendizado de máquina, sem nome de malware) marcam o `.exe`, porque o app baixa arquivos, usa PowerShell e compila um pequeno auxiliar, o que parece suspeito para heurísticas. O `KoeDL.bat` tem resultado bem melhor (1 de 61 motores) e o código é legível. Confira o SHA-256 no `SHA256SUMS.txt`; se ainda assim incomodar, use o `KoeDL.bat`, que faz a mesma coisa. O código é público, dá para auditar, e você pode reportar o falso positivo ao fabricante do antivírus.
 
 **Para onde vão os arquivos?** Para a pasta `Downloads` ao lado do programa (versão instalada: `Downloads\KoeDL` no seu usuário). Dá para mudar em Configurações, inclusive pastas separadas para música e vídeo.
 
