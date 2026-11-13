@@ -92,7 +92,7 @@ The result must be identical to the one published.
 
 **Does it work offline?** Only to play what you already downloaded. Downloading and updating need internet.
 
-**Is it safe? My antivirus or Windows warned me.** The `.exe` files are built automatically by GitHub from the source in this repository and are not digitally signed (a certificate costs money), so Windows SmartScreen and some antivirus programs may warn about them. Check the SHA-256 against `SHA256SUMS.txt`. If it still bothers you, use `KoeDL.bat`, which does the same thing and whose code you can read.
+**Is it safe? My antivirus or Windows warned me.** It may show a **false positive**. The `.exe` files are built automatically by GitHub from the source in this repository and are not digitally signed (a certificate costs money), so Windows SmartScreen and a few antivirus engines may warn about them. On VirusTotal, only a handful of engines (generic machine-learning/heuristic detections, no named malware) flag the `.exe`, because the app downloads files, runs PowerShell and compiles a small helper, which looks suspicious to heuristics. `KoeDL.bat` gets a much better result (1 of 61 engines), and its code is readable. Check the SHA-256 against `SHA256SUMS.txt`; if it still bothers you, use `KoeDL.bat`, which does the same thing. The code is public, so you can audit it, and you can report the false positive to your antivirus vendor.
 
 **Where do the files go?** To the `Downloads` folder next to the program (installed version: `Downloads\KoeDL` in your user folder). You can change it in Settings, including separate folders for music and video.
 
