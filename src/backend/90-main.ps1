@@ -27,11 +27,19 @@ $first=$true
 while($lst.IsListening){
  $ctx=$lst.GetContext(); $rq=$ctx.Request; $rs=$ctx.Response
  try{
+  try{ $rs.AddHeader('X-Content-Type-Options','nosniff'); $rs.AddHeader('Referrer-Policy','no-referrer'); $rs.AddHeader('X-Frame-Options','DENY') }catch{}
   $path=$rq.Url.AbsolutePath; $body=''
   if($rq.HasEntityBody){ $body=(New-Object IO.StreamReader($rq.InputStream,[Text.Encoding]::UTF8)).ReadToEnd() }
   $out='{}'; $ct='application/json; charset=utf-8'
   $hostOk=("$($rq.Headers['Host'])" -match '^(127\.0\.0\.1|localhost)(:\d+)?$')
+  # Defesa em profundidade: alem do token, escrita so com o cabecalho da propria interface
+  # (site externo nao manda cabecalho customizado sem preflight/CORS) e Origin so do proprio app.
+  $org="$($rq.Headers['Origin'])"
+  $orgOk=(-not $org -or $org -match '^https?://(127\.0\.0\.1|localhost)(:\d+)?$')
+  $wr=($rq.HttpMethod -eq 'POST' -or $rq.HttpMethod -eq 'PUT' -or $rq.HttpMethod -eq 'PATCH' -or $rq.HttpMethod -eq 'DELETE')
+  $csrfOk=(-not $wr -or "$($rq.Headers['X-KoeDL'])" -eq '1')
   if(-not $hostOk){ $rs.StatusCode=403; $out='' }
+  elseif(-not $orgOk -or -not $csrfOk){ $rs.StatusCode=403; $out='' }
   elseif($path -eq '/'){ $out=$html.Replace('__TOK__',$tok); $ct='text/html; charset=utf-8' }
   elseif($rq.QueryString['t'] -ne $tok){ $rs.StatusCode=403 }
   else{
@@ -71,6 +79,7 @@ while($lst.IsListening){
           if($seen.ContainsKey($f.FullName)){ continue }; $seen[$f.FullName]=1; $dn=$f.Directory.Name; if([IO.Path]::GetFullPath($f.DirectoryName).TrimEnd('\','/') -eq $rrf){ $dn='' }
           [void]$li.Add([ordered]@{p=$f.FullName;n=$f.BaseName;k=$(if($isA){'a'}else{'v'});s=$f.Length;t=$f.LastWriteTime.ToString('s');d=$dn}) } }
       $srt=@($li|Sort-Object @{Expression={$_.t};Descending=$true}|Select-Object -First 5000); $out=ConvertTo-Json -InputObject $srt -Depth 3 -Compress }
+    '/api/deps'{ $df=J $bin 'deps.json'; if(Test-Path $df){ $out=[IO.File]::ReadAllText($df,[Text.Encoding]::UTF8) }else{ $out='[]' } }
     '/api/libdirs'{ $lf=LibFile
       if($rq.HttpMethod -eq 'POST'){ try{ $ok=@(); $bad=@()
           foreach($d in @(($body|ConvertFrom-Json).dirs)){ $d="$d".Trim(); if(-not $d){ continue }
@@ -128,7 +137,7 @@ while($lst.IsListening){
     '/api/quit'{ $S.stop=$true; $PL.stop=$true; KillTree $S.pid; KillTree $S.lpid; KillTree $S.ipid; $lst.Stop() }
    }
   }
-  if($lst.IsListening -and $out){ $b=[Text.Encoding]::UTF8.GetBytes($out); $rs.ContentType=$ct; $rs.OutputStream.Write($b,0,$b.Length) }
+  if($lst.IsListening -and $out){ $b=[Text.Encoding]::UTF8.GetBytes($out); $rs.ContentType=$ct; try{ if($ct -match 'json|html'){ $rs.AddHeader('Cache-Control','no-store') } }catch{}; $rs.OutputStream.Write($b,0,$b.Length) }
   if($quitSoon){ try{ $rs.Close() }catch{}; $lst.Stop() }
  }catch{
   # Requisicao abortada pelo navegador/fechamento da janela nao e erro do app: nao poluir o log.
