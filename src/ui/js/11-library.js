@@ -26,3 +26,13 @@ $('lprev').onclick=function(){libStep(-1)};$('lnext').onclick=function(){libStep
 $('lopen').onclick=function(){var x=LIB[LCUR];if(x)api('openfile',{path:x.p})};
 $('lseg').addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('button[data-f]');if(!b)return;LF=b.dataset.f;[].forEach.call($('lseg').children,function(c){c.classList.toggle('on',c===b)});libRender()});
 var _al2=applyLang;applyLang=function(){_al2.apply(this,arguments);libRender()};
+/* ---- pastas extras da Biblioteca (o seletor nativo roda no backend) ---- */
+function libAddFolder(p){return p?api('libadd',{path:p}):api('libadd',{})}
+function libDropFolder(p){return api('libadd',{remove:p})}
+async function libPickStart(){var r=null;try{r=await libAddFolder('')}catch(e){}
+ if(!r)return;if(r.error){alert(r.error);return}
+ if(r.picking){for(var i=0;i<1200;i++){await new Promise(function(f){setTimeout(f,500)});var q=null;try{q=await api('libadd')}catch(e){}
+  if(q&&!q.picking){if(q.err)alert(q.err);libLoad();return}}return}
+ libLoad()}
+async function libPickAdd(p){try{var r=await libAddFolder(p);if(r&&r.error)alert(r.error);libLoad()}catch(e){}}
+async function libPickRemove(p){try{var r=await libDropFolder(p);if(r&&r.error)alert(r.error);libLoad()}catch(e){}}

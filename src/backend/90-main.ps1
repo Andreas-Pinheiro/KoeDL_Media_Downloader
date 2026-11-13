@@ -38,7 +38,11 @@ while($lst.IsListening){
    switch($path){
     '/api/status'{ $out=@{appver=$S.appver;updavail="$($S.updAvail)";chk="$($S.chk)";running=$S.running;ready=$S.ready;prep=$S.prep;note=$S.note;ver=$S.ver;status=$S.status;pct=$S.pct;speed=$S.speed;eta=$S.eta;item=$S.item;cur=$S.cur;browser=$S.browser;done=$S.done;total=$S.total;
        files=@($S.files.ToArray()|Select-Object -First 60);nfiles=$S.files.Count;log=@($S.log.ToArray()|Select-Object -Last 90);fails=@($S.fails.ToArray());alts=@($S.alts.ToArray())}|ConvertTo-Json -Depth 4 -Compress }
-    '/api/settings'{ if($rq.HttpMethod -eq 'POST'){ try{ $null=$body|ConvertFrom-Json; [IO.File]::WriteAllText($settingsFile,$body,(New-Object Text.UTF8Encoding $false)); $sj=$body|ConvertFrom-Json; if($sj.chan){ $S.chan="$($sj.chan)" }; $S.lang=$(if($sj.lang -eq 'pt'){ 'pt' }else{ 'en' }); if($sj.PSObject.Properties['selfUpd']){ $S.selfUpd=[bool]$sj.selfUpd } }catch{ L "[config] nao consegui salvar o settings.json: $($_.Exception.Message)" } }
+    '/api/settings'{ if($rq.HttpMethod -eq 'POST'){ try{ $sj=$body|ConvertFrom-Json
+        # A interface nao conhece libDirs: preserva as pastas extras da Biblioteca ao salvar as preferencias.
+        if(-not $sj.PSObject.Properties['libDirs']){ try{ if(Test-Path $settingsFile){ $old=Get-Content $settingsFile -Raw -Encoding UTF8|ConvertFrom-Json; if($old.PSObject.Properties['libDirs']){ $sj|Add-Member -NotePropertyName libDirs -NotePropertyValue @($old.libDirs) -Force } } }catch{} }
+        [IO.File]::WriteAllText($settingsFile,(ConvertTo-Json -InputObject $sj -Depth 6),(New-Object Text.UTF8Encoding $false))
+        if($sj.chan){ $S.chan="$($sj.chan)" }; $S.lang=$(if($sj.lang -eq 'pt'){ 'pt' }else{ 'en' }); if($sj.PSObject.Properties['selfUpd']){ $S.selfUpd=[bool]$sj.selfUpd } }catch{ L "[config] nao consegui salvar o settings.json: $($_.Exception.Message)" } }
        else{ if(Test-Path $settingsFile){ $out=[IO.File]::ReadAllText($settingsFile,[Text.Encoding]::UTF8) } } }
     '/api/start'{
      if($S.running){ $out=@{error=(Tr 'Ja existe um download em andamento.' 'A download is already running.')}|ConvertTo-Json -Compress }
@@ -65,6 +69,16 @@ while($lst.IsListening){
     '/api/queue'{ $qf=J $bin 'queue.json'
       if($rq.HttpMethod -eq 'POST'){ try{ if($body.Length -gt 2000000){ throw 'fila grande demais' }; $null=$body|ConvertFrom-Json; [IO.File]::WriteAllText($qf,$body,(New-Object Text.UTF8Encoding $false)); $out='{"ok":true}' }catch{ $out=@{error=(ErrTxt (Tr 'salvar a fila' 'save the queue') $_)}|ConvertTo-Json -Compress } }
       else{ if(Test-Path $qf){ $out=[IO.File]::ReadAllText($qf,[Text.Encoding]::UTF8) }else{ $out='[]' } } }
+    '/api/libadd'{ if($rq.HttpMethod -eq 'POST'){
+       $b=$null; try{ $b=$body|ConvertFrom-Json }catch{}
+       $rem=$(if($b){ "$($b.remove)" }else{ '' }); $np=$(if($b){ "$($b.path)" }else{ '' })
+       try{
+        if($rem){ $out=@{ok=$true;dirs=@(SetLibDirs (@(LibDirs)|Where-Object{ "$_" -ne $rem }))}|ConvertTo-Json -Depth 3 -Compress }
+        elseif($np){ $out=@{ok=$true;dirs=@(SetLibDirs (@(LibDirs)+$np))}|ConvertTo-Json -Depth 3 -Compress }
+        elseif($WIN -and -not $TEST){ StartLibPick; $out=@{picking=$true;dirs=@(LibDirs)}|ConvertTo-Json -Depth 3 -Compress }
+        else{ $out=@{error=(Tr 'O seletor de pastas so existe no Windows. Informe o caminho da pasta.' 'The folder picker only exists on Windows. Type the folder path instead.')}|ConvertTo-Json -Compress } }
+       catch{ L "[lib] $($_.Exception.Message)"; $m="$($_.Exception.Message)"; $out=@{error=$(if($m -match '^(Pasta|Caminho|Folder|Invalid)'){ $m }else{ ErrTxt (Tr 'adicionar a pasta' 'add the folder') $_ })}|ConvertTo-Json -Compress } }
+      else{ CheckLibPick; $out=@{dirs=@(LibDirs);picking=[bool]$S.libPick;err="$($S.libPickErr)"}|ConvertTo-Json -Depth 3 -Compress } }
     '/api/library'{ $ea='.mp3','.m4a','.opus','.ogg','.flac','.wav','.aac'; $ev='.mp4','.mkv','.webm','.mov'; $seen=@{}; $li=New-Object Collections.ArrayList
       foreach($r in (DlRoots)){ if(-not(Test-Path -LiteralPath $r)){ continue }; $rrf=[IO.Path]::GetFullPath($r)
         foreach($f in (Get-ChildItem -LiteralPath $r -Recurse -Depth 4 -File -ea 0)){ $x=$f.Extension.ToLower(); $isA=($ea -contains $x); if(-not $isA -and -not ($ev -contains $x)){ continue }
@@ -83,7 +97,7 @@ while($lst.IsListening){
           else{ $n=$en-$st+1; $rs.ContentType=$mt; $rs.AddHeader('Accept-Ranges','bytes'); if($part){ $rs.StatusCode=206; $rs.AddHeader('Content-Range',"bytes $st-$en/$len") }; $rs.ContentLength64=$n
             $fs=[IO.File]::Open($fp,[IO.FileMode]::Open,[IO.FileAccess]::Read,[IO.FileShare]::ReadWrite); try{ [void]$fs.Seek($st,[IO.SeekOrigin]::Begin); $buf=New-Object byte[] 65536; $left=$n
               while($left -gt 0){ $rd=$fs.Read($buf,0,[int][Math]::Min([long]$buf.Length,$left)); if($rd -le 0){ break }; $rs.OutputStream.Write($buf,0,$rd); $left-=$rd } }finally{ $fs.Dispose() } } } }catch{} }
-    '/api/openfile'{ try{ $fp="$(($body|ConvertFrom-Json).path)"; $sj=ReadSettings; $roots=@((GetDl)); if($sj){ foreach($k in 'dirAudio','dirVideo'){ if("$($sj.$k)".Trim()){ $roots+="$($sj.$k)".Trim() } } }
+    '/api/openfile'{ try{ $fp="$(($body|ConvertFrom-Json).path)"; $roots=@(DlRoots)
         $okp=$false; foreach($r in $roots){ try{ $rr=[IO.Path]::GetFullPath($r).TrimEnd('\','/'); $ff=[IO.Path]::GetFullPath($fp); if($ff.StartsWith($rr+[IO.Path]::DirectorySeparatorChar,[StringComparison]::OrdinalIgnoreCase)){ $okp=$true } }catch{} }
         if($okp -and (Test-Path -LiteralPath $fp) -and $WIN -and -not $TEST){ Start-Process explorer.exe "/select,`"$fp`"" }
         elseif(-not $okp){ $out=@{error=(Tr 'O arquivo nao esta nas pastas de download.' 'The file is not inside the download folders.')}|ConvertTo-Json -Compress } }catch{ L "[abrir] $($_.Exception.Message)" } }
