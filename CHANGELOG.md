@@ -2,6 +2,10 @@
 
 Formato: versões mais novas primeiro. / Newest versions first.
 
+## 3.12
+**PT:** versão de manutenção, sem mudanças visíveis na interface; a publicação automática das releases passou a conferir o `SHA256SUMS.txt` linha a linha, porque a checagem anterior abortava o envio dos arquivos.
+**EN:** maintenance release with no visible interface changes; the automatic release publishing now checks `SHA256SUMS.txt` line by line, because the previous check aborted the file upload.
+
 ## 3.11
 **PT:** aba **Biblioteca** (lista o que você baixou e toca música e vídeo dentro do KoeDL, com busca, filtro, anterior/próxima, aleatório e "tocar a próxima"); o atualizador agora confere o **hash SHA-256** do arquivo com o `SHA256SUMS.txt` da mesma release antes de aceitar a atualização e tem um **plano B** quando a API do GitHub falha; README com o `KoeDL-Setup.exe` como instalação principal, requisitos, FAQ e como conferir o hash; SECURITY, CONTRIBUTING e modelos de issue; atalhos Ctrl+1..5; as notas da release passam a vir deste arquivo; ponteiro do mouse corrigido ao rolar a lista da playlist; novo botão **Limpar** para desistir do link e da playlist carregada; o seletor de faixas não desce mais para o fim da página.
 **EN:** new **Library** tab (lists what you downloaded and plays music and video inside KoeDL, with search, filter, previous/next, shuffle and "play next"); the updater now checks the file's **SHA-256** against the `SHA256SUMS.txt` of the same release before accepting an update, with a **fallback** when the GitHub API fails; README with `KoeDL-Setup.exe` as the main install method, requirements, FAQ and how to verify the hash; SECURITY, CONTRIBUTING and issue templates; Ctrl+1..5 shortcuts; release notes now come from this file; mouse pointer fixed when scrolling the playlist list; new **Clear** button to drop the link and the loaded playlist; the track picker no longer slides to the bottom of the page.
