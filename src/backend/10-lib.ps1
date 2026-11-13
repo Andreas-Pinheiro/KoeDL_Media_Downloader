@@ -2,7 +2,7 @@
 $lib=@'
 function J{ [IO.Path]::Combine([string[]]$args) }
 function Tr($pt,$en){ if($S.lang -eq 'pt'){ return $pt }else{ return $en } }
-function L($m){ [void]$S.log.Add([string]$m); if($S.log.Count -gt 600){ $S.log.RemoveRange(0,100) } }
+function L($m){ try{ [void]$S.log.Add([string]$m); if($S.log.Count -gt 600){ $S.log.RemoveRange(0,100) } }catch{} }
 function ErrTxt($ctx,$e){
  # Loga o detalhe tecnico e devolve uma frase amigavel para a interface.
  $d=''; try{ if($e){ $d="$($e.Exception.Message)"; if($e.ScriptStackTrace){ $d="$d | $($e.ScriptStackTrace -replace "`r?`n",' <- ')" } } }catch{}
@@ -174,6 +174,73 @@ function GetFile($urls,$out){ $ProgressPreference='SilentlyContinue'
 function GetZip($urls,$pat){ $z=J ([IO.Path]::GetTempPath()) ('dl_'+[guid]::NewGuid().ToString('N')+'.zip'); $x="$z.d"
  if(GetFile $urls $z){ try{ Expand-Archive $z $x -Force; Get-ChildItem $x -Recurse -Include $pat | Copy-Item -Destination $S.bin -Force }catch{ L (Tr "falha ao extrair: $($_.Exception.Message)" "failed to extract: $($_.Exception.Message)") } }
  Remove-Item $z,$x -Recurse -Force -ea 0 }
+# ---------------------------------------------------------------- integridade das dependencias
+# Politica: hash publicado pela propria origem e obrigatorio. Divergencia = arquivo descartado.
+# Se a origem nao publica (ou nao conseguimos ler) o hash, o arquivo entra com aviso e fica
+# registrado como verificado=false em bin/deps.json, junto com o sha256 local.
+function Sha256File($p){ try{ return ((Get-FileHash -LiteralPath $p -Algorithm SHA256 -ea 1).Hash).ToLowerInvariant() }catch{ return '' } }
+function SigOf($p){ try{ $s=Get-AuthenticodeSignature -LiteralPath $p -ea 1
+  if($s.Status -eq 'Valid'){ $n="$($s.SignerCertificate.Subject)"; if($n -match 'CN=([^,]+)'){ $n=$matches[1] }; return "Valid: $n" }
+  return "$($s.Status)" }catch{ return 'Unknown' } }
+function DepHostsOk($u){ try{ $x=[uri]$u }catch{ return $false }
+ if($env:YTDL_DEP_INSECURE -eq '1'){ return $true }
+ if($x.Scheme -ne 'https'){ return $false }
+ $h=$x.Host.ToLowerInvariant()
+ return (@('github.com','api.github.com','objects.githubusercontent.com','release-assets.githubusercontent.com','codeload.github.com','api.nuget.org','globalcdn.nuget.org') -contains $h) }
+function DepText($u){ $ProgressPreference='SilentlyContinue'
+ if(-not (DepHostsOk $u)){ L "[hash] origem recusada: $u"; return '' }
+ try{ $r=Invoke-WebRequest $u -UseBasicParsing -TimeoutSec 40 -Headers @{'User-Agent'='KoeDL'}
+  if($r.Content -is [byte[]]){ return [Text.Encoding]::UTF8.GetString($r.Content) }
+  return "$($r.Content)" }catch{ L "[hash] nao consegui ler $u : $($_.Exception.Message)"; return '' } }
+function DepSumFor($txt,$name){
+ # Aceita o formato GNU ("hash  arquivo") e o bloco "Hash : HASH" que o deno publica.
+ foreach($ln in (("$txt") -split "`r?`n")){ $s=$ln.Trim(); if(-not $s){ continue }
+  if($s -match '^([0-9a-fA-F]{64})\s+\*?(.+)$'){ if($matches[2].Trim() -eq $name){ return $matches[1].ToLowerInvariant() } } }
+ $m=[regex]::Match("$txt",'(?im)^\s*Hash\s*:\s*([0-9a-f]{64})\s*$')
+ if($m.Success){ return $m.Groups[1].Value.ToLowerInvariant() }
+ return '' }
+function DepsAdd($n,$v,$sha,$src,$ok,$sig){ $f=J $S.bin 'deps.json'; $a=@()
+ try{ if(Test-Path $f){ $a=@([IO.File]::ReadAllText($f,[Text.Encoding]::UTF8)|ConvertFrom-Json) } }catch{}
+ $a=@($a|Where-Object{ "$($_.n)" -ne "$n" })
+ $a+=,[pscustomobject]@{n="$n";v="$v";sha256="$sha";src="$src";verified=[bool]$ok;sig="$sig";at=(Get-Date).ToUniversalTime().ToString('yyyy-MM-ddTHH:mm:ssZ')}
+ try{ [IO.File]::WriteAllText($f,(ConvertTo-Json -InputObject @($a) -Depth 4),(New-Object Text.UTF8Encoding $false)) }catch{}
+ L ("[deps] $n $v hash=$sha origem="+$(if($ok){'conferida'}else{'NAO conferida'})+" sig=$(if($sig){$sig}else{'-'})") }
+function DepsVer($map){ $f=J $S.bin 'deps.json'; if(-not(Test-Path $f)){ return }
+ $a=@(); try{ $a=@([IO.File]::ReadAllText($f,[Text.Encoding]::UTF8)|ConvertFrom-Json) }catch{ return }
+ $ch=$false
+ foreach($r in $a){ foreach($k in $map.Keys){ if("$($r.n)" -like "*$k*"){ if($map[$k] -and "$($r.v)" -ne "$($map[$k])"){ $r.v="$($map[$k])"; $ch=$true } } } }
+ if($ch){ try{ [IO.File]::WriteAllText($f,(ConvertTo-Json -InputObject @($a) -Depth 4),(New-Object Text.UTF8Encoding $false)) }catch{} } }
+function DepGet($urls,$out,$sumUrls,$name,$ver){
+ # Baixa para um temporario, confere o SHA-256 publicado pela mesma release e so entao grava em $out.
+ $i=0; $err=''
+ foreach($url in @($urls)){ $i++; $tmp="$out.dep"
+  if(-not (DepHostsOk $url)){ $err='origem nao permitida'; L "[hash] origem recusada: $url"; continue }
+  Remove-Item $tmp -ea 0
+  if(-not (GetFile @($url) $tmp)){ $err=$S.lastErr; continue }
+  $h=Sha256File $tmp; $want=''; $su=''
+  if($sumUrls){ $cs=@($sumUrls); if($cs.Count -ge $i){ $su="$($cs[$i-1])" } }
+  if($su){ $want=(DepSumFor (DepText $su) $name) }
+  if($want -and $h -ne $want){
+   L (Tr "!!! ${name}: o SHA-256 nao confere (a release diz $want, o arquivo tem $h). Arquivo descartado." "!!! ${name}: SHA-256 mismatch (release says $want, file has $h). File discarded.")
+   Remove-Item $tmp -ea 0; $err='hash nao confere'; continue }
+  if($want){ L "[hash] $name ok ($h)" }
+  else{ L (Tr "[hash] ${name}: sem hash publicado legivel ($su) - sha256 local $h" "[hash] ${name}: no readable published hash ($su) - local sha256 $h") }
+  Move-Item $tmp $out -Force
+  DepsAdd $name $ver $h $url ([bool]$want) ''
+  return $true }
+ $S.lastErr=$err; return $false }
+function DepZip($urls,$sumUrls,$name,$pat,$ver){
+ $z=J ([IO.Path]::GetTempPath()) ('dep_'+[guid]::NewGuid().ToString('N')+'.zip'); $x="$z.d"
+ if(-not (DepGet $urls $z $sumUrls $name $ver)){ return $false }
+ try{ Expand-Archive $z $x -Force; $n=0
+  foreach($f in (Get-ChildItem $x -Recurse -Include $pat -File -ea 0)){
+   $dst=J $S.bin $f.Name; Copy-Item $f.FullName $dst -Force; $n++
+   $sg=SigOf $dst; $h=Sha256File $dst
+   L "[sig] $($f.Name): $sg"
+   if($sg -notmatch '^Valid'){ L (Tr "[sig] AVISO: $($f.Name) nao tem assinatura digital valida" "[sig] WARNING: $($f.Name) has no valid digital signature") }
+   DepsAdd $f.Name $ver $h $name $true $sg }
+  return ($n -gt 0) }catch{ L (Tr "falha ao extrair: $($_.Exception.Message)" "failed to extract: $($_.Exception.Message)"); return $false }
+ finally{ Remove-Item $z,$x -Recurse -Force -ea 0 } }
 '@
 
 . ([scriptblock]::Create($lib))

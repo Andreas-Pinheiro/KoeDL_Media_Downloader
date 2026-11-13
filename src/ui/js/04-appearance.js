@@ -1,6 +1,6 @@
 let LANG='en';
 const t=k=>(D[LANG]&&D[LANG][k])||D.en[k]||k;
-const api=(p,b)=>fetch('/api/'+p+(p.indexOf('?')<0?'?':'&')+'t='+T,b?{method:'POST',body:JSON.stringify(b)}:{}).then(r=>r.json());
+const api=(p,b)=>fetch('/api/'+p+(p.indexOf('?')<0?'?':'&')+'t='+T,b?{method:'POST',headers:{'X-KoeDL':'1','Content-Type':'application/json'},body:JSON.stringify(b)}:{headers:{'X-KoeDL':'1'}}).then(r=>r.json());
 const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 let cur='links',P={items:[],from:0,busy:false,title:'',url:''},ready=false,running=false,lastStatus=null;
 const IDS=['rate','frag','dirAudio','dirVideo','notif','after','autoclip','lookv','selfUpd','lang','openMode','theme','accent','fsize','density','corner','afmt','aq','vq','vcont','plmode','num','batch','splitType','st','en','noPl','nock','wait','meta','safe','reset','alt','addId','dlDir','chan','curmode','curpx2','curanim'];

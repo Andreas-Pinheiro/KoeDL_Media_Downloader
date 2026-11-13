@@ -25,11 +25,31 @@ $wv2Sb={ param($S,$lib)
   $pk=$(if($env:YTDL_NUGET_PKG){ $env:YTDL_NUGET_PKG }else{ "https://api.nuget.org/v3-flatcontainer/microsoft.web.webview2/$ver/microsoft.web.webview2.$ver.nupkg" })
   $tmpz=J ([IO.Path]::GetTempPath()) ('wv2_'+[guid]::NewGuid().ToString('N')+'.zip'); $x="$tmpz.d"
   L (Tr "webview2: baixando o componente da janela ($ver)..." "webview2: downloading the window component ($ver)...")
-  if(-not(GetFile $pk $tmpz)){ if(-not $have){ Set-Content $fail (Get-Date -Format s) }; return }
+  # Hash publicado pelo NuGet (SHA-512 em base64) para esta versao exata do pacote.
+  $exp=''
+  if($env:YTDL_NUGET_HASH){ $exp="$($env:YTDL_NUGET_HASH)".Trim() }
+  else{ try{ $reg=Invoke-RestMethod "https://api.nuget.org/v3/registration5-gz-semver2/microsoft.web.webview2/$ver.json" -TimeoutSec 30 -Headers @{'User-Agent'='KoeDL'}
+    $cat="$($reg.catalogEntry)"
+    if($cat){ $cj=Invoke-RestMethod $cat -TimeoutSec 30 -Headers @{'User-Agent'='KoeDL'}; if($cj.packageHash -and "$($cj.packageHashAlgorithm)" -match '512'){ $exp="$($cj.packageHash)" } } }
+   catch{ L "(webview2: nao consegui ler o hash publicado: $($_.Exception.Message))" } }
+  if(-not(GetFile @($pk) $tmpz)){ if(-not $have){ Set-Content $fail (Get-Date -Format s) }; return }
+  $h512=''; try{ $h512=[Convert]::ToBase64String([Security.Cryptography.SHA512]::Create().ComputeHash([IO.File]::ReadAllBytes($tmpz))) }catch{}
+  if($exp -and $h512 -and $h512 -ne $exp){
+   L (Tr '(webview2: o hash do pacote nao confere com o do NuGet; pacote descartado)' '(webview2: the package hash does not match NuGet; package discarded)')
+   Remove-Item $tmpz -ea 0; if(-not $have){ Set-Content $fail (Get-Date -Format s) }; return }
+  if($exp -and $h512){ L '(webview2: hash do NuGet ok)' } else{ L (Tr '(webview2: sem hash publicado legivel; vou exigir a assinatura da Microsoft nos .dll)' '(webview2: no readable published hash; I will require the Microsoft signature on the DLLs)') }
   Expand-Archive $tmpz $x -Force
-  foreach($f in 'Microsoft.Web.WebView2.Core.dll','Microsoft.Web.WebView2.WinForms.dll'){ $src=J $x 'lib' 'net462' $f; if(Test-Path $src){ try{ Copy-Item $src (J $d $f) -Force }catch{ L "(webview2: $($_.Exception.Message))" } } }
+  $sigBad=$false
+  foreach($f in 'Microsoft.Web.WebView2.Core.dll','Microsoft.Web.WebView2.WinForms.dll'){ $src=J $x 'lib' 'net462' $f
+   if(Test-Path $src){ $sg=SigOf $src; L "[sig] $f : $sg"
+    if($sg -notmatch '^Valid'){ $sigBad=$true; continue }
+    try{ Copy-Item $src (J $d $f) -Force }catch{ L "(webview2: $($_.Exception.Message))" } } }
+  if($sigBad -and -not($exp -and $h512)){
+   L (Tr '(webview2: .dll sem assinatura valida e sem hash do NuGet; nao vou usar)' '(webview2: DLLs without a valid signature and without the NuGet hash; not using them)')
+   Remove-Item (J $d 'Microsoft.Web.WebView2.Core.dll'),(J $d 'Microsoft.Web.WebView2.WinForms.dll') -ea 0
+   Remove-Item $tmpz -ea 0; if(-not $have){ Set-Content $fail (Get-Date -Format s) }; return }
   foreach($a in 'x64','x86'){ $src=J $x 'runtimes' "win-$a" 'native' 'WebView2Loader.dll'; if(Test-Path $src){ New-Item -ItemType Directory -Force (J $d $a) | Out-Null; try{ Copy-Item $src (J $d $a 'WebView2Loader.dll') -Force }catch{} } }
-  if((Test-Path (J $d 'Microsoft.Web.WebView2.WinForms.dll')) -and (Test-Path (J $d 'Microsoft.Web.WebView2.Core.dll'))){ Set-Content $ok $ver; Remove-Item $fail -ea 0; L (Tr "webview2: pronto ($ver)." "webview2: ready ($ver).") }
+  if((Test-Path (J $d 'Microsoft.Web.WebView2.WinForms.dll')) -and (Test-Path (J $d 'Microsoft.Web.WebView2.Core.dll'))){ Set-Content $ok $ver; Remove-Item $fail -ea 0; DepsAdd 'microsoft.web.webview2.nupkg' $ver $h512 $pk ([bool]$exp) $(if($sigBad){'assinatura invalida'}else{'Valid'}); L (Tr "webview2: pronto ($ver)." "webview2: ready ($ver).") }
   elseif(-not $have){ Set-Content $fail (Get-Date -Format s); L (Tr '(webview2: o pacote nao tinha os arquivos esperados)' '(webview2: the package did not have the expected files)') }
  }catch{ L "(webview2: $($_.Exception.Message))"; if(-not $have){ try{ Set-Content (J $d 'fail.txt') (Get-Date -Format s) }catch{} } }
  finally{ if($tmpz){ Remove-Item $tmpz,$x -Recurse -Force -ea 0 } }
