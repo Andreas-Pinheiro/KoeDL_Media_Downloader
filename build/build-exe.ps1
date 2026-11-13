@@ -96,11 +96,11 @@ try {
     foreach ($name in 'KoeDL.exe', 'KoeDL-Setup.exe') {
         Copy-Item $out (Join-Path $OutDir $name) -Force
     }
-    foreach ($name in 'KoeDL.bat', 'Media-Downloader.bat') {
+    foreach ($name in 'KoeDL.bat', 'Media-Downloader.bat', 'koedl.sh') {
         Copy-Item (Join-Path $Root $name) (Join-Path $OutDir $name) -Force
     }
 
-    $lines = foreach ($name in 'KoeDL.bat', 'Media-Downloader.bat', 'KoeDL.exe', 'KoeDL-Setup.exe') {
+    $lines = foreach ($name in 'KoeDL.bat', 'Media-Downloader.bat', 'koedl.sh', 'KoeDL.exe', 'KoeDL-Setup.exe') {
         $hash = (Get-FileHash (Join-Path $OutDir $name) -Algorithm SHA256).Hash.ToLowerInvariant()
         Write-Host ("{0}  {1}" -f $hash, $name)
         "{0}  {1}" -f $hash, $name

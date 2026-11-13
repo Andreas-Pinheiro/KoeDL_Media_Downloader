@@ -12,6 +12,12 @@ $prepSb={ param($S,$lib,$force)
   DepsVer @{'yt-dlp'="$v";'ffmpeg'=(FfVer);'deno'=(DenoVer)} }
  function Deps($force){
   $ext=$(if($S.win){'.exe'}else{''})
+  # No Linux quem instala yt-dlp/ffmpeg e o koedl.sh: aqui so conferimos o que chegou.
+  if(-not $S.win){
+   $miss=@(); foreach($t in 'yt-dlp','ffmpeg','ffprobe'){ if(-not(Get-Command $t -ea 0)){ $miss+=$t } }
+   if($miss.Count){ L (Tr "AVISO: faltam $($miss -join ', '). Rode o koedl.sh de novo para instalar." "WARNING: missing $($miss -join ', '). Run koedl.sh again to install.") }
+   else{ L (Tr 'Linux: yt-dlp e ffmpeg ja estao instalados (mantidos pelo koedl.sh).' 'Linux: yt-dlp and ffmpeg are already installed (managed by koedl.sh).') }
+   return }
   $apiFF=$(if($env:YTDL_API_FF){ $env:YTDL_API_FF }else{ 'https://api.github.com/repos/yt-dlp/FFmpeg-Builds/releases/tags/latest' })
   $zipFF=$(if($env:YTDL_ZIP_FF){ @($env:YTDL_ZIP_FF) }else{ @('https://github.com/yt-dlp/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-win64-gpl.zip','https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-win64-gpl.zip') })
   $sumFF=$(if($env:YTDL_SUM_FF){ @($env:YTDL_SUM_FF) }else{ @('https://github.com/yt-dlp/FFmpeg-Builds/releases/download/latest/checksums.sha256','https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/checksums.sha256') })
@@ -58,14 +64,15 @@ $prepSb={ param($S,$lib,$force)
   if(-not $S.test -or $env:YTDL_UPDURL){ try{ SelfUpdate $force }catch{ L "[upd] $($_.Exception.Message)" } }
   if($S.test){ if($env:YTDL_DEPSTEST){ $b0=VerYt; UpdYt; $b1=VerYt; if($b0 -ne $b1){ L "yt-dlp: $b0 -> $b1" }; Deps $force }; Ver; $S.prep=''; $S.ready=$true; return }
   $ch=$S.chan; if(-not $ch){ $ch='stable' }
-  $u1='https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp.exe'; $u2='https://github.com/yt-dlp/yt-dlp-nightly-builds/releases/latest/download/yt-dlp.exe'; $u3='https://github.com/yt-dlp/yt-dlp-master-builds/releases/latest/download/yt-dlp.exe'
+  $an=$(if($S.win){'yt-dlp.exe'}elseif("$([System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture)" -eq 'Arm64'){'yt-dlp_linux_aarch64'}else{'yt-dlp_linux'})
+  $u1="https://github.com/yt-dlp/yt-dlp/releases/latest/download/$an"; $u2="https://github.com/yt-dlp/yt-dlp-nightly-builds/releases/latest/download/$an"; $u3="https://github.com/yt-dlp/yt-dlp-master-builds/releases/latest/download/$an"
   $s1='https://github.com/yt-dlp/yt-dlp/releases/latest/download/SHA2-256SUMS'; $s2='https://github.com/yt-dlp/yt-dlp-nightly-builds/releases/latest/download/SHA2-256SUMS'; $s3='https://github.com/yt-dlp/yt-dlp-master-builds/releases/latest/download/SHA2-256SUMS'
   $ytUrl=$(if($ch -eq 'nightly'){ @($u2,$u1,$u3) }else{ @($u1,$u2,$u3) })
   $ytSum=$(if($ch -eq 'nightly'){ @($s2,$s1,$s3) }else{ @($s1,$s2,$s3) })
   if(-not(Test-Path $yt)){ $got=$false
    for($rd=1;$rd -le 8 -and -not $got;$rd++){
     $S.prep=(Tr "Baixando yt-dlp... (rodada $rd/8)" "Downloading yt-dlp... (round $rd/8)")
-    $got=DepGet $ytUrl $yt $ytSum 'yt-dlp.exe' $ch
+    $got=DepGet $ytUrl $yt $ytSum $an $ch
     if(-not $got -and $rd -lt 8){ for($w=90;$w -gt 0;$w--){ $S.prep=(Tr "O GitHub nao respondeu (erro: $($S.lastErr)). Tentando de novo em $w s (rodada $rd/8). Pode deixar esta janela aberta." "GitHub did not respond (error: $($S.lastErr)). Retrying in $w s (round $rd/8). You can leave this window open."); Start-Sleep 1 } } }
    if(-not $got){ $S.prep=(Tr "ERRO: nao consegui baixar o yt-dlp (sem internet, GitHub fora do ar ou bloqueado por rede/antivirus/proxy). Ultimo erro: $($S.lastErr)`n`nPara tentar de novo: Configuracoes > Atualizar tudo agora. Alternativa manual: baixe yt-dlp.exe em github.com/yt-dlp/yt-dlp/releases/latest e coloque na pasta: $bin" "ERROR: could not download yt-dlp (no internet, GitHub down, or blocked by network/antivirus/proxy). Last error: $($S.lastErr)`n`nTo retry: Settings > Update everything now. Manual alternative: download yt-dlp.exe from github.com/yt-dlp/yt-dlp/releases/latest and put it in this folder: $bin"); return } }
   else{ $S.prep=(Tr 'Verificando a versao do yt-dlp...' 'Checking the yt-dlp version...'); $b0=VerYt; UpdYt; $b1=VerYt; if($b0 -ne $b1){ L (Tr "yt-dlp: atualizado $b0 -> $b1" "yt-dlp: updated $b0 -> $b1") }else{ L (Tr "yt-dlp: ja esta na versao mais recente ($b1)." "yt-dlp: already up to date ($b1).") } }
