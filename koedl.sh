@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# KoeDL 3.15 - launcher para Linux (x86_64 e aarch64)
+# KoeDL 3.15.1 - launcher para Linux (x86_64 e aarch64)
 #
 # Nao pede root e nao usa apt/dnf/pacman: tudo o que o app precisa fica em
 # ~/.local/share/KoeDL (ou em $KOEDL_HOME), junto com os downloads.
@@ -9,7 +9,7 @@
 #       KOEDL_HOME=... ./koedl.sh   guarda tudo em outra pasta
 set -u
 
-APPVER='3.15'
+APPVER='3.15.1'
 BASE="${KOEDL_HOME:-${XDG_DATA_HOME:-$HOME/.local/share}/KoeDL}"
 BIN="$BASE/bin"
 mkdir -p "$BIN" || { echo "KoeDL: nao consegui criar $BIN" >&2; exit 1; }
@@ -171,7 +171,7 @@ $sep=[IO.Path]::PathSeparator
 $env:PATH="$bin$sep$env:PATH"; $env:PYTHONUTF8='1'
 $yt=$(if($env:YTDL_BIN){ $env:YTDL_BIN }elseif($WIN){ [IO.Path]::Combine($bin,'yt-dlp.exe') }else{ [IO.Path]::Combine($bin,'yt-dlp') })
 $settingsFile=[IO.Path]::Combine($bin,'settings.json')
-$APPVER='3.15'
+$APPVER='3.15.1'
 $updFile=[IO.Path]::Combine($bin,'app.update.ps1')
 if(-not $env:YTDL_OVR -and (Test-Path $updFile)){
  try{ $tx=[IO.File]::ReadAllText($updFile,[Text.Encoding]::UTF8); $mm=[regex]::Match($tx,'APPVER=.([0-9.]+).')
