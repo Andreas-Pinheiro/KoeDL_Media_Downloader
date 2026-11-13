@@ -54,9 +54,23 @@
 <div id="p_q" class="pane"><div id="qcol"><div class="card" id="qcard"><h2><span data-t="q_h"></span><span class="grow"></span><button class="s" id="qpause" onclick="qPause()"></button><button class="s" id="qclr" onclick="qClear()" data-t="q_clearfin"></button></h2><div id="qlist" class="lst"></div></div>
 <div class="card" id="hcard"><h2><span data-t="h_hist"></span><span class="grow"></span><button class="s" id="hclr" onclick="hClear()" data-t="h_clear"></button></h2><div id="hlist" class="lst"></div></div></div></div>
 
-<div id="p_lib" class="pane"><div class="card"><h2><span data-t="t_lib"></span><span class="grow"></span><span id="lcount" class="mu"></span></h2>
-<div class="row" id="lbar"><div class="lf" id="lseg"><button class="s on" data-f="all" data-t="lib_all"></button><button class="s" data-f="a" data-t="lib_a"></button><button class="s" data-f="v" data-t="lib_v"></button></div><div><input type="text" id="lq" data-ph="lib_q"></div><button class="s" id="lref" data-t="lib_refresh"></button></div>
-<div id="lgrid"><div id="lplayer"><video id="pv" controls playsinline preload="none"></video><audio id="pa" controls preload="none"></audio><div id="lnow"></div><div class="row" id="lctl"><button class="s" id="lprev" title="Anterior">&#9198;</button><button class="s" id="lnext" title="Próxima">&#9197;</button><label class="chk"><input type="checkbox" id="lauto" checked><span data-t="lib_auto"></span></label><label class="chk"><input type="checkbox" id="lshuf"><span data-t="lib_shuf"></span></label><button class="s" id="lopen" data-t="lib_open"></button></div><div id="lerr" class="mu"></div></div><div id="llist" class="lst"></div></div></div></div>
+<div id="p_lib" class="pane"><div id="lib">
+<div class="card" id="lstage">
+<div id="lscreen"><video id="pv" playsinline preload="none"></video>
+<div id="lart"><div class="disc"><i></i></div><div class="eq"><b></b><b></b><b></b><b></b><b></b><b></b><b></b></div></div></div>
+<div id="linfo"><b id="lnow"></b><small id="lsub"></small></div>
+<div id="lseekrow"><span id="ltc">0:00</span><input type="range" id="lseek" min="0" max="1000" value="0" step="1"><span id="ltd">0:00</span></div>
+<div id="lctl"><button class="ib" id="lshuf" type="button">⇄</button><button class="ib" id="lprev" type="button">⏮</button><button class="ib big" id="lplay" type="button">▶</button><button class="ib" id="lnext" type="button">⏭</button><button class="ib" id="lrep" type="button">↻</button></div>
+<div id="lsec"><button class="ib sm" id="lmute" type="button">🔊</button><input type="range" id="lvol" min="0" max="100" value="80"><select id="lspd"><option value="0.75">0.75×</option><option value="1" selected>1×</option><option value="1.25">1.25×</option><option value="1.5">1.5×</option><option value="2">2×</option></select><span class="grow"></span><button class="ib sm" id="lfs" type="button">⛶</button><button class="ib sm" id="lopen" type="button">📂</button><button class="ib sm" id="lext" type="button">↗</button></div>
+<div id="lerr" class="mu"></div><audio id="pa" preload="none"></audio>
+</div>
+<div class="card" id="lside">
+<h2><span data-t="t_lib"></span><span class="grow"></span><small id="lcount" class="mu"></small></h2>
+<div id="lbar"><div class="seg lseg" id="lseg"><button class="s on" data-f="all" data-t="lib_all"></button><button class="s" data-f="a" data-t="lib_a"></button><button class="s" data-f="v" data-t="lib_v"></button></div><input type="text" id="lq" data-ph="lib_q"><select id="lsort"><option value="new" data-t="lib_s_new"></option><option value="az" data-t="lib_s_az"></option><option value="big" data-t="lib_s_big"></option></select><button class="s nf" id="lref" type="button">⟳</button></div>
+<div id="llist" class="lst"></div>
+<details id="lfold"><summary data-t="lib_folders"></summary><div class="mu" data-t="lib_folders_s"></div><div id="lfl"></div>
+<div class="lfadd"><button class="s nf" id="ladd" type="button" data-t="lib_add"></button><input type="text" id="lpath" data-ph="lib_path"><button class="s nf" id="lpadd" type="button" data-t="lib_addpath"></button></div><div id="lfmsg" class="mu"></div></details>
+</div></div></div>
 <div id="p_sup" class="pane">
 <div class="card sup"><div class="sup-art" id="supArt"><div class="sup-glow"></div><img id="im_heart" class="on" alt=""><img id="im_coins" alt=""><img id="im_cheer" alt=""><span class="spk k1">✦</span><span class="spk k2">✦</span><span class="spk k3">✦</span></div>
 <div class="sup-body"><h2 data-t="sup_h"></h2><p data-t="sup_p"></p>

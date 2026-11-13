@@ -20,6 +20,7 @@ Audio and **video downloader** for Windows. Download the installer (`KoeDL-Setup
 <p align="center">
 <img src="assets/screens/en_download.png" alt="Download tab" width="400">
 <img src="assets/screens/en_queue_done.png" alt="Queue and history" width="400">
+<img src="assets/screens/en_library.png" alt="Library and player" width="400">
 <img src="assets/screens/en_settings.png" alt="Settings" width="400">
 <img src="assets/screens/en_support.png" alt="Support" width="400">
 </p>
@@ -33,7 +34,7 @@ Audio and **video downloader** for Windows. Download the installer (`KoeDL-Setup
 - **Playlist next to your links:** on the same tab you can paste links on the left and load a whole playlist on the right, tick the tracks and choose audio or video per track (all audio, all video, or mixed). Optional Music / Videos subfolders.
 - **Resume:** remembers what was already downloaded and skips repeats. There is an option to start over.
 - **Queue:** everything you add goes into a queue and runs one after the other; pause, remove or retry items. Add more while it is downloading.
-- **Library:** a tab that lists everything you downloaded (music and video) and plays it inside KoeDL, with search, filter, previous/next, shuffle and "play next". Formats the built-in player cannot open can be shown in their folder.
+- **Library / player:** a tab that lists everything you downloaded and plays music and video inside KoeDL, with an animated cover, progress bar, volume, speed, shuffle, repeat, fullscreen, search, filter and sort. You can also **add your own music and video folders** (files not downloaded by KoeDL). Formats the built-in player cannot open can be sent to the Windows player or shown in their folder.
 - **History:** every finished download is listed, with a button to show the file in its folder.
 - **Speed limit and connections** per file, separate folders for music and videos, and a Windows notification (or close the program / shut down the PC) when the queue finishes.
 - **Handy extras:** the copied link is pasted by itself when you open the program, you can drag links into the window, and there are keyboard shortcuts (Ctrl+Enter downloads, Ctrl+L focuses the link box, Ctrl+1..5 switch tabs).

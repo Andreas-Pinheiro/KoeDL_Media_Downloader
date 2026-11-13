@@ -19,6 +19,7 @@ Baixador de **áudio e vídeo** para Windows, Baixe o instalador (`KoeDL-Setup.e
 
 <p align="center">
 <img src="assets/screens/pt_download.png" alt="Aba Baixar" width="400">
+<img src="assets/screens/pt_library.png" alt="Biblioteca e player" width="400">
 <img src="assets/screens/pt_queue_done.png" alt="Fila e histórico" width="400">
 <img src="assets/screens/pt_settings.png" alt="Configurações" width="400">
 <img src="assets/screens/pt_support.png" alt="Apoiar" width="400">
@@ -33,7 +34,7 @@ Baixador de **áudio e vídeo** para Windows, Baixe o instalador (`KoeDL-Setup.e
 - **Playlist ao lado dos links:** na mesma aba você cola links à esquerda e carrega uma playlist inteira à direita, marca as faixas e escolhe áudio ou vídeo em cada uma (tudo áudio, tudo vídeo ou misturado). Opção de subpastas Músicas / Vídeos.
 - **Retomada:** registra o que já foi baixado e pula repetidos. Há opção de recomeçar do zero.
 - **Fila:** tudo que você adiciona entra numa fila e roda um depois do outro; dá para pausar, remover ou tentar de novo. Pode adicionar mais enquanto baixa.
-- **Biblioteca:** uma aba que lista tudo o que você baixou (música e vídeo) e toca dentro do KoeDL, com busca, filtro, anterior/próxima, aleatório e "tocar a próxima". Formatos que o player embutido não abre podem ser mostrados na pasta.
+- **Biblioteca / player:** uma aba que lista tudo o que você baixou e toca música e vídeo dentro do KoeDL, com capa animada, barra de progresso, volume, velocidade, aleatório, repetir, tela cheia, busca, filtro e ordenação. Também dá para **adicionar suas próprias pastas** de música e vídeo (arquivos que não foram baixados pelo KoeDL). Formatos que o player não abre podem ser enviados ao player do Windows ou mostrados na pasta.
 - **Histórico:** cada download concluído fica numa lista, com botão para mostrar o arquivo na pasta.
 - **Limite de velocidade e conexões** por arquivo, pastas separadas para músicas e vídeos, e aviso do Windows (ou fechar o programa / desligar o PC) quando a fila terminar.
 - **Extras:** o link copiado é colado sozinho ao abrir o programa, dá para arrastar links para a janela e há atalhos (Ctrl+Enter baixa, Ctrl+L vai para o campo do link, Ctrl+1..5 trocam de aba).

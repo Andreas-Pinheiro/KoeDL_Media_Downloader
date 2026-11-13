@@ -2,6 +2,10 @@
 
 Formato: versões mais novas primeiro. / Newest versions first.
 
+## 3.14
+**PT:** a **Biblioteca** virou um player de verdade: capa animada, barra de progresso, volume, velocidade, aleatório, repetir (todas/uma faixa), tela cheia para vídeo, atalhos (espaço, setas, N/P) e botões do teclado de mídia; dá para **adicionar pastas** com músicas e vídeos que não foram baixados pelo KoeDL (pelo seletor ou colando o caminho); "Mostrar na pasta" ficou mais confiável e mostra a mensagem quando não consegue abrir, com um botão novo para abrir no player do Windows; mais formatos (wma, m4v, avi); o cabeçalho não estoura mais a largura em telas estreitas; só arquivos de mídia são servidos ao player.
+**EN:** the **Library** is now a real player: animated cover, progress bar, volume, speed, shuffle, repeat (all/one), fullscreen for video, shortcuts (space, arrows, N/P) and media keys; you can **add folders** with music and videos that were not downloaded by KoeDL (with the folder picker or by pasting the path); "Show in folder" is more reliable and shows a message when it cannot open, with a new button to open in the Windows player; more formats (wma, m4v, avi); the header no longer overflows on narrow screens; only media files are served to the player.
+
 ## 3.13
 **PT:** o aviso de versão nova agora aparece logo que o programa abre, antes de baixar ou atualizar o yt-dlp e o ffmpeg — antes, se essa etapa falhasse ou demorasse, o aviso só aparecia no fim (ou não aparecia).
 **EN:** the new-version notice now shows as soon as the program opens, before downloading or updating yt-dlp and ffmpeg — before, if that step failed or was slow, the notice only appeared at the end (or not at all).
