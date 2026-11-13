@@ -44,7 +44,7 @@
   "plph": "Link da playlist, álbum ou canal",
   "plload": "Carregar lista",
   "stop": "Parar",
-  "plhint": "Cole o link e clique em Carregar lista. Depois marque as faixas e escolha áudio ou vídeo.",
+  "plhint": "Cole o link no campo de links, em cima. Se for de playlist, a lista de faixas aparece aqui sozinha: marque o que quer e escolha áudio ou vídeo.",
   "selall": "Marcar todos",
   "selnone": "Desmarcar",
   "selinv": "Inverter",
@@ -261,5 +261,6 @@
   "lib_f_miss": "(pasta não encontrada)",
   "lib_f_bad": "Não consegui usar: ",
   "lib_f_pick": "Escolha a pasta na janela que abriu…",
-  "lib_f_nopick": "Não deu para abrir o seletor aqui. Cole o caminho no campo ao lado."
+  "lib_f_nopick": "Não deu para abrir o seletor aqui. Cole o caminho no campo ao lado.",
+  "lib_more": "mostrando os primeiros {a} de {b} — use a busca para refinar"
 }

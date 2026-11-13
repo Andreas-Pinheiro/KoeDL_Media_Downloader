@@ -12,15 +12,21 @@ function lui(){$('lshuf').classList.toggle('on',LSHUF);$('lrep').classList.toggl
  $('lmute').textContent=($('pa').muted||$('pv').muted||+$('lvol').value===0)?'🔇':'🔊';
  [$('lseek'),$('lvol')].forEach(function(r){r.style.setProperty('--p',(r.value-r.min)/(r.max-r.min)*100+'%')})}
 async function libLoad(){try{var r=await api('library');LIB=Array.isArray(r)?r:[];libRender()}catch(e){LIB=[];libRender()}libDirsLoad()}
+var LMAX=400,lqT=null;
+function libMark(){var n=$('llist').querySelectorAll('.li');for(var i=0;i<n.length;i++){n[i].classList.toggle('on',i<LSHOW.length&&LSHOW[i].p===LCUR)}}
 function libRender(){var a=lshown();LSHOW=a;$('lcount').textContent=t('lib_count').replace('{n}',a.length);
  $('lseg').querySelectorAll('button').forEach(function(b){b.classList.toggle('on',b.dataset.f===LF)});$('lsort').value=LSORT;
- $('llist').innerHTML=a.length?a.map(function(x,i){return'<div class="li'+(x.p===LCUR?' on':'')+'" data-i="'+i+'"><span class="ic">'+(x.k==='v'?'🎬':'♪')+'</span><span class="lt"><b>'+esc(x.n)+'</b><small>'+esc((x.d?x.d+' · ':'')+lsize(x.s))+'</small></span><button class="lo" type="button" data-o="'+i+'" title="'+esc(t('lib_open'))+'">📂</button></div>'}).join(''):'<div class="emp">'+esc(t('lib_empty'))+'</div>';libTitles();lui()}
+ var v=a.length>LMAX?a.slice(0,LMAX):a;
+ $('llist').innerHTML=v.length?v.map(function(x,i){return'<div class="li'+(x.p===LCUR?' on':'')+'" data-i="'+i+'"><span class="ic">'+(x.k==='v'?'🎬':'♪')+'</span><span class="lt"><b>'+esc(x.n)+'</b><small>'+esc((x.d?x.d+' · ':'')+lsize(x.s))+'</small></span><button class="lo" type="button" data-o="'+i+'" title="'+esc(t('lib_open'))+'">📂</button></div>'}).join('')
+  +(a.length>LMAX?'<div class="emp">'+esc(t('lib_more').replace('{a}',LMAX).replace('{b}',a.length))+'</div>':''):'<div class="emp">'+esc(t('lib_empty'))+'</div>';libTitles();lui()}
+/* mostra/esconde o video do palco direto no elemento: nao depende da classe CSS chegar junto com o src */
+function libShowStage(v){var s=$('lstage'),e=$('pv');if(s)s.classList.toggle('vid',v);if(e)e.style.display=v?'block':'none';try{void e.offsetHeight}catch(x){}}
 function libCur(){for(var i=0;i<LIB.length;i++)if(LIB[i].p===LCUR)return LIB[i];return null}
 function libPlay(x){if(!x)return;var v=x.k==='v',m=v?$('pv'):$('pa'),o=v?$('pa'):$('pv');try{o.pause();o.removeAttribute('src');o.load()}catch(e){}
- LM=m;LCUR=x.p;$('lerr').textContent='';$('lstage').classList.toggle('vid',v);$('lnow').textContent=x.n;$('lsub').textContent=(x.d?x.d+' · ':'')+(v?t('lib_v'):t('lib_a'))+(x.s?' · '+lsize(x.s):'');
+ LM=m;LCUR=x.p;$('lerr').textContent='';libShowStage(v);$('lnow').textContent=x.n;$('lsub').textContent=(x.d?x.d+' · ':'')+(v?t('lib_v'):t('lib_a'))+(x.s?' · '+lsize(x.s):'');
  m.volume=+$('lvol').value/100;m.playbackRate=+$('lspd').value;m.src='/api/media?t='+encodeURIComponent(T)+'&p='+encodeURIComponent(x.p);var pr=m.play();if(pr&&pr.catch)pr.catch(function(){});
  try{if('mediaSession' in navigator){navigator.mediaSession.metadata=new MediaMetadata({title:x.n,artist:x.d||'KoeDL'});navigator.mediaSession.setActionHandler('previoustrack',function(){libStep(-1)});navigator.mediaSession.setActionHandler('nexttrack',function(){libStep(1)})}}catch(e){}
- libRender();var el=$('llist').querySelector('.li.on');if(el&&el.scrollIntoView)try{el.scrollIntoView({block:'nearest'})}catch(e){}}
+ libMark();var el=$('llist').querySelector('.li.on');if(el&&el.scrollIntoView)try{el.scrollIntoView({block:'nearest'})}catch(e){}}
 /* toca um arquivo qualquer no player embutido (botao ▶ da fila e do historico), mesmo que a lista ainda nao o tenha */
 function libPlayFile(p,n,k){if(!p)return;tab('lib');var x=null;for(var i=0;i<LIB.length;i++){if(LIB[i].p===p){x=LIB[i];break}}
  if(!x){var nm=String(n||'').trim()||String(p).split(/[\\/]/).pop();var ext=(nm.indexOf('.')>=0?nm.split('.').pop():'').toLowerCase();
@@ -31,8 +37,10 @@ function libStep(d,auto){var a=LSHOW;if(!a.length)return;var i=-1;for(var k=0;k<
  if(auto&&LREP===2&&i>=0){LM.currentTime=0;LM.play();return}
  var n;if(LSHUF&&a.length>1){do{n=Math.floor(Math.random()*a.length)}while(n===i)}else{n=i+d;if(n>=a.length){if(auto&&LREP===0){lui();return}n=0}if(n<0)n=a.length-1}libPlay(a[n])}
 async function libFile(mode){var x=libCur();if(!x){$('lerr').textContent=t('lib_pick');return}$('lerr').textContent='';try{var r=await api('openfile',{path:x.p,mode:mode});if(r&&r.error)$('lerr').textContent=r.error}catch(e){$('lerr').textContent=t('lib_fail')}}
-function libMedia(m){m.addEventListener('timeupdate',function(){if(LM!==m)return;if(!LSEEK&&m.duration){$('lseek').value=Math.round(m.currentTime/m.duration*1000)}$('ltc').textContent=lfmt(m.currentTime);lui()});
- m.addEventListener('loadedmetadata',function(){if(LM===m)$('ltd').textContent=lfmt(m.duration)});m.addEventListener('play',lui);m.addEventListener('pause',lui);m.addEventListener('volumechange',lui);
+function libMedia(m){m.addEventListener('timeupdate',function(){if(LM!==m)return;var d=m.duration,p=0;
+  if(!LSEEK&&d){$('lseek').value=Math.round(m.currentTime/d*1000);p=m.currentTime/d*100}$('ltc').textContent=lfmt(m.currentTime);
+  $('lseek').style.setProperty('--p',p+'%')});
+ m.addEventListener('loadedmetadata',function(){if(LM===m)$('ltd').textContent=lfmt(m.duration)});m.addEventListener('play',function(){if(LM===m&&m===$('pv'))libShowStage(true);lui()});m.addEventListener('pause',lui);m.addEventListener('volumechange',lui);
  m.addEventListener('ended',function(){if(LM===m)libStep(1,true)});
  m.addEventListener('error',function(){if(LM===m&&m.getAttribute('src')){$('lerr').textContent=t('lib_err');lui()}})}
 libMedia($('pa'));libMedia($('pv'));
@@ -48,7 +56,7 @@ $('pv').addEventListener('click',libToggle);$('pv').addEventListener('dblclick',
 $('lopen').onclick=function(){libFile('select')};$('lext').onclick=function(){libFile('open')};$('lref').onclick=libLoad;
 $('llist').addEventListener('click',function(e){var o=e.target.closest('[data-o]');if(o){var x=LSHOW[+o.dataset.o];if(x){LCUR=x.p;libRender();libFile('select')}return}var r=e.target.closest('.li');if(r)libPlay(LSHOW[+r.dataset.i])});
 $('lseg').addEventListener('click',function(e){var b=e.target.closest('button[data-f]');if(b){LF=b.dataset.f;lprefSave();libRender()}});
-$('lq').addEventListener('input',libRender);$('lsort').addEventListener('change',function(){LSORT=this.value;lprefSave();libRender()});
+$('lq').addEventListener('input',function(){clearTimeout(lqT);lqT=setTimeout(libRender,140)});$('lsort').addEventListener('change',function(){LSORT=this.value;lprefSave();libRender()});
 document.addEventListener('keydown',function(e){if(document.body.dataset.tab!=='lib')return;var g=e.target&&e.target.tagName;if(g==='INPUT'||g==='SELECT'||g==='TEXTAREA'||e.ctrlKey||e.altKey||e.metaKey)return;
  if(e.code==='Space'){e.preventDefault();libToggle()}else if(e.key==='ArrowRight'&&LM&&LM.duration){LM.currentTime=Math.min(LM.duration,LM.currentTime+5)}else if(e.key==='ArrowLeft'&&LM){LM.currentTime=Math.max(0,LM.currentTime-5)}else if(e.key==='n'||e.key==='N')libStep(1);else if(e.key==='p'||e.key==='P')libStep(-1)});
 /* pastas extras da biblioteca (musicas que nao foram baixadas pelo app) */
