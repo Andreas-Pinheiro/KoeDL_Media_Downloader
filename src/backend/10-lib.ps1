@@ -208,7 +208,7 @@ function DepsAdd($n,$v,$sha,$src,$ok,$sig){ $f=J $S.bin 'deps.json'; $a=@()
 function DepsVer($map){ $f=J $S.bin 'deps.json'; if(-not(Test-Path $f)){ return }
  $a=@(); try{ $a=@([IO.File]::ReadAllText($f,[Text.Encoding]::UTF8)|ConvertFrom-Json) }catch{ return }
  $ch=$false
- foreach($r in $a){ foreach($k in $map.Keys){ if("$($r.n)" -like "*$k*"){ if($map[$k] -and "$($r.v)" -ne "$($map[$k])"){ $r.v="$($map[$k])"; $ch=$true } } } }
+ foreach($r in $a){ foreach($k in $map.Keys){ if("$($r.n)" -like "*$k*"){ if($map[$k] -and "$($r.v)" -ne "$($map[$k])"){ $r|Add-Member -NotePropertyName v -NotePropertyValue "$($map[$k])" -Force; $ch=$true } } } }
  if($ch){ try{ [IO.File]::WriteAllText($f,(ConvertTo-Json -InputObject @($a) -Depth 4),(New-Object Text.UTF8Encoding $false)) }catch{} } }
 function DepGet($urls,$out,$sumUrls,$name,$ver){
  # Baixa para um temporario, confere o SHA-256 publicado pela mesma release e so entao grava em $out.
