@@ -7,6 +7,7 @@ function mark(m){for(const p of vis()){const x=p[0];if(x.unavail)continue;x.chec
 function clearAll(){
  if(P.busy){try{api('pl/stop',{})}catch(e){}}
  P={items:[],from:0,busy:false,title:'',url:''};
+ PLS={};PLTok++;
  ['urls','plurl','plfilter'].forEach(function(id){var e=$(id);if(e)e.value=''});
  $('tb').innerHTML='';$('ck').textContent='';$('plinfo').textContent=t('plhint');
  updGop();var u=$('urls');if(u)u.focus()}
