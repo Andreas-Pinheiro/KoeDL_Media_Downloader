@@ -18,7 +18,9 @@ function chkDone(s){if(!CHKW||!s.chk||s.chk==='run')return;CHKW=false;$('chkbtn'
 async function upd(){const r=await api('update',{});if(r.error)alert(r.error)}
 async function shortcuts(){const r=await api('shortcut',{});alert(r.msg||r.error||'ok')}
 /* ---- playlist tab ---- */
-async function plLoad(){const u=$('plurl').value.trim();if(!u)return alert(t('pl_need'));P={items:[],from:0,busy:true,title:'',url:u};render();$('plinfo').textContent=t('pl_load');await api('pl/load',{url:u,browsers:common().browsers,nock:$('nock').checked});plPoll()}
+async function plLoad(){const u=$('plurl').value.trim();if(!u)return alert(t('pl_need'));P={items:[],from:0,busy:true,title:'',url:u};plSeen=false;render();$('plinfo').textContent=t('pl_load');await api('pl/load',{url:u,browsers:common().browsers,nock:$('nock').checked});plPoll()}
+var plSeen=false;
 async function plPoll(){try{const r=await api('pl?from='+P.from);const pm=radio('pm');
 for(const it of r.items){it.checked=!it.unavail;it.type=pm==='v'?'v':'a';P.items.push(it)}P.from=r.total;P.title=r.title||P.title;P.busy=r.busy;P.err=r.err;render()
+if(P.items.length&&!plSeen){plSeen=true;if(innerWidth<900){try{$('colR').scrollIntoView({block:'start'})}catch(e){}}}
 if(r.busy)setTimeout(plPoll,700);else if(!P.items.length&&r.err)$('plinfo').textContent=t('pl_fail')+r.err}catch(e){}}

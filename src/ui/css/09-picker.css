@@ -1,0 +1,7 @@
+/* Seletor de faixas: o cartao "escolha o que quer" nao pode ser empurrado para o fim da pagina
+   quando a lista cresce. A tabela rola por dentro e o cartao fica limitado a altura da janela. */
+#colR{min-height:0}
+#colR .tw{max-height:min(52vh,540px)}
+#colR>.card{max-height:calc(100dvh - 24px)}
+/* empilhado: a tabela ganha altura propria e rola por dentro (nao empurra o cartao) */
+@media(max-width:899px){#colR .tw{flex:0 0 auto;height:min(48vh,420px)}}

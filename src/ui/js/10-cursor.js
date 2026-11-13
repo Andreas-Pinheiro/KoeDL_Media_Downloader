@@ -45,10 +45,15 @@ function fxStart(map,mode){fxStop();
  function md(e){S.down=true;setSt(pick(e.target,true))}
  function mu(e){S.down=false;setSt(pick(e.target,false))}
  function ml(){el.style.display='none'}
+ /* rolar a pagina ou uma lista nao dispara mousemove: reavalia o que esta sob o ponteiro
+    (senao o desenho do cursor fica preso no elemento anterior) e reposiciona o desenho */
+ function resync(){if(!S.seen)return;var t=null;try{t=document.elementFromPoint(S.x,S.y)}catch(e){}setSt(pick(t,S.down));place()}
+ function onScroll(){requestAnimationFrame(resync)}
  function loop(){var vx=S.x-S.px;S.px=S.x;var tr=Math.max(-16,Math.min(16,vx*0.7));S.rot+=(tr-S.rot)*0.22;S.sc+=((S.down?0.8:1)-S.sc)*0.3;
   if(S.seen)im.style.transform='rotate('+S.rot.toFixed(2)+'deg) scale('+S.sc.toFixed(3)+')';S.raf=requestAnimationFrame(loop)}
  document.addEventListener('mousemove',mm,true);document.addEventListener('mousedown',md,true);document.addEventListener('mouseup',mu,true);document.documentElement.addEventListener('mouseleave',ml);
+ document.addEventListener('scroll',onScroll,true);addEventListener('wheel',onScroll,{passive:true});
  setSt('normal');S.raf=requestAnimationFrame(loop);
- FX.stop=function(){cancelAnimationFrame(S.raf);document.removeEventListener('mousemove',mm,true);document.removeEventListener('mousedown',md,true);document.removeEventListener('mouseup',mu,true);document.documentElement.removeEventListener('mouseleave',ml);root.classList.remove('nocur');el.remove();cs.remove();var a=document.querySelectorAll('.fxs');for(var i=0;i<a.length;i++)a[i].remove()}}
+ FX.stop=function(){cancelAnimationFrame(S.raf);document.removeEventListener('mousemove',mm,true);document.removeEventListener('mousedown',md,true);document.removeEventListener('mouseup',mu,true);document.documentElement.removeEventListener('mouseleave',ml);document.removeEventListener('scroll',onScroll,true);removeEventListener('wheel',onScroll,{passive:true});root.classList.remove('nocur');el.remove();cs.remove();var a=document.querySelectorAll('.fxs');for(var i=0;i<a.length;i++)a[i].remove()}}
 $('curfile').addEventListener('change',function(){var f=this.files[0];if(!f)return;var r=new FileReader();r.onload=function(){var im=new Image();im.onload=function(){var s=96/Math.max(im.width,im.height),c=document.createElement('canvas');c.width=Math.max(1,Math.round(im.width*s));c.height=Math.max(1,Math.round(im.height*s));c.getContext('2d').drawImage(im,0,0,c.width,c.height);try{localStorage.setItem('md_cursor',c.toDataURL('image/png'))}catch(e){}applyCursor()};im.src=r.result};r.readAsDataURL(f)});
 applyCursor();

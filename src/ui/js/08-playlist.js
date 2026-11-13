@@ -3,6 +3,13 @@ function render(){const v=vis();$('tb').innerHTML=v.map(p=>{const x=p[0],i=p[1];
 function sum(){updGop();const s=P.items.filter(x=>x.checked&&!x.unavail),a=s.filter(x=>x.type==='a').length;
 if(P.items.length)$('plinfo').textContent=(P.busy?t('pl_loading'):'')+(P.title?'“'+P.title+'” · ':'')+P.items.length+t('pl_tracks')+s.length+t('pl_marked')+a+t('pl_audio')+(s.length-a)+t('pl_video')}
 function mark(m){for(const p of vis()){const x=p[0];if(x.unavail)continue;x.checked=m===2?!x.checked:!!m}render()}
+/* Desistiu da playlist/musica: esvazia o link, a lista carregada e a selecao (nao mexe na fila de downloads). */
+function clearAll(){
+ if(P.busy){try{api('pl/stop',{})}catch(e){}}
+ P={items:[],from:0,busy:false,title:'',url:''};
+ ['urls','plurl','plfilter'].forEach(function(id){var e=$(id);if(e)e.value=''});
+ $('tb').innerHTML='';$('ck').textContent='';$('plinfo').textContent=t('plhint');
+ updGop();var u=$('urls');if(u)u.focus()}
 $('tb').addEventListener('change',e=>{const g=e.target;if(g.dataset.i!==undefined){P.items[+g.dataset.i].checked=g.checked;sum()}
 else if(g.dataset.t2!==undefined){P.items[+g.dataset.t2].type=g.value;setRadio('pm','m');updFmt();save();sum()}});
 document.querySelectorAll('input[name=pm]').forEach(e=>e.addEventListener('change',()=>{const m=radio('pm');if(m!=='m'){P.items.forEach(x=>x.type=m);render()}updFmt()}));
