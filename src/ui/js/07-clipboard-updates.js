@@ -17,18 +17,36 @@ var CHKW=false;async function chkUpd(){UPDX={};UPDGO=false;CHKW=true;$('chkbtn')
 function chkDone(s){if(!CHKW||!s.chk||s.chk==='run')return;CHKW=false;$('chkbtn').disabled=false;$('chkmsg').textContent=s.chk==='same'?t('chk_same').replace('{c}',s.appver||''):s.chk==='new'?t('chk_new').replace('{v}',s.updavail||''):t('chk_err')}
 async function upd(){const r=await api('update',{});if(r.error)alert(r.error)}
 async function shortcuts(){const r=await api('shortcut',{});alert(r.msg||r.error||'ok')}
-/* ---- playlist tab ---- */
-/* um lugar so para colar links: usa o campo da playlist se ele existir, senao o primeiro link colado */
-function plUrl(){var e=$('plurl');return((e&&e.value.trim())||'')||((opts().urls||[])[0]||'')}
+/* ---- links: um lugar so, avulso e playlist juntos ---- */
+/* Cada link colado na caixa vira linhas na lista de selecao: video/musica avulso = 1 linha,
+   playlist = todas as faixas. Tirar o link da caixa tira as linhas dele. */
+function isUrl(u){return /^https?:\/\/\S+$/i.test(String(u||''))}
 function isPl(u){return /(\/playlist\?|list=|music\.youtube\.com\/playlist)/i.test(String(u||''))}
-async function plLoad(u){u=(typeof u==='string'?u.trim():'')||plUrl();if(!u)return alert(t('pl_need'));P={items:[],from:0,busy:true,title:'',url:u};plSeen=false;render();$('plinfo').textContent=t('pl_load');await api('pl/load',{url:u,browsers:common().browsers,nock:$('nock').checked});plPoll()}
-/* link de playlist colado na area principal carrega a lista de faixas sozinho */
+function plUrls(){return (opts().urls||[]).filter(isUrl)}
+var PLS={},PLBusy=false,PLTok=0;
+async function plSync(){if(PLBusy)return;var tok=++PLTok,links=plUrls(),keep={};links.forEach(function(u){keep[u]=1});
+ P.items=P.items.filter(function(x){return keep[x.src]});render();if(tok!==PLTok)return;
+ var pend=links.filter(function(u){return !PLS[u]});if(!pend.length)return;
+ PLBusy=true;P.busy=true;
+ try{for(var i=0;i<pend.length;i++){var u=pend[i];if(tok!==PLTok)return;
+  if(isPl(u)&&$('noPl')&&$('noPl').checked){PLS[u]=1;continue}
+  $('plinfo').textContent=(pend.length>1?'('+(i+1)+'/'+pend.length+') ':'')+t('pl_load');P.url=u;
+  await api('pl/load',{url:u,browsers:common().browsers,nock:$('nock').checked});
+  var r=null;for(var k=0;k<300;k++){await new Promise(function(res){setTimeout(res,400)});if(tok!==PLTok)return;r=await api('pl?from=0');if(r&&!r.busy)break}
+  var its=(r&&r.items)||[],base=P.items.length;
+  if(r&&r.title&&!P.title)P.title=r.title;
+  its.forEach(function(it,j){if(P.items.some(function(x){return x.url===it.url}))return;
+   it.idx=base+j+1;it.src=u;it.checked=!it.unavail;it.type=(radio('pm')==='v'?'v':'a');P.items.push(it)});
+  PLS[u]=1;
+  if(!its.length&&r&&r.err)$('plinfo').textContent=t('pl_fail')+r.err;
+  render()}
+ }catch(e){}finally{PLBusy=false;P.busy=false;render()}
+ if(P.items.length&&innerWidth<900){try{$('colR').scrollIntoView({block:'start'})}catch(e){}}}
+/* compatibilidade: o botao antigo da playlist agora so aponta para a caixa de links */
+async function plLoad(u){if(typeof u==='string'&&u.trim()){$('urls').value=u.trim();plUrls().forEach(function(x){delete PLS[x]});PLTok++}plSync()}
 var plAutoT=null;
-function plAuto(){clearTimeout(plAutoT);plAutoT=setTimeout(function(){try{var a=opts().urls;if(a.length!==1)return;var u=a[0];if(!isPl(u)||P.busy||P.url===u)return;if($('noPl')&&$('noPl').checked)return;plLoad(u)}catch(e){}},800)}
-addEventListener('DOMContentLoaded',function(){var ta=$('urls');if(ta){ta.addEventListener('input',plAuto);ta.addEventListener('paste',function(){setTimeout(plAuto,250)})}
- var e=$('plurl'),b=$('plbtn');if(e)e.style.display='none';if(b)b.style.display='none'})
-var plSeen=false;
-async function plPoll(){try{const r=await api('pl?from='+P.from);const pm=radio('pm');
-for(const it of r.items){it.checked=!it.unavail;it.type=pm==='v'?'v':'a';P.items.push(it)}P.from=r.total;P.title=r.title||P.title;P.busy=r.busy;P.err=r.err;render()
-if(P.items.length&&!plSeen){plSeen=true;if(innerWidth<900){try{$('colR').scrollIntoView({block:'start'})}catch(e){}}}
-if(r.busy)setTimeout(plPoll,700);else if(!P.items.length&&r.err)$('plinfo').textContent=t('pl_fail')+r.err}catch(e){}}
+function plAuto(){clearTimeout(plAutoT);plAutoT=setTimeout(plSync,700)}
+addEventListener('DOMContentLoaded',function(){var ta=$('urls');
+ if(ta){ta.addEventListener('input',plAuto);ta.addEventListener('paste',function(){setTimeout(plSync,300)})}
+ var e=$('plurl');if(e){var row=e.closest('.row')||e.parentElement;if(row)row.style.display='none'}else{var b0=$('plbtn');if(b0)b0.style.display='none'}
+ var b=$('plbtn');if(b)b.style.display='none'})
