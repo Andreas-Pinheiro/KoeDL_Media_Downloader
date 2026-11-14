@@ -56,7 +56,7 @@ $('lseek').addEventListener('change',function(){if(LM&&LM.duration)LM.currentTim
 $('lvol').addEventListener('input',function(){var v=+this.value/100;$('pa').volume=v;$('pv').volume=v;$('pa').muted=$('pv').muted=false;lprefSave();lui()});
 $('lmute').onclick=function(){var m=!($('pa').muted||$('pv').muted);$('pa').muted=$('pv').muted=m;lui()};
 $('lspd').onchange=function(){$('pa').playbackRate=$('pv').playbackRate=+this.value;lprefSave()};
-$('lfs').onclick=function(){var s=$('lscreen');try{if(document.fullscreenElement)document.exitFullscreen();else if(s.requestFullscreen)s.requestFullscreen()}catch(e){}};
+$('lfs').onclick=function(){var s=$('lstage');try{if(document.fullscreenElement)document.exitFullscreen();else if(s.requestFullscreen)s.requestFullscreen()}catch(e){}};
 $('pv').addEventListener('click',libToggle);$('pv').addEventListener('dblclick',function(){$('lfs').click()});
 $('lopen').onclick=function(){libFile('select')};$('lext').onclick=function(){libFile('open')};$('lref').onclick=libLoad;
 $('llist').addEventListener('click',function(e){var o=e.target.closest('[data-o]');if(o){var x=LSHOW[+o.dataset.o];if(x){LCUR=x.p;libRender();libFile('select')}return}var r=e.target.closest('.li');if(r)libPlay(LSHOW[+r.dataset.i])});

@@ -3,8 +3,8 @@
 Formato: versões mais novas primeiro. / Newest versions first.
 
 ## 3.15.2
-**PT:** corrige o aviso **"Setup ERROR: A propriedade 'v' não foi encontrada"** que aparecia ao abrir o programa em instalações antigas (o registro de dependências de versões anteriores não tinha o campo de versão).
-**EN:** fixes the **"Setup ERROR: property 'v' cannot be found"** notice shown on startup on older installs (the dependency record from earlier versions had no version field).
+**PT:** corrige o aviso **"Setup ERROR: A propriedade 'v' não foi encontrada"** que aparecia ao abrir o programa em instalações antigas (o registro de dependências de versões anteriores não tinha o campo de versão); o **ponteiro da menina** agora é o cursor de verdade do sistema: sem atraso, e não some mais ao arrastar a barra de rolagem (as faíscas continuam no modo completo); a **tela cheia** da Biblioteca agora leva junto os controles (pausar, anterior/próxima, avançar na barra, volume, velocidade).
+**EN:** fixes the **"Setup ERROR: property 'v' cannot be found"** notice shown on startup on older installs (the dependency record from earlier versions had no version field); the **girl pointer** is now the real system cursor: no lag, and it no longer disappears while dragging the scrollbar (sparkles stay in full mode); the Library **fullscreen** now brings the controls along (pause, previous/next, seek bar, volume, speed).
 
 ## 3.15.1
 **PT:** visual novo: o **logo** do cabeçalho agora tem fundo transparente (o brilho acompanha o desenho) e o **ícone** do programa ficou com a borda limpa, sem serrilhado; o README ganhou um aviso sobre **falso positivo de antivírus** (o `.exe` pode ser marcado por heurística; o `KoeDL.bat` tem resultado melhor, e o SHA-256 permite conferir o arquivo).
