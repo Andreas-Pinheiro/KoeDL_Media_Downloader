@@ -1,5 +1,5 @@
 var lastClip='';async function clipPaste(){try{if(!$('autoclip').checked||$('urls').value.trim()||cur!=='links')return;var r=await api('clip',{});var x=((r&&r.text)||'').trim();
- if(!x||x===lastClip||!/^https?:\/\/\S+$/.test(x))return;lastClip=x;$('urls').value=x}catch(e){}}
+ if(!x||x===lastClip||!/^https?:\/\/\S+$/.test(x))return;lastClip=x;$('urls').value=x;plAuto()}catch(e){}}
 addEventListener('focus',clipPaste);setTimeout(clipPaste,1500);
 /* atalhos do teclado */
 addEventListener('keydown',function(e){if(!(e.ctrlKey||e.metaKey))return;var k=e.key;
@@ -9,7 +9,7 @@ addEventListener('keydown',function(e){if(!(e.ctrlKey||e.metaKey))return;var k=e
 var _al=applyLang;applyLang=function(){_al.apply(this,arguments);renderQ();renderH()};
 loadHist();renderQ();setTimeout(qLoad,800);
 async function chk(){const u=opts().urls[0];if(!u)return;$('ck').textContent=t('ck_ing');await api('info',{url:u});
-for(let i=0;i<90;i++){await new Promise(r=>setTimeout(r,700));const r=await api('infostate');if(!r.busy){$('ck').textContent=r.error?(t('ck_err')+r.error):(r.title+' · '+r.count+t('ck_cnt')+(r.ex?' · '+r.ex:''));return}}$('ck').textContent=t('ck_slow')}
+for(let i=0;i<90;i++){await new Promise(r=>setTimeout(r,700));const r=await api('infostate');if(!r.busy){if(!r.error)plAuto();$('ck').textContent=r.error?(t('ck_err')+r.error):(r.title+' · '+r.count+t('ck_cnt')+(r.ex?' · '+r.ex:''));return}}$('ck').textContent=t('ck_slow')}
 var UPDX={},UPDGO=false;
 $('updlater').onclick=function(){UPDX[$('updt').textContent.match(/[0-9]+(\.[0-9]+)+/)[0]]=1;$('updb').classList.add('hide')};
 $('updgo').onclick=async function(){var r=await api('applyupd',{});if(r&&r.error){alert(r.error);return}UPDGO=true;$('updt').textContent=t('upd_restart');$('updgo').classList.add('hide');$('updlater').classList.add('hide')};
