@@ -19,3 +19,5 @@ textarea,select,input[type=number],input[type=text]{width:100%;background:var(--
 textarea{min-height:104px;resize:vertical}
 select{width:100%}
 :focus-visible{outline:2px solid var(--ac);outline-offset:2px}
+
+.saveto{margin-top:10px;display:grid;gap:6px}.saveto .sth{font-size:.82rem;color:var(--mu)}.saveto .strow{display:flex;gap:8px;align-items:center}.saveto .strow>span{min-width:68px;font-size:.9rem}.saveto .strow input{flex:1;min-width:0}.saveto .strow button{flex:none;white-space:nowrap}
