@@ -46,5 +46,10 @@ try{
  $tm.add_Tick({ $script:ticks++; $c=$null; try{ $c=$tWv.GetProperty('CoreWebView2').GetValue($wv,$null) }catch{}
   if($c){ $tm.Stop() } elseif($script:ticks -ge 30){ $tm.Stop(); Fallback; $f.Close() } })
  $tm.Start()
+ # se o servidor local parou (botao Sair, atualizacao...), a janela fecha junto
+ $script:dead=0; $uri=[Uri]$Url; $tq=New-Object Windows.Forms.Timer; $tq.Interval=2000
+ $tq.add_Tick({ $ok=$false; try{ $c=New-Object Net.Sockets.TcpClient; $ar=$c.BeginConnect($uri.Host,$uri.Port,$null,$null); $ok=$ar.AsyncWaitHandle.WaitOne(800) -and $c.Connected; $c.Close() }catch{}
+  if($ok){ $script:dead=0 }else{ $script:dead++; if($script:dead -ge 3){ $tq.Stop(); $f.Close() } } })
+ $tq.Start()
  [Windows.Forms.Application]::Run($f)
 }catch{ try{ Add-Content (Join-Path $Bin 'app.log') ("wvwin: "+$_.Exception.Message) }catch{}; Fallback }

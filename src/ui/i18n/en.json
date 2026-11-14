@@ -2,6 +2,7 @@
   "lang": "Language",
   "quit": "Quit",
   "quit_q": "Quit the program?",
+  "quit_done": "KoeDL has quit. You can close this window.",
   "sub": "Download music and videos from over a thousand sites, just by pasting the link.",
   "t_links": "Download",
   "t_pick": "Playlist",

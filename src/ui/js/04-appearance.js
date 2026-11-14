@@ -1,6 +1,9 @@
 let LANG='en';
 const t=k=>(D[LANG]&&D[LANG][k])||D.en[k]||k;
 const api=(p,b)=>fetch('/api/'+p+(p.indexOf('?')<0?'?':'&')+'t='+T,b?{method:'POST',headers:{'X-KoeDL':'1','Content-Type':'application/json'},body:JSON.stringify(b)}:{headers:{'X-KoeDL':'1'}}).then(r=>r.json());
+function quitApp(){if(!confirm(t('quit_q')))return;api('quit',{}).catch(function(){});
+ setTimeout(function(){try{window.close()}catch(e){}
+  document.body.innerHTML='<div style="display:grid;place-items:center;height:100vh;font:600 1.2rem system-ui;color:#c4b5fd;background:#0b0d1e;text-align:center;padding:24px">'+esc(t('quit_done'))+'</div>'},500)}
 const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 let cur='links',P={items:[],from:0,busy:false,title:'',url:''},ready=false,running=false,lastStatus=null;
 const IDS=['rate','frag','dirAudio','dirVideo','notif','after','autoclip','lookv','selfUpd','lang','openMode','theme','accent','fsize','density','corner','afmt','aq','vq','vcont','plmode','num','batch','splitType','st','en','noPl','nock','wait','meta','safe','reset','alt','addId','dlDir','chan','curmode','curpx2','curanim'];
