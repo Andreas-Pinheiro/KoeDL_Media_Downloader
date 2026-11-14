@@ -2,6 +2,10 @@
 
 Formato: versões mais novas primeiro. / Newest versions first.
 
+## 3.15.4
+**PT:** nova **arte na página de Apoio**: ilustrações com fundo transparente de verdade (o quadriculado era parte da imagem) e troca suave entre as poses (coração, joinha, agradecendo, comemorando); ao passar o mouse nos botões de doação aparece a menina com o painel "SUPPORT"; ao apoiar (ou dar uma estrela) toca uma de 3 **animações de agradecimento**, uma diferente a cada vez; os botões "Dar uma estrela" e "Reportar um problema" agora abrem o repositório atual (KoeDL_Media_Downloader).
+**EN:** new **Support page artwork**: illustrations with truly transparent backgrounds (the checkerboard was part of the image) and smooth fades between poses (heart, thumbs-up, thanks, cheering); hovering the donation buttons shows the girl with the "SUPPORT" panel; supporting (or starring) plays one of 3 **thank-you animations**, a different one each time; "Give a star" and "Report a problem" now open the current repository (KoeDL_Media_Downloader).
+
 ## 3.15.3
 **PT:** o **ponteiro da menina** agora é o cursor de verdade do sistema: sem atraso, e não some mais ao arrastar a barra de rolagem (as faíscas continuam no modo completo); a **tela cheia** da Biblioteca agora leva junto os controles (pausar, anterior/próxima, avançar na barra, volume, velocidade); o link colado **automaticamente** da área de transferência agora carrega a lista na hora (antes a lista ficava vazia até você mexer na caixa), e o botão "Verificar link" também preenche a lista; novo bloco **"Salvar em"** na tela de download, com botão **Escolher pasta…** para músicas e para vídeos.
 **EN:** the **girl pointer** is now the real system cursor: no lag, and it no longer disappears while dragging the scrollbar (sparkles stay in full mode); the Library **fullscreen** now brings the controls along (pause, previous/next, seek bar, volume, speed); a link **auto-pasted** from the clipboard now loads the list right away (before, the list stayed empty until you touched the box), and "Check link" also fills the list; new **"Save to"** block on the download screen, with a **Choose folder…** button for music and for videos.

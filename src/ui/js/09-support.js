@@ -1,6 +1,14 @@
 @@INCLUDE:src/ui/data/support-art.js@@
- ['heart','coins','cheer'].forEach(function(k){var e=$('im_'+k);e.src='data:image/webp;base64,'+SUP[k][0]});
- function show(k){['heart','coins','cheer'].forEach(function(x){$('im_'+x).classList.toggle('on',x===k)})}
+ /* poses (transparencia real, troca com fade): repouso = ciclo calmo; agradecimento = poses animadas mais rapidas; coins = ao passar nos botoes de doacao */
+ var ART=$('supArt'),POSES=SUP.poses.map(function(p,i){var e=document.createElement('img');e.alt='';e.decoding='async';e.src='data:image/webp;base64,'+p[0];e.dataset.p=i;ART.appendChild(e);return e}),
+  CO=$('im_coins');CO.src='data:image/webp;base64,'+SUP.coins[0];
+ var TH=document.createElement('img');TH.alt='';TH.decoding='async';ART.appendChild(TH);var thi=-1;
+ var st='heart',pi=0,REDUCE=false;try{REDUCE=matchMedia('(prefers-reduced-motion:reduce)').matches}catch(e){}
+ function paint(){POSES.forEach(function(e,i){e.classList.toggle('on',st==='heart'&&i===pi)});CO.classList.toggle('on',st==='coins');TH.classList.toggle('on',st==='cheer')}
+ /* agradecimento: uma das animacoes (WebP animado), diferente a cada vez; reduce-motion usa so o primeiro quadro estatico do navegador */
+ function show(k){st=k;if(k==='cheer'){thi=(thi+1)%SUP.thanks.length;TH.removeAttribute('src');TH.src='data:image/webp;base64,'+SUP.thanks[thi][0]}paint()}
+ var ti=setInterval(function(){if(REDUCE||st!=='heart'||document.hidden)return;var pg=$('p_sup');if(pg&&!pg.classList.contains('on'))return;pi=(pi+1)%POSES.length;paint()},1800);
+ paint();
  var box=$('supDon'),tm;
  var IC={'Ko-fi':'<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h13v5a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5z"/><path d="M17 10h1.5a2.5 2.5 0 0 1 0 5H17"/><path d="M8 3c0 1.5 1.5 1.5 1.5 3M12 3c0 1.5 1.5 1.5 1.5 3"/></svg>',Pix:'<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14v1M14 20h1M18 20h3v-3"/></svg>'};
  function thanks(){show('cheer');$('supThx').textContent=t('sup_thx');clearTimeout(tm);tm=setTimeout(function(){show('heart');$('supThx').textContent=''},3200)}
