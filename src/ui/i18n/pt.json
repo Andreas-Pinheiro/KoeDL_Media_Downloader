@@ -103,6 +103,8 @@
   "n_acc": "Contas e cookies",
   "meta": "Colocar capa e informações (artista, título) no arquivo",
   "safe": "Modo cuidadoso: faz pausas entre os downloads para evitar bloqueio",
+  "safe_on": "Ligado",
+  "safe_off": "Desligado",
   "alt": "Se um vídeo estiver bloqueado ou removido, procurar uma versão alternativa",
   "addid": "Colocar o ID do vídeo no nome do arquivo",
   "reset": "Começar do zero (ignorar o histórico do que já foi baixado)",

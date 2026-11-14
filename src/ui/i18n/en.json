@@ -103,6 +103,8 @@
   "n_acc": "Accounts & cookies",
   "meta": "Put cover art and info (artist, title) in the file",
   "safe": "Careful mode: pauses between downloads to avoid being blocked",
+  "safe_on": "On",
+  "safe_off": "Off",
   "alt": "If a video is blocked or removed, look for an alternative version",
   "addid": "Put the video ID in the file name",
   "reset": "Start over (ignore the history of what was already downloaded)",

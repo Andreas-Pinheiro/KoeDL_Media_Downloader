@@ -10,7 +10,13 @@ LANG=$('lang').value||'en';if(!D[LANG])LANG='en';$('lang').value=LANG;applyLook(
 document.querySelectorAll('input,select').forEach(e=>{e.addEventListener('change',save);if(e.type==='color')e.addEventListener('input',()=>{applyLook();save()})});
 ['theme','fsize','density','corner','curmode','curpx2','curanim'].forEach(i=>$(i).addEventListener('change',applyLook));
 $('lang').addEventListener('change',()=>{LANG=$('lang').value;applyLang();save()});
-document.querySelectorAll('input[name=kind]').forEach(e=>e.addEventListener('change',updFmt))}
+document.querySelectorAll('input[name=kind]').forEach(e=>e.addEventListener('change',updFmt));updSafeBtn()}
+// Modo cuidadoso: botao liga/desliga na tela de Configuracoes (o checkbox continua sendo a fonte do valor salvo).
+function updSafeBtn(){const c=$('safe');if(!c)return;let b=$('safeBtn');
+ if(!b){b=document.createElement('button');b.type='button';b.id='safeBtn';
+  b.addEventListener('click',()=>{c.checked=!c.checked;c.dispatchEvent(new Event('change',{bubbles:true}));updSafeBtn()});
+  const row=c.closest('label')||c.parentNode;c.style.display='none';row.insertAdjacentElement('afterend',b)}
+ const on=!!c.checked;b.textContent=t(on?'safe_on':'safe_off');b.className=on?'':'s';b.setAttribute('aria-pressed',on?'true':'false');b.title=t('safe')}
 function opts(){const o=common();o.urls=$('urls').value.split('\n').map(s=>s.trim()).filter(s=>s&&s[0]!=='#');return o}
 function updGop(){const n=P.items.filter(x=>x.checked&&!x.unavail).length;$('gop').textContent=t('go_pick')+(n?' ('+n+')':'');$('gop').classList.toggle('hide',!P.items.length)}
 async function go(m){let o,label,kind='a';

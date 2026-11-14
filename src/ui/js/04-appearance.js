@@ -31,6 +31,6 @@ function cfgNav(){var nav=$('cfgnav'),cards=[].slice.call(document.querySelector
 function applyLang(){document.documentElement.lang=LANG;
 document.querySelectorAll('[data-t]').forEach(e=>e.textContent=t(e.dataset.t));
 document.querySelectorAll('[data-ph]').forEach(e=>e.placeholder=t(e.dataset.ph));
-$('go').textContent=t('go');updGop();
+$('go').textContent=t('go');updGop();if(typeof updSafeBtn==='function')updSafeBtn();
 if(P.items.length){render()}else if(!P.busy){$('plinfo').textContent=t('plhint')}
 if(lastStatus)showStatus(lastStatus)}
