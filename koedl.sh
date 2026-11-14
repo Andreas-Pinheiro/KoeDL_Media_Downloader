@@ -2633,7 +2633,7 @@ function opts(){const o=common();o.urls=$('urls').value.split('\n').map(s=>s.tri
 function updGop(){const n=P.items.filter(x=>x.checked&&!x.unavail).length;$('gop').textContent=t('go_pick')+(n?' ('+n+')':'');$('gop').classList.toggle('hide',!P.items.length)}
 async function go(m){let o,label,kind='a';
  if(m==='pick'){const sel=P.items.filter(x=>x.checked&&!x.unavail);if(!sel.length)return alert(t('a_pick'));
-  o=common();o.mode='pick';o.plUrl=P.url||$('plurl').value;o.plTitle=P.title;o.maxIdx=Math.max.apply(null,P.items.map(x=>x.idx||0).concat([P.items.length]));
+  o=common();o.mode='pick';o.plurl=P.url||o.plurl||'';o.plTitle=P.title;if(!o.plTitle)o.plmode='none';o.maxIdx=Math.max.apply(null,P.items.map(x=>x.idx||0).concat([P.items.length]));
   o.items=sel.map(x=>({idx:x.idx,title:x.title,url:x.url,type:x.type}));label=(P.title||'Playlist')+' · '+sel.length;kind=sel.every(x=>x.type==='v')?'v':'a'}
  else{o=opts();o.mode='links';if(!o.urls.length){$('urls').focus();return alert(t('a_links'))}
   label=o.urls[0].replace(/^https?:\/\/(www\.)?/,'').slice(0,60)+(o.urls.length>1?' +'+(o.urls.length-1):'');kind=o.kind==='v'?'v':'a';$('urls').value=''}
