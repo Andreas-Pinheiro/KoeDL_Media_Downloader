@@ -155,3 +155,6 @@ while($lst.IsListening){
  finally{ try{ $rs.Close() }catch{} }
 }
 try{ Remove-Item ([IO.Path]::Combine($bin,'port.txt')) -ea 0 }catch{}
+# Encerra de verdade: uma verificacao de link/clipboard/pasta ainda pendente (runspace em segundo plano) mantem o processo vivo e a janela/icone nunca fecham.
+foreach($k in 'pid','lpid','ipid'){ try{ KillTree $S[$k] }catch{} }
+try{ [Environment]::Exit(0) }catch{}
