@@ -109,7 +109,7 @@ while($lst.IsListening){
     '/api/media'{ $out=''; try{ $fp="$($rq.QueryString['p'])"
         if(-not (InRoots $fp) -or -not (Test-Path -LiteralPath $fp -PathType Leaf) -or -not $MediaExt.ContainsKey([IO.Path]::GetExtension($fp).ToLower())){ $rs.StatusCode=404 }
         else{ $fi=New-Object IO.FileInfo $fp; $len=$fi.Length
-          $mt=$MediaExt[$fi.Extension.ToLower()]; if(-not $mt){ $mt='application/octet-stream' }
+          $mt=$MediaExt[$fi.Extension.ToLower()]; $sn=SniffMedia $fp; if($sn){ $mt=$sn }; if(-not $mt){ $mt='application/octet-stream' }
           $st=[long]0; $en=$len-1; $rg="$($rq.Headers['Range'])"; $part=$false
           if($rg -match '^bytes=(\d*)-(\d*)$'){ $part=$true; if($Matches[1] -ne ''){ $st=[long]$Matches[1]; if($Matches[2] -ne ''){ $en=[long]$Matches[2] } }elseif($Matches[2] -ne ''){ $st=[Math]::Max([long]0,$len-[long]$Matches[2]) } }
           if($en -ge $len){ $en=$len-1 }

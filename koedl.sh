@@ -2979,6 +2979,18 @@ function LibDirs{ $f=LibFile; $o=@(); if(Test-Path -LiteralPath $f){ try{ foreac
 function DlBase{ $sj=ReadSettings; $r=@((GetDl)); if($sj){ foreach($k in 'dirAudio','dirVideo'){ if("$($sj.$k)".Trim()){ $r+="$($sj.$k)".Trim() } } }; return ,$r }
 function DlRoots{ $r=@(DlBase); foreach($d in (LibDirs)){ $r+=$d }; return ,$r }
 $MediaExt=@{'.mp3'='audio/mpeg';'.m4a'='audio/mp4';'.aac'='audio/aac';'.opus'='audio/ogg; codecs=opus';'.ogg'='audio/ogg';'.flac'='audio/flac';'.wav'='audio/wav';'.wma'='audio/x-ms-wma';'.mp4'='video/mp4';'.m4v'='video/mp4';'.webm'='video/webm';'.mkv'='video/x-matroska';'.mov'='video/quicktime';'.avi'='video/x-msvideo'}
+# O tipo vem da extensao, mas o conteudo manda: arquivo com nome trocado (ex.: .mp3 que na verdade e ogg/opus)
+# tocava em player que fareja o formato e falhava no navegador, que confia no Content-Type que a gente manda.
+function SniffMedia($fp){
+ try{ $fs=[IO.File]::OpenRead($fp); try{ $b=New-Object byte[] 16; $n=$fs.Read($b,0,16) }finally{ $fs.Dispose() } }catch{ return '' }
+ if($n -lt 4){ return '' }
+ $s=[Text.Encoding]::ASCII.GetString($b,0,$n)
+ if($s.StartsWith('ID3')){ return 'audio/mpeg' }
+ if($b[0] -eq 0xFF -and ($b[1] -band 0xE0) -eq 0xE0){ return 'audio/mpeg' }
+ if($s.StartsWith('fLaC')){ return 'audio/flac' }
+ if($s.StartsWith('OggS')){ return 'audio/ogg' }
+ if($s.StartsWith('RIFF') -and $n -ge 12 -and $s.Substring(8,4) -eq 'WAVE'){ return 'audio/wav' }
+ return '' }
 function InRoots($fp){ if(-not $fp){ return $false }; foreach($r in (DlRoots)){ try{ $rr=[IO.Path]::GetFullPath($r).TrimEnd('\','/'); $ff=[IO.Path]::GetFullPath($fp); if($ff.StartsWith($rr+[IO.Path]::DirectorySeparatorChar,[StringComparison]::OrdinalIgnoreCase)){ return $true } }catch{} }; return $false }
 $wvScript=@'
 param($Url,$Bin)
@@ -3168,7 +3180,7 @@ while($lst.IsListening){
     '/api/media'{ $out=''; try{ $fp="$($rq.QueryString['p'])"
         if(-not (InRoots $fp) -or -not (Test-Path -LiteralPath $fp -PathType Leaf) -or -not $MediaExt.ContainsKey([IO.Path]::GetExtension($fp).ToLower())){ $rs.StatusCode=404 }
         else{ $fi=New-Object IO.FileInfo $fp; $len=$fi.Length
-          $mt=$MediaExt[$fi.Extension.ToLower()]; if(-not $mt){ $mt='application/octet-stream' }
+          $mt=$MediaExt[$fi.Extension.ToLower()]; $sn=SniffMedia $fp; if($sn){ $mt=$sn }; if(-not $mt){ $mt='application/octet-stream' }
           $st=[long]0; $en=$len-1; $rg="$($rq.Headers['Range'])"; $part=$false
           if($rg -match '^bytes=(\d*)-(\d*)$'){ $part=$true; if($Matches[1] -ne ''){ $st=[long]$Matches[1]; if($Matches[2] -ne ''){ $en=[long]$Matches[2] } }elseif($Matches[2] -ne ''){ $st=[Math]::Max([long]0,$len-[long]$Matches[2]) } }
           if($en -ge $len){ $en=$len-1 }
