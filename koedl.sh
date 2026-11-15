@@ -2917,7 +2917,7 @@ footer .sig{color:var(--cy);margin-left:14px}footer .sig::before{width:1.5em;hei
   wrap=document.createElement('div');
   wrap.id='kDlgWrap';
   wrap.style.cssText='position:fixed;inset:0;z-index:9999;display:none;place-items:center;'+
-   'background:rgba(5,7,18,.62);backdrop-filter:blur(2px)';
+   'background:rgba(5,7,18,.68)';
   wrap.addEventListener('mousedown',function(e){ if(e.target===wrap) finish(mode!=='alert') });
 
   cardEl=document.createElement('div');
