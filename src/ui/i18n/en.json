@@ -298,5 +298,7 @@
   "cv_empty": "No files yet. Use “Choose videos…”.",
   "cv_remove": "Remove",
   "cv_files": "file(s) queued",
-  "cv_destno": "That folder cannot be used here: the audio will be saved next to the original video. Use “Choose folder…”."
+  "cv_destno": "That folder cannot be used here: the audio will be saved next to the original video. Use “Choose folder…”.",
+  "dlg_ok": "OK",
+  "dlg_cancel": "Cancel"
 }

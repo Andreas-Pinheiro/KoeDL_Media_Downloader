@@ -298,5 +298,7 @@
   "cv_empty": "Nenhum arquivo na lista. Use “Escolher vídeos…”.",
   "cv_remove": "Remover",
   "cv_files": "arquivo(s) na fila",
-  "cv_destno": "Essa pasta não pode ser usada aqui: o áudio vai ser salvo do lado do vídeo original. Use “Escolher pasta…”."
+  "cv_destno": "Essa pasta não pode ser usada aqui: o áudio vai ser salvo do lado do vídeo original. Use “Escolher pasta…”.",
+  "dlg_ok": "OK",
+  "dlg_cancel": "Cancelar"
 }
