@@ -23,6 +23,9 @@ function Spawn($cfg,$key){
  if($S.win){ $psi.FileName=$env:ComSpec; $psi.Arguments='/c "chcp 65001>nul & "'+$S.yt+'" --ignore-config --config-locations "'+$cfg+'" 2>&1"' }
  else{ $psi.FileName='/bin/sh'; [void]$psi.ArgumentList.Add('-c'); [void]$psi.ArgumentList.Add('"'+$S.yt+'" --ignore-config --config-locations "'+$cfg+'" 2>&1') }
  $psi.UseShellExecute=$false; $psi.RedirectStandardOutput=$true; $psi.CreateNoWindow=$true; $psi.StandardOutputEncoding=[Text.Encoding]::UTF8
+ # No Windows o Python do yt-dlp escreve no cano (pipe) com a codificacao local (cp1252), nao com UTF-8.
+ # Sem isto, apostrofo tipografico (') e acentos chegam como byte invalido e viram "?" perdido no titulo.
+ try{ $psi.EnvironmentVariables['PYTHONIOENCODING']='utf-8'; $psi.EnvironmentVariables['PYTHONUTF8']='1' }catch{}
  $p=[Diagnostics.Process]::Start($psi); $S[$key]=$p.Id; return $p }
 function Cap($a,$key){ $cfg=Cfg $a; $p=Spawn $cfg $key; $t=$p.StandardOutput.ReadToEnd(); $p.WaitForExit(); $S[$key]=0; Remove-Item $cfg -ea 0; return ($t -split "`r?`n") }
 function Why($m){ switch -regex ($m){
