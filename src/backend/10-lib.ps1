@@ -23,6 +23,9 @@ function Spawn($cfg,$key){
  if($S.win){ $psi.FileName=$env:ComSpec; $psi.Arguments='/c "chcp 65001>nul & "'+$S.yt+'" --ignore-config --config-locations "'+$cfg+'" 2>&1"' }
  else{ $psi.FileName='/bin/sh'; [void]$psi.ArgumentList.Add('-c'); [void]$psi.ArgumentList.Add('"'+$S.yt+'" --ignore-config --config-locations "'+$cfg+'" 2>&1') }
  $psi.UseShellExecute=$false; $psi.RedirectStandardOutput=$true; $psi.CreateNoWindow=$true; $psi.StandardOutputEncoding=[Text.Encoding]::UTF8
+ # No Windows o Python do yt-dlp escreve no cano (pipe) com a codificacao local (cp1252), nao com UTF-8.
+ # Sem isto, apostrofo tipografico (') e acentos chegam como byte invalido e viram "?" perdido no titulo.
+ try{ $psi.EnvironmentVariables['PYTHONIOENCODING']='utf-8'; $psi.EnvironmentVariables['PYTHONUTF8']='1' }catch{}
  $p=[Diagnostics.Process]::Start($psi); $S[$key]=$p.Id; return $p }
 function Cap($a,$key){ $cfg=Cfg $a; $p=Spawn $cfg $key; $t=$p.StandardOutput.ReadToEnd(); $p.WaitForExit(); $S[$key]=0; Remove-Item $cfg -ea 0; return ($t -split "`r?`n") }
 function Why($m){ switch -regex ($m){
@@ -35,7 +38,8 @@ function Why($m){ switch -regex ($m){
   'members|Join this channel' {return (Tr 'Exclusivo para membros' 'Members only')}
   'live event|premiere|will begin' {return (Tr 'Live/estreia ainda indisponivel' 'Live/premiere not available yet')}
   'DRM' {return (Tr 'Protegido por DRM (nao e possivel baixar)' 'DRM-protected (cannot be downloaded)')}
-  'Unsupported URL' {return (Tr 'Link/site nao suportado' 'Unsupported link/site')}
+  'Liability|will not be supported|not supported' {return (Tr 'Este site nao permite download pelo KoeDL (o proprio motor de download o recusa)' 'This site does not allow downloading through KoeDL (the download engine itself refuses it)')}
+  'Unsupported URL' {return (Tr 'Link nao reconhecido: cole o endereco da pagina do video ou da musica' 'Unrecognized link: paste the address of the video or music page')}
   'HTTP Error 404|not found|Not Found' {return (Tr 'Nao encontrado (404)' 'Not found (404)')}
   'HTTP Error 403|Forbidden' {return (Tr 'Acesso negado (403)' 'Access denied (403)')}
   '[Ll]ogin|[Ss]ign in|authenticat' {return (Tr 'Exige login (marque um navegador com a conta logada)' 'Login required (tick a browser with a logged-in account)')}

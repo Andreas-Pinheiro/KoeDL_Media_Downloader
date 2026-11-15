@@ -17,6 +17,7 @@
     "src/backend/30-exe-builder.ps1",
     "src/backend/40-download.ps1",
     "src/backend/50-playlist.ps1",
+    "src/backend/55-convert.ps1",
     "src/backend/60-linkcheck.ps1",
     "src/backend/65-ui-page.ps1",
     "src/backend/70-window.ps1",
