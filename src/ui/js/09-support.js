@@ -1,11 +1,11 @@
 @@INCLUDE:src/ui/data/support-art.js@@
  /* 3 imagens (WebP animado, mesmo tamanho e mesmo ponto): parada | passar nos botoes de doacao | agradecimento */
  var ART=$('supArt'),K={heart:'idle',coins:'hover',cheer:'thanks'},IM={},SRC={},ST={},st='heart',REDUCE=false;try{REDUCE=matchMedia('(prefers-reduced-motion:reduce)').matches}catch(e){}
- Object.keys(K).forEach(function(k){var e=document.createElement('img');e.alt='';e.decoding='async';ART.appendChild(e);IM[k]=e;SRC[k]='data:image/webp;base64,'+SUP[K[k]][0]});
+ Object.keys(K).forEach(function(k){if(k==='heart'){IM[k]=mkMascot(ART,'start',false);return}var e=document.createElement('img');e.alt='';e.decoding='async';ART.appendChild(e);IM[k]=e;SRC[k]='data:image/webp;base64,'+SUP[K[k]][0]});
  /* reduce-motion: usa so o primeiro quadro (imagem parada) */
  function still(k){return new Promise(function(ok){var i=new Image();i.onload=function(){try{var c=document.createElement('canvas');c.width=i.naturalWidth;c.height=i.naturalHeight;c.getContext('2d').drawImage(i,0,0);ok(c.toDataURL('image/png'))}catch(e){ok(SRC[k])}};i.onerror=function(){ok(SRC[k])};i.src=SRC[k]})}
  function paint(){Object.keys(IM).forEach(function(k){IM[k].classList.toggle('on',k===st)})}
- function show(k){st=k;if(REDUCE){if(!ST[k])ST[k]=still(k);ST[k].then(function(u){if(st===k)IM[k].src=u})}else{IM[k].removeAttribute('src');IM[k].src=SRC[k]}paint()}
+ function show(k){st=k;if(k==='heart'){paint();return}if(REDUCE){if(!ST[k])ST[k]=still(k);ST[k].then(function(u){if(st===k)IM[k].src=u})}else{IM[k].removeAttribute('src');IM[k].src=SRC[k]}paint()}
  show('heart');
  var box=$('supDon'),tm;
  var IC={'Ko-fi':'<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h13v5a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5z"/><path d="M17 10h1.5a2.5 2.5 0 0 1 0 5H17"/><path d="M8 3c0 1.5 1.5 1.5 1.5 3M12 3c0 1.5 1.5 1.5 1.5 3"/></svg>',Pix:'<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14v1M14 20h1M18 20h3v-3"/></svg>'};
