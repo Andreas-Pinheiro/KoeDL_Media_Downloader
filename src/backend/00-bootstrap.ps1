@@ -30,4 +30,8 @@ $S.fails=[Collections.ArrayList]::Synchronized((New-Object Collections.ArrayList
 $S.alts=[Collections.ArrayList]::Synchronized((New-Object Collections.ArrayList))
 $PL=[hashtable]::Synchronized(@{busy=$false;title='';err='';stop=$false})
 $PL.items=[Collections.ArrayList]::Synchronized((New-Object Collections.ArrayList))
+# conversao video -> audio: fila, progresso e o processo do ffmpeg em andamento
+$CV=[hashtable]::Synchronized(@{busy=$false;stop=$false;err='';cur='';pct=0;n=0;pid=0;pick=@{busy=$false}})
+$CV.items=[Collections.ArrayList]::Synchronized((New-Object Collections.ArrayList))
+$S.convDirs=[Collections.ArrayList]::Synchronized((New-Object Collections.ArrayList))
 

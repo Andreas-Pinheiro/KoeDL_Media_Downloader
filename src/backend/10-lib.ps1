@@ -38,7 +38,8 @@ function Why($m){ switch -regex ($m){
   'members|Join this channel' {return (Tr 'Exclusivo para membros' 'Members only')}
   'live event|premiere|will begin' {return (Tr 'Live/estreia ainda indisponivel' 'Live/premiere not available yet')}
   'DRM' {return (Tr 'Protegido por DRM (nao e possivel baixar)' 'DRM-protected (cannot be downloaded)')}
-  'Unsupported URL' {return (Tr 'Link/site nao suportado' 'Unsupported link/site')}
+  'Liability|will not be supported|not supported' {return (Tr 'Este site nao permite download pelo KoeDL (o proprio motor de download o recusa)' 'This site does not allow downloading through KoeDL (the download engine itself refuses it)')}
+  'Unsupported URL' {return (Tr 'Link nao reconhecido: cole o endereco da pagina do video ou da musica' 'Unrecognized link: paste the address of the video or music page')}
   'HTTP Error 404|not found|Not Found' {return (Tr 'Nao encontrado (404)' 'Not found (404)')}
   'HTTP Error 403|Forbidden' {return (Tr 'Acesso negado (403)' 'Access denied (403)')}
   '[Ll]ogin|[Ss]ign in|authenticat' {return (Tr 'Exige login (marque um navegador com a conta logada)' 'Login required (tick a browser with a logged-in account)')}
