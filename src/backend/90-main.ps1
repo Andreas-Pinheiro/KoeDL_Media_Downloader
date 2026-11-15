@@ -40,7 +40,9 @@ while($lst.IsListening){
   $csrfOk=(-not $wr -or "$($rq.Headers['X-KoeDL'])" -eq '1')
   if(-not $hostOk){ $rs.StatusCode=403; $out='' }
   elseif(-not $orgOk -or -not $csrfOk){ $rs.StatusCode=403; $out='' }
-  elseif($path -eq '/'){ $out=$html.Replace('__TOK__',$tok); $ct='text/html; charset=utf-8' }
+  elseif($path -eq '/'){ $pg=$html
+   try{ $sj0=ReadSettings; if($sj0 -and "$($sj0.ui)".Trim() -eq 'neon'){ $pg=$htmlN } }catch{}
+   $out=$pg.Replace('__TOK__',$tok); $ct='text/html; charset=utf-8' }
   elseif($rq.QueryString['t'] -ne $tok){ $rs.StatusCode=403 }
   else{
    switch($path){

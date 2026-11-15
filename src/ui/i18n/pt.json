@@ -312,5 +312,10 @@
   "cv_files": "arquivo(s) na fila",
   "cv_destno": "Essa pasta não pode ser usada aqui: o áudio vai ser salvo do lado do vídeo original. Use “Escolher pasta…”.",
   "dlg_ok": "OK",
-  "dlg_cancel": "Cancelar"
+  "dlg_cancel": "Cancelar",
+  "h_skin": "Interface",
+  "skin_lbl": "Escolha a interface",
+  "skin_classic": "Clássica",
+  "skin_neon": "Neon",
+  "skin_hint": "A troca recarrega a página. A Clássica é a tela de sempre; a Neon é a que tem a personagem na lateral e os painéis numerados."
 }
