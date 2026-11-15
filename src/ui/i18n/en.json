@@ -1,8 +1,20 @@
 {
+  "paste_t": "Paste from clipboard",
+  "tag": "Download · Organize · Enjoy!",
+  "side_cap": "Always with you!",
+  "onl": "Online",
+  "offl": "Offline",
+  "empty_t": "No items yet",
+  "empty_s": "Paste a link and start downloading!",
   "lang": "Language",
   "quit": "Quit",
   "quit_q": "Quit the program?",
   "quit_done": "KoeDL has quit. You can close this window.",
+  "m_idle": "Paste a link to get started",
+  "m_start": "Starting the download…",
+  "m_down": "Downloading…",
+  "m_ok": "Done! Download finished",
+  "m_err": "Oops! Something went wrong",
   "sub": "Download music and videos from over a thousand sites, just by pasting the link.",
   "t_links": "Download",
   "t_pick": "Playlist",
@@ -120,7 +132,7 @@
   "wait": "If all fail, how many minutes to wait before trying again? (0 = stop)",
   "cknote": "If a cookies.txt sits next to the program, it is used first. Chrome-based browsers may need to be closed; Firefox is the most stable.",
   "don_t": "☕ Buy me a coffee and help the developer stay up all night!",
-  "t_sup": "♥ Support",
+  "t_sup": "Support",
   "sup_h": "Enjoying KoeDL?",
   "sup_p": "It is free and was made with the help of Claude, an AI by Anthropic. If it helps you, your support keeps the updates coming and the project alive.",
   "sup_star": "Give a star",
@@ -298,5 +310,7 @@
   "cv_empty": "No files yet. Use “Choose videos…”.",
   "cv_remove": "Remove",
   "cv_files": "file(s) queued",
-  "cv_destno": "That folder cannot be used here: the audio will be saved next to the original video. Use “Choose folder…”."
+  "cv_destno": "That folder cannot be used here: the audio will be saved next to the original video. Use “Choose folder…”.",
+  "dlg_ok": "OK",
+  "dlg_cancel": "Cancel"
 }

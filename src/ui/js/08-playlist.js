@@ -34,7 +34,6 @@ const idle=(s.status==='Idle'||s.status==='Parado');
 let line=idle?t('idle'):s.status;
 if(s.running&&s.total>0)line+=' · '+(s.done+1>s.total?s.total:s.done+1)+'/'+s.total;
 if(s.running&&s.item)line+=' ('+t('item')+s.item+')';
-if(s.running&&s.speed)line+=' · '+s.speed+(s.eta?' · ETA '+s.eta:'');
 if(s.running&&s.browser&&s.browser!==t('nocookie')&&s.browser!=='sem cookies'&&s.browser!=='no cookies')line+=' · '+t('cookies')+s.browser;
 $('stline').textContent=line;$('cur').textContent=s.cur||'';$('cur2').textContent=s.cur||'';
 $('log').textContent=s.log.join('\n');if($('dt').open)$('log').scrollTop=1e9;

@@ -12,11 +12,11 @@ async function chk(){const u=opts().urls[0];if(!u)return;$('ck').textContent=t('
 for(let i=0;i<90;i++){await new Promise(r=>setTimeout(r,700));const r=await api('infostate');if(!r.busy){if(!r.error)plAuto();$('ck').textContent=r.error?(t('ck_err')+r.error):(r.title+' · '+r.count+t('ck_cnt')+(r.ex?' · '+r.ex:''));return}}$('ck').textContent=t('ck_slow')}
 var UPDX={},UPDGO=false;
 $('updlater').onclick=function(){UPDX[$('updt').textContent.match(/[0-9]+(\.[0-9]+)+/)[0]]=1;$('updb').classList.add('hide')};
-$('updgo').onclick=async function(){var r=await api('applyupd',{});if(r&&r.error){alert(r.error);return}UPDGO=true;$('updt').textContent=t('upd_restart');$('updgo').classList.add('hide');$('updlater').classList.add('hide')};
+$('updgo').onclick=async function(){var r=await api('applyupd',{});if(r&&r.error){await KAlert(r.error);return}UPDGO=true;$('updt').textContent=t('upd_restart');$('updgo').classList.add('hide');$('updlater').classList.add('hide')};
 var CHKW=false;async function chkUpd(){UPDX={};UPDGO=false;CHKW=true;$('chkbtn').disabled=true;$('chkmsg').textContent=t('chk_run');await api('chkupd',{})}
 function chkDone(s){if(!CHKW||!s.chk||s.chk==='run')return;CHKW=false;$('chkbtn').disabled=false;$('chkmsg').textContent=s.chk==='same'?t('chk_same').replace('{c}',s.appver||''):s.chk==='new'?t('chk_new').replace('{v}',s.updavail||''):t('chk_err')}
-async function upd(){const r=await api('update',{});if(r.error)alert(r.error)}
-async function shortcuts(){const r=await api('shortcut',{});alert(r.msg||r.error||'ok')}
+async function upd(){const r=await api('update',{});if(r.error)await KAlert(r.error)}
+async function shortcuts(){const r=await api('shortcut',{});await KAlert(r.msg||r.error||'ok')}
 /* ---- links: um lugar so, avulso e playlist juntos ---- */
 /* Cada link colado na caixa vira linhas na lista de selecao: video/musica avulso = 1 linha,
    playlist = todas as faixas. Tirar o link da caixa tira as linhas dele. */
