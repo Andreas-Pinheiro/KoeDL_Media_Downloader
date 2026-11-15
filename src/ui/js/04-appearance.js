@@ -22,8 +22,8 @@ function resetLook(){$('theme').value='neon';$('fsize').value='m';$('density').v
 document.querySelectorAll('#sw button[data-c]').forEach(x=>x.addEventListener('click',()=>{$('accent').value=x.dataset.c;applyLook();save()}));
 function radio(n){const e=document.querySelector('input[name='+n+']:checked');return e?e.value:''}
 function setRadio(n,v){document.querySelectorAll('input[name='+n+']').forEach(e=>e.checked=e.value===v)}
-function updFmt(){const k=radio('kind'),pm=radio('pm');
-const a=k==='a'||pm!=='v',v=k==='v'||pm!=='a';
+function updFmt(){const k=radio('kind');
+const a=k!=='v',v=k==='v';
 $('gA').classList.toggle('hide',!a);$('gV').classList.toggle('hide',!v);
 }
 
