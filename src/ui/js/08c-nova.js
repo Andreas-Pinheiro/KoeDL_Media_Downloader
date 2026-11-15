@@ -15,3 +15,9 @@ const SLEEP='data:image/webp;base64,@@B64:assets/ui/dorme.webp@@';
   $('bspd').textContent=(s.running&&s.speed)?s.speed:'0 B/s';$('beta').textContent=(s.running&&s.eta)?s.eta:'--:--';sync()};
  setInterval(sync,1000);sync();
 })();
+/* botao de colar + icone no rodape */
+(function(){var b=$('pastebtn');function tt(){b.title=t('paste_t');b.setAttribute('aria-label',t('paste_t'))}tt();$('lang').addEventListener('change',function(){setTimeout(tt,80)});
+ b.onclick=async function(){var x='';try{var r=await api('clip',{});x=((r&&r.text)||'').trim()}catch(e){}
+  if(!x){try{x=((await navigator.clipboard.readText())||'').trim()}catch(e){}}
+  if(x){$('urls').value=x;$('urls').dispatchEvent(new Event('input'));plAuto()}};
+ var fl=document.querySelector('footer .fl');if(fl){var im=document.createElement('img');im.alt='';im.src=LOGO;im.className='flogo';fl.insertBefore(im,fl.firstChild)}})();

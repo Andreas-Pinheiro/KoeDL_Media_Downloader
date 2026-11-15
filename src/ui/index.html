@@ -5,7 +5,7 @@
 @@INCLUDE_DIR:src/ui/css@@
 </style></head><body data-tab="links"><div class="wrap">
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><symbol id="paw" viewBox="0 0 64 64"><ellipse cx="32" cy="42" rx="15" ry="12"/><ellipse cx="11" cy="29" rx="6" ry="8.500" transform="rotate(-22 11 29)"/><ellipse cx="24" cy="15" rx="6.500" ry="9" transform="rotate(-8 24 15)"/><ellipse cx="40" cy="15" rx="6.500" ry="9" transform="rotate(8 40 15)"/><ellipse cx="53" cy="29" rx="6" ry="8.500" transform="rotate(22 53 29)"/></symbol><linearGradient id="klg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#c084fc"/><stop offset="1" stop-color="#22d3ee"/></linearGradient></defs></svg>
-<aside id="side" aria-hidden="true"><div class="sglow"></div><img id="sideimg" alt=""><svg class="pw pw1"><use href="#paw"/></svg><svg class="pw pw2"><use href="#paw"/></svg><div class="scap"><b>KoeDL</b><span data-t="side_cap"></span></div></aside>
+<aside id="side" aria-hidden="true"><div class="sglow"></div><div class="sbands"></div><img id="sideimg" alt=""><span class="sp1">✦</span><span class="sh1">♥</span><svg class="pw pw1"><use href="#paw"/></svg><svg class="pw pw2"><use href="#paw"/></svg><div class="scap"><b>KoeDL</b><span data-t="side_cap"></span></div></aside>
 <div id="stage">
 <header><img id="logo" alt="KoeDL"><img id="brand" alt="KoeDL"><div class="kl" aria-label="KoeDL"><svg class="kl-tri" viewBox="0 0 48 52"><path d="M9 7 L41 26 L9 45 Z" fill="none" stroke="url(#klg)" stroke-width="7" stroke-linejoin="round"/></svg><span class="kl-t">KoeDL</span></div><div class="tabs"><button id="t_links" class="on ic ic-home" onclick="tab('links')" data-t="t_links"></button><button id="t_q" class="ic ic-list" onclick="tab('q')"><span data-t="t_q"></span><i id="qn" class="qn"></i></button><button id="t_lib" class="ic ic-folder" onclick="tab('lib')" data-t="t_lib"></button><button id="t_cfg" class="ic ic-gear" onclick="tab('cfg')" data-t="t_cfg"></button><button id="t_sup" class="ic ic-heart" onclick="tab('sup')" data-t="t_sup"></button></div><div class="sp"></div>
 <label class="fld nf lang" style="min-width:0"><span data-t="lang"></span><select id="lang"><option value="en">English</option><option value="pt">Português</option></select></label>
@@ -20,7 +20,7 @@
 <div id="p_links" class="pane on">
 <div id="colL">
 <div class="card" id="lk"><h2><span class="n">1</span><span data-t="s1_links"></span></h2>
-<textarea id="urls" data-ph="urlsph"></textarea>
+<div class="tarea"><textarea id="urls" data-ph="urlsph"></textarea><button id="pastebtn" class="s ic ic-clip ic-only" type="button"></button></div>
 <div class="row" style="margin-top:8px;align-items:center"><button class="s nf k-search ic ic-verify" onclick="chk()" data-t="chk"></button><span id="ck" class="mu"></span><span class="grow"></span><button class="s nf ic ic-trash" id="lclear" onclick="clearAll()" data-t="clear_all"></button></div></div>
 <div id="s2" class="card"><h2><span class="n">2</span><span data-t="s2"></span></h2>
 <div id="kindbox" style="margin-bottom:10px"><div class="seg">
@@ -146,7 +146,7 @@
 <details id="dt" class="card"><summary data-t="details"></summary><div id="cur2" class="mu"></div><pre id="log"></pre><div id="alts"></div><div id="fails"></div></details>
 </div>
 </div>
-<footer><span class="fl"><b>KoeDL</b> · by <a data-href="https://github.com/Andreas-Pinheiro" role="link" tabindex="0" style="cursor:pointer;text-decoration:underline">Andreas-Pinheiro</a><span id="appver"></span></span><span class="fr"><i id="onl" class="on"></i><span id="onlt" data-t="onl"></span></span></footer>
+<footer><span class="fl"><b>KoeDL</b> · by <a data-href="https://github.com/Andreas-Pinheiro" role="link" tabindex="0" style="cursor:pointer;text-decoration:underline">Andreas-Pinheiro</a><span id="appver"></span></span><span class="fr"><i id="onl" class="on"></i><span id="onlt" data-t="onl"></span><i class="ic ic-bars ic-only sig"></i></span></footer>
 
 <div id="rs" hidden><span id="rst"></span><button class="s" id="rsgo" onclick="rsGo()" data-t="rs_go"></button><button class="s" id="rsx" onclick="rsDrop()" data-t="rs_drop"></button></div>
 <div id="cd" hidden><span id="cdt"></span><button class="s" id="cdx" onclick="cdCancel()" data-t="cd_cancel"></button></div>
