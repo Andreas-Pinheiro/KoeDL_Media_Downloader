@@ -216,6 +216,8 @@
   "pl_need": "Cole o link da playlist.",
   "pl_load": "Carregando a lista...",
   "pl_fail": "Não consegui carregar: ",
+  "pl_nofilter": "Nenhuma faixa corresponde ao filtro.",
+  "plfclr": "Limpar filtro",
   "pl_loading": "Carregando... ",
   "pl_tracks": " faixa(s) · ",
   "pl_marked": " marcada(s) (",

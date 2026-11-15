@@ -1,5 +1,11 @@
-function vis(){const q=$('plfilter').value.trim().toLowerCase();return P.items.map((x,i)=>[x,i]).filter(p=>!q||(p[0].title+' '+p[0].uploader).toLowerCase().indexOf(q)>=0)}
-function render(){const v=vis();$('tb').innerHTML=v.map(p=>{const x=p[0],i=p[1];return`<tr class="${x.unavail?'na':''}"><td><input type="checkbox" data-i="${i}" ${x.checked?'checked':''} ${x.unavail?'disabled':''}></td><td class="num">${esc(x.idx)}</td><td>${esc(x.title)}</td><td>${esc(x.uploader)}</td><td>${esc(x.dur)}</td><td>${x.unavail?t('unavail'):`<select data-t2="${i}"><option value="a" ${x.type==='a'?'selected':''}>${t('opt_a')}</option><option value="v" ${x.type==='v'?'selected':''}>${t('opt_v')}</option></select>`}</td></tr>`}).join('');sum()}
+/* Colar um titulo as vezes traz caracteres invisiveis (zero-width, BOM, espaco duro).
+   Sem isso a caixa parece vazia, mas o filtro nao casa com nada e a tabela some. */
+function cleanQ(s){return (s||'').replace(/[\u00A0\u200B-\u200D\u2060\uFEFF]/g,'').trim().toLowerCase()}
+function vis(){const q=cleanQ($('plfilter').value);return P.items.map((x,i)=>[x,i]).filter(p=>!q||((p[0].title||'')+' '+(p[0].uploader||'')).toLowerCase().indexOf(q)>=0)}
+function render(){const v=vis(),html=v.map(p=>{const x=p[0],i=p[1];return`<tr class="${x.unavail?'na':''}"><td><input type="checkbox" data-i="${i}" ${x.checked?'checked':''} ${x.unavail?'disabled':''}></td><td class="num">${esc(x.idx)}</td><td>${esc(x.title)}</td><td>${esc(x.uploader)}</td><td>${esc(x.dur)}</td><td>${x.unavail?t('unavail'):`<select data-t2="${i}"><option value="a" ${x.type==='a'?'selected':''}>${t('opt_a')}</option><option value="v" ${x.type==='v'?'selected':''}>${t('opt_v')}</option></select>`}</td></tr>`}).join('');
+$('tb').innerHTML=html||(!P.items.length?'':'<tr><td colspan="6" style="text-align:center;opacity:.85;padding:18px">'+esc(t('pl_nofilter'))+' <button class="s" id="plfclr">'+esc(t('plfclr'))+'</button></td></tr>');
+const b=$('plfclr');if(b)b.onclick=()=>{$('plfilter').value='';render()};
+sum()}
 function sum(){updGop();const s=P.items.filter(x=>x.checked&&!x.unavail),a=s.filter(x=>x.type==='a').length;
 if(P.items.length)$('plinfo').textContent=(P.busy?t('pl_loading'):'')+(P.title?'“'+P.title+'” · ':'')+P.items.length+t('pl_tracks')+s.length+t('pl_marked')+a+t('pl_audio')+(s.length-a)+t('pl_video')}
 function mark(m){for(const p of vis()){const x=p[0];if(x.unavail)continue;x.checked=m===2?!x.checked:!!m}render()}

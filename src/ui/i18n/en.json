@@ -216,6 +216,8 @@
   "pl_need": "Paste the playlist link.",
   "pl_load": "Loading the list...",
   "pl_fail": "Could not load: ",
+  "pl_nofilter": "No track matches the filter.",
+  "plfclr": "Clear filter",
   "pl_loading": "Loading... ",
   "pl_tracks": " track(s) · ",
   "pl_marked": " selected (",
