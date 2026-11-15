@@ -60,6 +60,68 @@ while($lst.IsListening){
     '/api/pl'{ $f=0; [void][int]::TryParse($rq.QueryString['from'],[ref]$f); $all=@($PL.items.ToArray()); $sl=@(); if($f -lt $all.Count){ $sl=@($all[$f..($all.Count-1)]) }
        $out=@{items=$sl;total=$all.Count;title="$($PL.title)";busy=[bool]$PL.busy;err="$($PL.err)"}|ConvertTo-Json -Depth 4 -Compress }
     '/api/pl/stop'{ $PL.stop=$true; KillTree $S.lpid }
+    # ---- conversao video -> audio: o seletor roda aqui, entao a pagina nunca informa um caminho
+    '/api/conv/pick'{ if($rq.HttpMethod -eq 'POST'){
+        if($CV.pick.busy){ $out='{"busy":true}' }
+        elseif($WIN -and -not $TEST){ $CV.pick=@{busy=$true}
+          Bg { param($S,$CV,$dir)
+            try{
+              $cmd='[Console]::OutputEncoding=[Text.Encoding]::UTF8; Add-Type -AssemblyName System.Windows.Forms; $o=New-Object Windows.Forms.Form; $o.TopMost=$true; $o.ShowInTaskbar=$false; $o.Opacity=0; $o.StartPosition="CenterScreen"; $o.Show(); $f=New-Object Windows.Forms.OpenFileDialog; $f.Title="KoeDL"; $f.Multiselect=$true; $f.CheckFileExists=$true; $f.Filter="Videos e audios|*.mp4;*.mkv;*.webm;*.mov;*.m4v;*.avi;*.flv;*.wmv;*.ts;*.mpg;*.mpeg;*.3gp;*.mp3;*.m4a;*.opus;*.ogg;*.flac;*.wav;*.aac;*.wma|Todos os arquivos|*.*"; if($f.ShowDialog($o) -eq "OK"){ $f.FileNames -join "`n" }; $o.Close()'
+              $psi=New-Object Diagnostics.ProcessStartInfo 'powershell.exe'; $psi.Arguments='-NoProfile -STA -WindowStyle Hidden -EncodedCommand '+[Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($cmd))
+              $psi.UseShellExecute=$false; $psi.RedirectStandardOutput=$true; $psi.CreateNoWindow=$true; $psi.StandardOutputEncoding=[Text.Encoding]::UTF8
+              $pr=[Diagnostics.Process]::Start($psi); $o2=$pr.StandardOutput.ReadToEnd(); [void]$pr.WaitForExit(900000)
+              foreach($ln in ("$o2" -split "`r?`n")){ $f="$ln".Trim(); if(-not $f){ continue }
+                if(-not(Test-Path -LiteralPath $f -PathType Leaf)){ continue }
+                if(@($CV.items.ToArray()|Where-Object{ $_.path -eq $f }).Count){ continue }
+                $dur=0.0; try{ $dur=MediaDur $f }catch{}
+                [void]$CV.items.Add(@{path=$f;name=[IO.Path]::GetFileName($f);dir=[IO.Path]::GetDirectoryName($f);dur=$dur;size=(New-Object IO.FileInfo($f)).Length;status='wait';pct=0;out='';msg=''}) }
+            }catch{ $CV.err=$_.Exception.Message }
+            finally{ $CV.pick=@{busy=$false} } } @($S,$CV,$dir)
+          $out='{"busy":true}' }
+        else{ $out='{"busy":false}' } }
+      else{ $out=@{busy=[bool]$CV.pick.busy}|ConvertTo-Json -Compress } }
+    # Somente no modo de teste (YTDL_TEST, rodando sem janela): no Linux nao existe o seletor nativo,
+    # entao a bateria automatizada insere arquivos por aqui. Em uso normal a rota nao faz nada.
+    '/api/conv/add'{ $tdir="$env:YTDL_CONV_TEST_DIR".Trim()
+      if($TEST -and $tdir -and $rq.HttpMethod -eq 'POST'){
+        $troot=''
+        try{ $troot=[IO.Path]::GetFullPath($tdir).TrimEnd('\','/') }catch{}
+        foreach($f in @((($body|ConvertFrom-Json).paths))){ $f="$f".Trim()
+          if(-not $f -or -not(Test-Path -LiteralPath $f -PathType Leaf)){ continue }
+          $fullf=''; try{ $fullf=[IO.Path]::GetFullPath($f) }catch{}
+          if(-not $troot -or -not $fullf -or -not $fullf.StartsWith($troot+[IO.Path]::DirectorySeparatorChar,[StringComparison]::OrdinalIgnoreCase)){ continue }
+          if(@($CV.items.ToArray()|Where-Object{ $_.path -eq $f }).Count){ continue }
+          $dur=0.0; try{ $dur=MediaDur $f }catch{}
+          [void]$CV.items.Add(@{path=$f;name=[IO.Path]::GetFileName($f);dir=[IO.Path]::GetDirectoryName($f);dur=$dur;size=(New-Object IO.FileInfo($f)).Length;status='wait';pct=0;out='';msg=''}) }
+        $out='{"ok":true}' } }
+    '/api/conv/start'{ if($rq.HttpMethod -eq 'POST'){
+        if($CV.busy){ $out=@{error=(Tr 'Ja existe uma conversao em andamento.' 'A conversion is already running.')}|ConvertTo-Json -Compress }
+        elseif(-not(@($CV.items.ToArray()|Where-Object{ $_.status -eq 'wait' }).Count)){ $out=@{error=(Tr 'Escolha pelo menos um vidoe/audio para converter.' 'Pick at least one video/audio file to convert.')}|ConvertTo-Json -Compress }
+        else{ $b=$body|ConvertFrom-Json
+          $fmt="$($b.fmt)"; if(-not $CVFmt.ContainsKey($fmt)){ $fmt='mp3' }
+          $q="$($b.q)"; if($CVQ -notcontains $q){ $q='192' }
+          $dno=$false; $dst="$($b.dest)".Trim(); if($dst){ try{ $dst=[IO.Path]::GetFullPath($dst) }catch{ $dst='' }; if($dst -and -not(Test-Path -LiteralPath $dst -PathType Container)){ $dst='' } }
+          # Gravar arquivo so em pasta de download/biblioteca ou numa pasta que o usuario escolheu no seletor:
+          # assim a pagina nao consegue mandar audio para qualquer lugar do disco.
+          if($dst){ $okd=(InRoots $dst)
+            if(-not $okd){ $rdst=(RealPath $dst).TrimEnd('\','/')
+              foreach($cd in @($S.convDirs.ToArray())){ $rcd=(RealPath "$cd").TrimEnd('\','/'); if($rcd -and $rdst.StartsWith($rcd,[StringComparison]::OrdinalIgnoreCase)){ $okd=$true; break } } }
+            if(-not $okd){ $dst=''; $dno=$true } }
+          $dno=$false
+          $opt=@{fmt=$fmt;q=$q;dest=$dst;del=[bool]$b.del}
+          $CV.busy=$true; $CV.err=''; $CV.pct=0
+          Bg $cvSb @($S,$CV,$lib,$opt)
+          $out=@{ok=$true;destno=[bool]$dno}|ConvertTo-Json -Compress } }
+      else{ $out='{}' } }
+    '/api/conv/del'{ if($rq.HttpMethod -eq 'POST'){ $i=-1; [void][int]::TryParse("$(($body|ConvertFrom-Json).i)",[ref]$i)
+        $all=@($CV.items.ToArray()); if($i -ge 0 -and $i -lt $all.Count -and $all[$i].status -ne 'run'){ [void]$CV.items.Remove($all[$i]) }
+        $out=@{ok=$true}|ConvertTo-Json -Compress } }
+    '/api/conv/stop'{ $CV.stop=$true; if($CV.pid){ KillTree $CV.pid } }
+    '/api/conv/clear'{ $done=@($CV.items.ToArray()|Where-Object{ $_.status -eq 'done' -or $_.status -eq 'err' })
+      foreach($x in $done){ [void]$CV.items.Remove($x) }
+      $out=@{ok=$true}|ConvertTo-Json -Compress }
+    '/api/conv'{ $its=@($CV.items.ToArray()); $out=@{busy=[bool]$CV.busy;err="$($CV.err)";cur="$($CV.cur)";pct=[int]$CV.pct;n=[int]$CV.n;pick=[bool]$CV.pick.busy;
+       items=@($its|ForEach-Object{ @{name=$_.name;dir=$_.dir;path=$_.path;dur=$_.dur;size=$_.size;status=$_.status;pct=$_.pct;out=$_.out;msg=$_.msg} })}|ConvertTo-Json -Depth 4 -Compress }
     '/api/chkupd'{ if($S.chk -ne 'run'){ $S.chk='run'; Bg { param($S,$lib) . ([scriptblock]::Create($lib)); try{ SelfUpdate $true }catch{ L "[upd] $($_.Exception.Message)" }; if($S.chk -eq 'run'){ $S.chk='err' } } @($S,$lib) } }
     '/api/update'{ if($S.running){ $out=@{error=(Tr 'Espere o download terminar para atualizar.' 'Wait for the download to finish before updating.')}|ConvertTo-Json -Compress }else{ Bg $prepSb @($S,$lib,$true) } }
     '/api/winsize'{ try{ $o=$body|ConvertFrom-Json; if($o.w -ge 600 -and $o.h -ge 500){ Set-Content ([IO.Path]::Combine($bin,'win.txt')) "$([int]$o.x),$([int]$o.y),$([int]$o.w),$([int]$o.h),0" } }catch{ L "[janela] nao consegui guardar o tamanho: $($_.Exception.Message)" } }
@@ -102,6 +164,7 @@ while($lst.IsListening){
               $psi=New-Object Diagnostics.ProcessStartInfo 'powershell.exe'; $psi.Arguments='-NoProfile -STA -WindowStyle Hidden -EncodedCommand '+[Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($cmd))
               $psi.UseShellExecute=$false; $psi.RedirectStandardOutput=$true; $psi.CreateNoWindow=$true; $psi.StandardOutputEncoding=[Text.Encoding]::UTF8
               $pr=[Diagnostics.Process]::Start($psi); $o2=$pr.StandardOutput.ReadToEnd(); [void]$pr.WaitForExit(600000); $S.pick=@{busy=$false;path=("$o2".Trim())}
+              $pk2="$o2".Trim(); if($pk2 -and (Test-Path -LiteralPath $pk2 -PathType Container)){ try{ if(@($S.convDirs.ToArray()|Where-Object{ $_ -eq $pk2 }).Count -eq 0){ [void]$S.convDirs.Add($pk2) } }catch{} }
             }catch{ $S.pick=@{busy=$false;path=''} } } @($S)
           $out='{"busy":true}' }
         else{ $out='{"busy":false,"path":""}' } }
