@@ -12,8 +12,12 @@ function clearAll(){
  $('tb').innerHTML='';$('ck').textContent='';$('plinfo').textContent=t('plhint');
  updGop();var u=$('urls');if(u)u.focus()}
 $('tb').addEventListener('change',e=>{const g=e.target;if(g.dataset.i!==undefined){P.items[+g.dataset.i].checked=g.checked;sum()}
-else if(g.dataset.t2!==undefined){P.items[+g.dataset.t2].type=g.value;setRadio('pm','m');updFmt();save();sum()}});
-document.querySelectorAll('input[name=pm]').forEach(e=>e.addEventListener('change',()=>{const m=radio('pm');if(m!=='m'){P.items.forEach(x=>x.type=m);render()}updFmt()}));
+else if(g.dataset.t2!==undefined){P.items[+g.dataset.t2].type=g.value;updFmt();save();sum()}});
+/* O tipo de cada faixa segue o "Baixar como" ate voce trocar na coluna Tipo.
+   O antigo bloco "Tudo em audio / Tudo em video / Misturado" saiu: era a mesma escolha em dois lugares. */
+function syncKinds(){if(!P.items.length)return;const k=radio('kind')==='v'?'v':'a';P.items.forEach(x=>x.type=k);render()}
+document.querySelectorAll('input[name=kind]').forEach(e=>e.addEventListener('change',syncKinds));
+(function(){const pm=document.querySelector('input[name=pm]');if(!pm)return;const box=pm.closest('.seg'),wrap=box?box.parentElement:null;(wrap||box||pm).remove()})();
 /* ---- status ---- */
 function showStatus(s){$('bar2').value=s.pct;
 const nb=s.prep||s.note||((s.ver&&s.ver.ytdlp&&!s.ver.ffmpeg)?t('noff'):'');$('banner').style.display=nb?'block':'none';$('banner').textContent=nb;

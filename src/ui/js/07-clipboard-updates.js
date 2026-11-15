@@ -28,6 +28,7 @@ async function plSync(){if(PLBusy)return;var tok=++PLTok,links=plUrls(),keep={};
  P.items=P.items.filter(function(x){return keep[x.src]});render();if(tok!==PLTok)return;
  var pend=links.filter(function(u){return !PLS[u]});if(!pend.length)return;
  PLBusy=true;P.busy=true;
+ $('plinfo').textContent=t('pl_load');
  try{for(var i=0;i<pend.length;i++){var u=pend[i];if(tok!==PLTok)return;
   if(isPl(u)&&$('noPl')&&$('noPl').checked){PLS[u]=1;continue}
   $('plinfo').textContent=(pend.length>1?'('+(i+1)+'/'+pend.length+') ':'')+t('pl_load');P.url=u;
@@ -36,7 +37,7 @@ async function plSync(){if(PLBusy)return;var tok=++PLTok,links=plUrls(),keep={};
   var its=(r&&r.items)||[],base=P.items.length;
   if(r&&r.title&&!P.title)P.title=r.title;
   its.forEach(function(it,j){if(P.items.some(function(x){return x.url===it.url}))return;
-   it.idx=base+j+1;it.src=u;it.checked=!it.unavail;it.type=(radio('pm')==='v'?'v':'a');P.items.push(it)});
+   it.idx=base+j+1;it.src=u;it.checked=!it.unavail;it.type=(radio('kind')==='v'?'v':'a');P.items.push(it)});
   PLS[u]=1;
   if(!its.length&&r&&r.err)$('plinfo').textContent=t('pl_fail')+r.err;
   render()}
@@ -45,8 +46,12 @@ async function plSync(){if(PLBusy)return;var tok=++PLTok,links=plUrls(),keep={};
 /* compatibilidade: o botao antigo da playlist agora so aponta para a caixa de links */
 async function plLoad(u){if(typeof u==='string'&&u.trim()){$('urls').value=u.trim();plUrls().forEach(function(x){delete PLS[x]});PLTok++}plSync()}
 var plAutoT=null;
-function plAuto(){clearTimeout(plAutoT);plAutoT=setTimeout(plSync,700)}
+function plNotice(){if(P.items.length===0&&!P.busy&&plUrls().some(function(u){return !PLS[u]})){$('plinfo').textContent=t('pl_load')}}
+function plAuto(){clearTimeout(plAutoT);
+ // O aviso aparece na hora de colar/digitar, antes da leitura do link terminar (a leitura demora alguns segundos).
+ plNotice();
+ plAutoT=setTimeout(plSync,700)}
 addEventListener('DOMContentLoaded',function(){var ta=$('urls');
- if(ta){ta.addEventListener('input',plAuto);ta.addEventListener('paste',function(){setTimeout(plSync,300)})}
+ if(ta){ta.addEventListener('input',plAuto);ta.addEventListener('paste',function(){plNotice();setTimeout(plSync,300)})}
  var e=$('plurl');if(e){var row=e.closest('.row')||e.parentElement;if(row)row.style.display='none'}else{var b0=$('plbtn');if(b0)b0.style.display='none'}
  var b=$('plbtn');if(b)b.style.display='none'})

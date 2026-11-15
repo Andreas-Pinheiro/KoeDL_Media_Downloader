@@ -2455,8 +2455,8 @@ function resetLook(){$('theme').value='neon';$('fsize').value='m';$('density').v
 document.querySelectorAll('#sw button[data-c]').forEach(x=>x.addEventListener('click',()=>{$('accent').value=x.dataset.c;applyLook();save()}));
 function radio(n){const e=document.querySelector('input[name='+n+']:checked');return e?e.value:''}
 function setRadio(n,v){document.querySelectorAll('input[name='+n+']').forEach(e=>e.checked=e.value===v)}
-function updFmt(){const k=radio('kind'),pm=radio('pm');
-const a=k==='a'||pm!=='v',v=k==='v'||pm!=='a';
+function updFmt(){const k=radio('kind');
+const a=k!=='v',v=k==='v';
 $('gA').classList.toggle('hide',!a);$('gV').classList.toggle('hide',!v);
 }
 
@@ -2476,7 +2476,9 @@ function common(){const o={};for(const i of IDS){const e=$(i);o[i]=e.type==='che
 o.browsers=[...document.querySelectorAll('.br:checked')].map(e=>e.value);o.kind=radio('kind');o.pm=radio('pm');o.plurl=$('plurl').value;return o}
 let sv=null;function save(){clearTimeout(sv);sv=setTimeout(()=>api('settings',common()),400)}
 async function load(){try{const s=await api('settings');for(const i of IDS){if(!(i in s))continue;const e=$(i);if(e.type==='checkbox')e.checked=!!s[i];else e.value=s[i]}
-if(s.browsers)document.querySelectorAll('.br').forEach(e=>e.checked=s.browsers.indexOf(e.value)>=0);if(s.kind)setRadio('kind',s.kind);if(s.pm)setRadio('pm',s.pm);if(s.plurl)$('plurl').value=s.plurl}catch(e){}
+if(s.browsers)document.querySelectorAll('.br').forEach(e=>e.checked=s.browsers.indexOf(e.value)>=0);if(s.plurl)$('plurl').value=s.plurl}catch(e){}
+// "Baixar como" sempre abre em audio: a escolha nao fica guardada de uma sessao para outra.
+setRadio('kind','a');
 if($('lookv').value!=='3'){$('theme').value='neon';$('density').value='compact';$('curanim').value='full';$('accent').value='#7c3aed';$('lookv').value='3';save()}
 LANG=$('lang').value||'en';if(!D[LANG])LANG='en';$('lang').value=LANG;applyLook();cfgNav();applyLang();updFmt();
 document.querySelectorAll('input,select').forEach(e=>{e.addEventListener('change',save);if(e.type==='color')e.addEventListener('input',()=>{applyLook();save()})});
@@ -2605,6 +2607,7 @@ async function plSync(){if(PLBusy)return;var tok=++PLTok,links=plUrls(),keep={};
  P.items=P.items.filter(function(x){return keep[x.src]});render();if(tok!==PLTok)return;
  var pend=links.filter(function(u){return !PLS[u]});if(!pend.length)return;
  PLBusy=true;P.busy=true;
+ $('plinfo').textContent=t('pl_load');
  try{for(var i=0;i<pend.length;i++){var u=pend[i];if(tok!==PLTok)return;
   if(isPl(u)&&$('noPl')&&$('noPl').checked){PLS[u]=1;continue}
   $('plinfo').textContent=(pend.length>1?'('+(i+1)+'/'+pend.length+') ':'')+t('pl_load');P.url=u;
@@ -2613,7 +2616,7 @@ async function plSync(){if(PLBusy)return;var tok=++PLTok,links=plUrls(),keep={};
   var its=(r&&r.items)||[],base=P.items.length;
   if(r&&r.title&&!P.title)P.title=r.title;
   its.forEach(function(it,j){if(P.items.some(function(x){return x.url===it.url}))return;
-   it.idx=base+j+1;it.src=u;it.checked=!it.unavail;it.type=(radio('pm')==='v'?'v':'a');P.items.push(it)});
+   it.idx=base+j+1;it.src=u;it.checked=!it.unavail;it.type=(radio('kind')==='v'?'v':'a');P.items.push(it)});
   PLS[u]=1;
   if(!its.length&&r&&r.err)$('plinfo').textContent=t('pl_fail')+r.err;
   render()}
@@ -2622,9 +2625,13 @@ async function plSync(){if(PLBusy)return;var tok=++PLTok,links=plUrls(),keep={};
 /* compatibilidade: o botao antigo da playlist agora so aponta para a caixa de links */
 async function plLoad(u){if(typeof u==='string'&&u.trim()){$('urls').value=u.trim();plUrls().forEach(function(x){delete PLS[x]});PLTok++}plSync()}
 var plAutoT=null;
-function plAuto(){clearTimeout(plAutoT);plAutoT=setTimeout(plSync,700)}
+function plNotice(){if(P.items.length===0&&!P.busy&&plUrls().some(function(u){return !PLS[u]})){$('plinfo').textContent=t('pl_load')}}
+function plAuto(){clearTimeout(plAutoT);
+ // O aviso aparece na hora de colar/digitar, antes da leitura do link terminar (a leitura demora alguns segundos).
+ plNotice();
+ plAutoT=setTimeout(plSync,700)}
 addEventListener('DOMContentLoaded',function(){var ta=$('urls');
- if(ta){ta.addEventListener('input',plAuto);ta.addEventListener('paste',function(){setTimeout(plSync,300)})}
+ if(ta){ta.addEventListener('input',plAuto);ta.addEventListener('paste',function(){plNotice();setTimeout(plSync,300)})}
  var e=$('plurl');if(e){var row=e.closest('.row')||e.parentElement;if(row)row.style.display='none'}else{var b0=$('plbtn');if(b0)b0.style.display='none'}
  var b=$('plbtn');if(b)b.style.display='none'})
 function vis(){const q=$('plfilter').value.trim().toLowerCase();return P.items.map((x,i)=>[x,i]).filter(p=>!q||(p[0].title+' '+p[0].uploader).toLowerCase().indexOf(q)>=0)}
@@ -2641,8 +2648,12 @@ function clearAll(){
  $('tb').innerHTML='';$('ck').textContent='';$('plinfo').textContent=t('plhint');
  updGop();var u=$('urls');if(u)u.focus()}
 $('tb').addEventListener('change',e=>{const g=e.target;if(g.dataset.i!==undefined){P.items[+g.dataset.i].checked=g.checked;sum()}
-else if(g.dataset.t2!==undefined){P.items[+g.dataset.t2].type=g.value;setRadio('pm','m');updFmt();save();sum()}});
-document.querySelectorAll('input[name=pm]').forEach(e=>e.addEventListener('change',()=>{const m=radio('pm');if(m!=='m'){P.items.forEach(x=>x.type=m);render()}updFmt()}));
+else if(g.dataset.t2!==undefined){P.items[+g.dataset.t2].type=g.value;updFmt();save();sum()}});
+/* O tipo de cada faixa segue o "Baixar como" ate voce trocar na coluna Tipo.
+   O antigo bloco "Tudo em audio / Tudo em video / Misturado" saiu: era a mesma escolha em dois lugares. */
+function syncKinds(){if(!P.items.length)return;const k=radio('kind')==='v'?'v':'a';P.items.forEach(x=>x.type=k);render()}
+document.querySelectorAll('input[name=kind]').forEach(e=>e.addEventListener('change',syncKinds));
+(function(){const pm=document.querySelector('input[name=pm]');if(!pm)return;const box=pm.closest('.seg'),wrap=box?box.parentElement:null;(wrap||box||pm).remove()})();
 /* ---- status ---- */
 function showStatus(s){$('bar2').value=s.pct;
 const nb=s.prep||s.note||((s.ver&&s.ver.ytdlp&&!s.ver.ffmpeg)?t('noff'):'');$('banner').style.display=nb?'block':'none';$('banner').textContent=nb;
