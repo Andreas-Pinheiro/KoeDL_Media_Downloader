@@ -2,9 +2,9 @@
 
 ## Reporting a vulnerability / Como avisar sobre uma falha
 
-**PT:** se você encontrou uma falha de segurança, **não abra uma issue pública** com os detalhes. Use a opção *Security > Report a vulnerability* na aba Security deste repositório (relatório privado do GitHub). Descreva o que aconteceu, como reproduzir e a versão do KoeDL. Responderei assim que possível.
+**PT:** se você encontrou uma falha de segurança, **não abra uma issue pública** com os detalhes. Use a opção *Security > Report a vulnerability* na aba Security deste repositório (relatório privado do GitHub). Descreva o que aconteceu, como reproduzir e a versão do KoeDL.
 
-**EN:** if you found a security problem, **do not open a public issue** with the details. Use *Security > Report a vulnerability* on this repository's Security tab (GitHub private report). Describe what happened, how to reproduce it and the KoeDL version. I will answer as soon as I can.
+**EN:** if you found a security problem, **do not open a public issue** with the details. Use *Security > Report a vulnerability* on this repository's Security tab (GitHub private report). Describe what happened, how to reproduce it and the KoeDL version.
 
 ## How KoeDL protects you / O que o KoeDL faz
 
