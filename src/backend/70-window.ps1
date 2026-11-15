@@ -22,7 +22,31 @@ function SniffMedia($fp){
  if($s.StartsWith('OggS')){ return 'audio/ogg' }
  if($s.StartsWith('RIFF') -and $n -ge 12 -and $s.Substring(8,4) -eq 'WAVE'){ return 'audio/wav' }
  return '' }
-function InRoots($fp){ if(-not $fp){ return $false }; foreach($r in (DlRoots)){ try{ $rr=[IO.Path]::GetFullPath($r).TrimEnd('\','/'); $ff=[IO.Path]::GetFullPath($fp); if($ff.StartsWith($rr+[IO.Path]::DirectorySeparatorChar,[StringComparison]::OrdinalIgnoreCase)){ return $true } }catch{} }; return $false }
+# Caminho real: [IO.Path]::GetFullPath resolve ".." mas nao segue symlink/junction.
+# Sem isso, um link dentro de Downloads apontando para fora passava pela checagem de pasta
+# e o player servia qualquer arquivo do disco. Aqui cada parte do caminho e resolvida.
+function RealPath($p){
+ if(-not $p){ return '' }
+ try{ $full=[IO.Path]::GetFullPath($p) }catch{ return '' }
+ try{ $root=[IO.Path]::GetPathRoot($full) }catch{ return $full }
+ $cur=$root
+ foreach($seg in ($full.Substring($root.Length) -split '[\\/]')){
+  if(-not $seg){ continue }
+  $cur=[IO.Path]::Combine($cur,$seg)
+  for($hop=0;$hop -lt 32;$hop++){
+   $it=$null; try{ $it=Get-Item -LiteralPath $cur -Force -ErrorAction Stop }catch{ break }
+   $t=''
+   try{ if($it.PSObject.Properties['LinkTarget']){ $t="$($it.LinkTarget)" } }catch{}
+   if(-not $t){ try{ if($it.PSObject.Properties['Target']){ $t="$(@($it.Target)[0])" } }catch{} }
+   if(-not $t){ break }
+   try{ if(-not [IO.Path]::IsPathRooted($t)){ $t=[IO.Path]::Combine([IO.Path]::GetDirectoryName($cur),$t) }; $cur=[IO.Path]::GetFullPath($t) }catch{ break }
+  } }
+ return $cur }
+function InRoots($fp){ if(-not $fp){ return $false }
+ $ff=RealPath $fp; if(-not $ff){ return $false }
+ foreach($r in (DlRoots)){ try{ $rr=(RealPath $r).TrimEnd('\','/'); if(-not $rr){ continue }
+  if($ff.StartsWith($rr+[IO.Path]::DirectorySeparatorChar,[StringComparison]::OrdinalIgnoreCase)){ return $true } }catch{} }
+ return $false }
 $wvScript=@'
 @@INCLUDE:src/ui/wv-window.ps1@@
 '@

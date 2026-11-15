@@ -106,7 +106,7 @@ while($lst.IsListening){
           $out='{"busy":true}' }
         else{ $out='{"busy":false,"path":""}' } }
       else{ $pk=$S.pick; if($pk){ $out=@{busy=[bool]$pk.busy;path="$($pk.path)"}|ConvertTo-Json -Compress }else{ $out='{"busy":false,"path":""}' } } }
-    '/api/media'{ $out=''; try{ $fp="$($rq.QueryString['p'])"
+    '/api/media'{ $out=''; try{ $fp=RealPath "$($rq.QueryString['p'])"
         if(-not (InRoots $fp) -or -not (Test-Path -LiteralPath $fp -PathType Leaf) -or -not $MediaExt.ContainsKey([IO.Path]::GetExtension($fp).ToLower())){ $rs.StatusCode=404 }
         else{ $fi=New-Object IO.FileInfo $fp; $len=$fi.Length
           $mt=$MediaExt[$fi.Extension.ToLower()]; $sn=SniffMedia $fp; if($sn){ $mt=$sn }; if(-not $mt){ $mt='application/octet-stream' }
