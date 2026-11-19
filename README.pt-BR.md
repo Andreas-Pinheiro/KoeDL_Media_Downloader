@@ -2,16 +2,11 @@
 
 # KoeDL · Media-Downloader
 
-**Baixador de vídeo e áudio grátis para Windows (yt-dlp) - é só baixar o instalador e abrir.**
+Aplicativo para Windows que baixa vídeo e áudio de qualquer site suportado pelo [yt-dlp](https://github.com/yt-dlp/yt-dlp). Ele serve uma interface web local em janela própria e não precisa de Python.
 
-<sub>Palavras-chave: baixar vídeo, baixar música, baixar MP3, baixar playlist, interface para yt-dlp, Windows, WebView2.</sub>
+[English](README.md)
 
-
-**by Andreas-Pinheiro** · [English](README.md)
-
-Baixador de **áudio e vídeo** para Windows, Baixe o instalador (`KoeDL-Setup.exe`) na página de [Releases](https://github.com/Andreas-Pinheiro/KoeDL_Media_Downloader/releases/latest) e pronto; também existe uma versão de arquivo único (`KoeDL.bat`). Abre uma interface em janela própria, funciona com mais de mil sites e organiza as playlists em pastas.
-
-> **Status:** desenvolvido e testado em ambiente Linux (backend em PowerShell 7 com o yt-dlp real e interface no Chromium). **Ainda não foi testado no Windows.** A geração do `.exe`, a leitura de cookies dos navegadores, o encerramento de processos e a criação de atalhos dependem do Windows e podem precisar de ajustes. Se algo falhar, abra uma *issue* com a mensagem de erro.
+> **Status:** desenvolvido e testado em Linux (backend em PowerShell 7 com yt-dlp, interface no Chromium). O teste em Windows é limitado: a geração do `.exe`, a leitura de cookies dos navegadores, o encerramento de processos e a criação de atalhos dependem do Windows e podem precisar de ajustes. Se algo falhar, abra uma issue com a mensagem de erro.
 
 ## Capturas de tela
 
@@ -25,69 +20,59 @@ Baixador de **áudio e vídeo** para Windows, Baixe o instalador (`KoeDL-Setup.e
 <img src="assets/screens/pt_support.png" alt="Apoiar" width="400">
 </p>
 
-### Duas interfaces
-
-Em **Configurações > Interface** você escolhe entre as duas: a **Clássica** é a tela de sempre e a **Neon** é a que tem a personagem na lateral e os painéis numerados. A escolha fica salva e a troca recarrega a página.
-
-<p align="center">
-<img src="assets/screens/pt_ui_classic.png" alt="Interface clássica" width="400">
-<img src="assets/screens/pt_ui_neon.png" alt="Interface neon" width="400">
-</p>
-
-<p align="center"><img src="assets/screens/pt_ui_switch.png" alt="Configurações > Interface" width="560"></p>
-
 ## O que faz
 
-- **Música ou vídeo** de qualquer site suportado pelo [yt-dlp](https://github.com/yt-dlp/yt-dlp) (mais de mil; veja a lista de sites dele).
-- **Áudio:** MP3, M4A, Opus, FLAC ou WAV, com escolha de qualidade e capa/metadados embutidos.
-- **Vídeo:** MP4 (H.264 + AAC, compatível com tudo) ou MKV (original, sem converter), com limite de resolução opcional.
-- **Playlists organizadas:** uma pasta com o nome da playlist (retoma de onde parou), uma pasta nova a cada vez (nome + data e hora) ou sem pasta. Ao colar vários links, pode guardar tudo numa pasta "Lote data-hora".
-- **Playlist ao lado dos links:** na mesma aba você cola links à esquerda e carrega uma playlist inteira à direita, marca as faixas e escolhe áudio ou vídeo em cada uma (tudo áudio, tudo vídeo ou misturado). Opção de subpastas Músicas / Vídeos.
-- **Retomada:** registra o que já foi baixado e pula repetidos. Há opção de recomeçar do zero.
-- **Fila:** tudo que você adiciona entra numa fila e roda um depois do outro; dá para pausar, remover ou tentar de novo. Pode adicionar mais enquanto baixa.
-- **Biblioteca / player:** uma aba que lista tudo o que você baixou e toca música e vídeo dentro do KoeDL, com capa animada, barra de progresso, volume, velocidade, aleatório, repetir, tela cheia, busca, filtro e ordenação. Também dá para **adicionar suas próprias pastas** de música e vídeo (arquivos que não foram baixados pelo KoeDL). Formatos que o player não abre podem ser enviados ao player do Windows ou mostrados na pasta.
-- **Histórico:** cada download concluído fica numa lista, com botão para mostrar o arquivo na pasta.
-- **Limite de velocidade e conexões** por arquivo, pastas separadas para músicas e vídeos, e aviso do Windows (ou fechar o programa / desligar o PC) quando a fila terminar.
-- **Extras:** o link copiado é colado sozinho ao abrir o programa, dá para arrastar links para a janela e há atalhos (Ctrl+Enter baixa, Ctrl+L vai para o campo do link, Ctrl+1..5 trocam de aba).
-- **Temas:** Neon, Meia-noite, Floresta, Sakura, claro, escuro, cores de destaque e cursor da menina gato.
-- **Vídeos bloqueados ou removidos:** procura uma versão alternativa e lista o que não teve solução, com o motivo.
-- **Cookies:** rodízio entre Firefox, Edge, Chrome, Brave, Opera e Vivaldi quando um falha ou é bloqueado. Também aceita um `cookies.txt` ao lado do programa.
-- **Sempre atualizado:** o yt-dlp é atualizado toda vez que abre (canal estável ou nightly). O ffmpeg e o deno são verificados de tempos em tempos. Se um download falhar por extrator desatualizado, atualiza e tenta de novo sozinho.
-- **Atalhos na primeira abertura:** cria sozinho os atalhos da Área de Trabalho e do Menu Iniciar (uma vez) e os aponta para o `.exe` assim que ele é gerado. O Windows não permite fixar na barra de tarefas por programa: clique com o botão direito no atalho > *Fixar na barra de tarefas*.
-- **Atualiza a si mesmo:** além do yt-dlp/ffmpeg/deno, o programa consulta este repositório ao abrir e baixa versões novas dele mesmo (vale para o `.bat` e para o `.exe`; dá para desligar em Configurações).
-- **Idioma:** abre em inglês; troque para Português no seletor no topo da página. A escolha fica salva para a próxima vez.
-- **Gera um `.exe`:** ao abrir o `.bat`, tenta criar `KoeDL.exe` ao lado, com ícone e menu na bandeja do sistema. Também cria atalhos na Área de Trabalho e no Menu Iniciar (botão na aba Configurações).
+- **Música ou vídeo** de qualquer site suportado pelo [yt-dlp](https://github.com/yt-dlp/yt-dlp); veja a lista de sites dele.
+- **Áudio:** MP3, M4A, Opus, FLAC ou WAV, com escolha de qualidade e capa e metadados embutidos.
+- **Vídeo:** MP4 (H.264 + AAC) ou MKV (cópia do fluxo original, sem conversão), com limite de resolução opcional.
+- **Playlists:** uma pasta com o nome da playlist (retomando de onde parou), uma pasta nova a cada execução (nome + data e hora) ou sem pasta. Vários links podem ser salvos numa pasta de lote com data e hora.
+- **Painel de playlist** ao lado da caixa de links: cole links à esquerda e carregue uma playlist à direita, marque as faixas e defina áudio ou vídeo em cada uma. Subpastas Músicas / Vídeos opcionais.
+- **Retomada:** arquivos já baixados são ignorados, com opção de recomeçar do zero.
+- **Fila:** os downloads rodam um depois do outro, com pausar, remover e tentar de novo; é possível adicionar itens enquanto um download está em andamento.
+- **Biblioteca e player:** lista os arquivos baixados e toca áudio e vídeo dentro do programa (capa, barra de progresso, volume, velocidade, aleatório, repetir, tela cheia, busca, filtro e ordenação). Também é possível adicionar outras pastas de música e vídeo. Formatos que o player interno não abre podem ser enviados ao player do Windows.
+- **Converter:** extrai o áudio de arquivos de vídeo locais com o ffmpeg já incluído.
+- **Histórico:** cada download concluído fica listado, com botão para mostrar o arquivo na pasta.
+- **Configurações:** limite de velocidade e conexões por arquivo, pastas separadas para música e vídeo, e aviso do Windows, fechamento do programa ou desligamento do PC quando a fila termina.
+- **Links:** o link copiado é colado automaticamente ao abrir, é possível arrastar links para a janela e há atalhos de teclado (Ctrl+Enter baixa, Ctrl+L foca o campo do link, Ctrl+1..5 trocam de aba).
+- **Temas:** Neon (padrão), Meia-noite, Floresta, Sakura, claro e escuro, além de cores de destaque.
+- **Downloads com falha:** uma versão alternativa é procurada e os itens sem solução são listados com o motivo.
+- **Cookies:** rodízio entre Firefox, Edge, Chrome, Brave, Opera e Vivaldi, e também um arquivo `cookies.txt` ao lado do programa.
+- **Atualizações:** o yt-dlp é atualizado a cada abertura (canal estável ou nightly); ffmpeg e deno são verificados periodicamente. Um download que falhou por extrator desatualizado é repetido após a atualização. Downloads de dependências são repetidos com esperas crescentes e um endereço alternativo.
+- **Atalhos:** os atalhos da Área de Trabalho e do Menu Iniciar são criados na primeira execução. Fixar na barra de tarefas não é automatizado pelo Windows; use o botão direito no atalho > *Fixar na barra de tarefas*.
+- **Atualização do próprio programa:** o programa consulta este repositório ao abrir e instala versões novas dele mesmo (`.bat` e `.exe`; pode ser desligado nas Configurações).
+- **Idioma:** inglês e português, escolhido no cabeçalho e lembrado.
+- **Geração do `.exe`:** ao abrir o `.bat`, o programa tenta gerar `KoeDL.exe` ao lado, com ícone e menu na bandeja do sistema. Um botão nas Configurações cria os atalhos da Área de Trabalho e do Menu Iniciar.
 
 ## Como usar
 
-### Jeito mais fácil (recomendado): o instalador
+### Instalador (recomendado)
 
-1. Abra a página de [**Releases**](https://github.com/Andreas-Pinheiro/KoeDL_Media_Downloader/releases/latest) e baixe o **`KoeDL-Setup.exe`** (em *Assets*).
-2. Dê duplo clique. Escolha **Instalar no computador** (recomendado) ou **Versão portátil** e clique em **Instalar**. Não precisa configurar mais nada.
-3. Abra o **KoeDL** pela Área de Trabalho ou pelo Menu Iniciar. Na primeira vez ele baixa sozinho o yt-dlp, o ffmpeg e o deno (precisa de internet).
-4. Cole os links e clique em **Baixar**. Os arquivos ficam na pasta `Downloads\KoeDL` (dá para trocar em Configurações).
+1. Abra a página de [**Releases**](https://github.com/Andreas-Pinheiro/KoeDL_Media_Downloader/releases/latest) e baixe o **`KoeDL-Setup.exe`** em *Assets*.
+2. Execute o arquivo, escolha **Instalar no computador** ou **Versão portátil** e clique em **Instalar**.
+3. Abra o **KoeDL** pela Área de Trabalho ou pelo Menu Iniciar. Na primeira execução ele baixa yt-dlp, ffmpeg e deno (é preciso internet).
+4. Cole os links e clique em **Baixar**. Os arquivos são salvos na pasta `Downloads\KoeDL`, que pode ser alterada nas Configurações.
 
-**Apareceu uma tela azul "O Windows protegeu o computador"?** É normal em programas gratuitos que não têm assinatura digital. Clique em **Mais informações** e depois em **Executar assim mesmo**. O arquivo é gerado automaticamente pelo GitHub a partir do código deste repositório, e o SHA-256 dele fica publicado ao lado (veja *Conferir o arquivo baixado* abaixo).
+**Aviso do SmartScreen ou do antivírus:** os executáveis não têm assinatura digital, então o Windows pode exibir um aviso. Clique em **Mais informações** > **Executar assim mesmo**, ou confira o hash SHA-256 publicado com a release (veja *Conferir o arquivo baixado*).
 
-### Alternativa: um arquivo só, sem instalar
+### Arquivo único, sem instalação
 
-Baixe o **`KoeDL.bat`** na mesma página de Releases, coloque numa pasta sua (por exemplo `C:\KoeDL`) e dê duplo clique. Faz a mesma coisa e ajuda se o antivírus reclamar do `.exe`. O app abre em janela própria (Microsoft Edge WebView2, baixado automaticamente se faltar); Edge/Chrome em modo app é só alternativa. A janela lembra tamanho e posição.
+Baixe o **`KoeDL.bat`** na mesma página de Releases, coloque numa pasta sua (por exemplo `C:\KoeDL`) e execute. O comportamento é o mesmo, e é a alternativa quando o `.exe` é bloqueado. O programa abre em janela própria (Microsoft Edge WebView2, baixado automaticamente se faltar); Edge ou Chrome em modo app é apenas uma alternativa. A janela lembra tamanho e posição.
 
 Arquivos criados ao lado do programa (versão `.bat`): `bin\` (programas auxiliares, `settings.json`, histórico de downloads em `archives\`), `Downloads\` e, se gerado, o `.exe`.
 
 ## Requisitos
 
 - Windows 10 ou 11 (64 bits).
-- Internet na primeira execução (baixa yt-dlp, ffmpeg e deno do GitHub) e para baixar as mídias.
-- Microsoft Edge WebView2 Runtime (já vem no Windows 11 e no Windows 10 atualizado; o instalador oferece baixar se faltar).
-- Não precisa de Python, nem de administrador (na pasta padrão), nem de mais nada.
+- Internet na primeira execução (yt-dlp, ffmpeg e deno são baixados do GitHub) e para baixar mídia.
+- Microsoft Edge WebView2 Runtime (incluído no Windows 11 e no Windows 10 atualizado; o instalador oferece baixá-lo se faltar).
+- Sem Python, sem direitos de administrador (na pasta padrão) e sem outra instalação.
 
 ## Atualizar e desinstalar
 
-- **Atualizar:** o programa verifica a última release do GitHub ao abrir e mostra o aviso **Atualizar agora**. Também dá para clicar em **Configurações > Atualizações > Verificar atualizações do programa**. Antes de aceitar uma atualização, ele confere o arquivo com o hash SHA-256 publicado na mesma release; se não bater, a atualização é ignorada.
-- **Instalador:** se o KoeDL já estiver instalado, baixe o `KoeDL-Setup.exe` mais novo e clique em **Atualizar**: ele substitui a versão antiga e mantém suas configurações, histórico e fila. Não precisa desinstalar antes.
-- **Desinstalar:** *Configurações do Windows > Aplicativos > KoeDL > Desinstalar*. Seus downloads não são apagados. A versão portátil não tem desinstalador: é só apagar a pasta.
-- **Atualização manual:** baixe o `KoeDL-Setup.exe` (ou o `KoeDL.bat`) mais novo na página de Releases.
+- **Atualizar:** o programa verifica a última release do GitHub ao abrir e mostra o aviso **Atualizar agora**. Também é possível verificar em **Configurações > Atualizações**. Antes de aceitar uma atualização, o arquivo é comparado com o hash SHA-256 publicado na mesma release; se não bater, a atualização é ignorada.
+- **Instalador:** baixe o `KoeDL-Setup.exe` mais recente e clique em **Atualizar**. Suas configurações, histórico e fila são mantidos; não é preciso desinstalar antes.
+- **Desinstalar:** *Configurações do Windows > Aplicativos > KoeDL > Desinstalar*. Os downloads não são apagados. A versão portátil não tem desinstalador; apague a pasta.
+- **Atualização manual:** baixe o `KoeDL-Setup.exe` (ou o `KoeDL.bat`) mais recente na página de Releases.
 
 ## Conferir o arquivo baixado
 
@@ -97,69 +82,71 @@ Cada release traz um `SHA256SUMS.txt` com o hash SHA-256 de cada arquivo (`KoeDL
 Get-FileHash .\KoeDL-Setup.exe -Algorithm SHA256
 ```
 
-O resultado deve ser idêntico ao publicado.
+O resultado deve ser igual ao hash publicado.
 
 ## Perguntas frequentes
 
-**Funciona sem internet?** Só para tocar o que você já baixou. Baixar e atualizar precisam de internet.
+**Funciona sem internet?** Só para tocar arquivos já baixados. Baixar e atualizar exigem internet.
 
-**É seguro? Meu antivírus ou o Windows avisou.** Pode aparecer um **falso positivo**. Os `.exe` são gerados automaticamente pelo GitHub a partir do código deste repositório e não têm assinatura digital (o certificado é pago), então o Windows SmartScreen e alguns antivírus podem avisar. No VirusTotal, só poucos motores (detecções genéricas de heurística/aprendizado de máquina, sem nome de malware) marcam o `.exe`, porque o app baixa arquivos, usa PowerShell e compila um pequeno auxiliar, o que parece suspeito para heurísticas. O `KoeDL.bat` tem resultado bem melhor (1 de 61 motores) e o código é legível. Confira o SHA-256 no `SHA256SUMS.txt`; se ainda assim incomodar, use o `KoeDL.bat`, que faz a mesma coisa. O código é público, dá para auditar, e você pode reportar o falso positivo ao fabricante do antivírus.
+**É seguro? Meu antivírus ou o Windows avisou.** Os executáveis são gerados pelo GitHub Actions a partir do código deste repositório e não têm assinatura digital, então o SmartScreen e alguns antivírus podem marcá-los como suspeitos. Compare o hash SHA-256 com o `SHA256SUMS.txt`; se o aviso continuar, use o `KoeDL.bat`, cujo código é legível. O código-fonte é público e pode ser auditado.
 
-**Para onde vão os arquivos?** Para a pasta `Downloads` ao lado do programa (versão instalada: `Downloads\KoeDL` no seu usuário). Dá para mudar em Configurações, inclusive pastas separadas para música e vídeo.
+**Para onde vão os arquivos?** Para a pasta `Downloads` ao lado do programa (versão instalada: `Downloads\KoeDL` na sua pasta de usuário). Isso pode ser alterado nas Configurações, inclusive com pastas separadas para música e vídeo.
 
-**Um vídeo não baixou.** Clique em **Configurações > Atualizar tudo** e tente de novo. Se continuar, abra uma issue com o link e o `bin\app.log`.
+**Um vídeo não foi baixado.** Clique em **Configurações > Atualizar tudo** e tente de novo. Se continuar, abra uma issue com o link e o `bin\app.log`.
 
-**Dá para usar em vários PCs?** Dá: use a versão portátil em um pendrive.
+**Dá para usar em vários computadores?** Sim, com a versão portátil em um pendrive.
 
 **O KoeDL coleta algum dado?** Não. Veja o [SECURITY.md](SECURITY.md).
 
+**Dá para trocar o layout da interface?** Sim. **Configurações > Interface** alterna entre os layouts Clássico e Neon; a escolha é salva e a página recarrega.
+
 ## Instalador
 
-O `KoeDL-Setup.exe` (da página de Releases) permite escolher:
+O `KoeDL-Setup.exe` (da página de Releases) permite:
 
-- **Instalar no computador** (atalhos, entrada em Aplicativos do Windows, desinstalação) ou a **versão portátil** (só copia os arquivos para uma pasta; nada é registrado no Windows, ótima para pendrive).
-- **Onde colocar**: use a pasta padrão ou clique em *Procurar*.
-- **Atualizar**: se o KoeDL já estiver instalado, o instalador detecta e **substitui** (suas configurações, histórico e fila são mantidos). Não precisa desinstalar antes.
+- **Instalar no computador** (atalhos, entrada em Aplicativos do Windows, desinstalador) ou a **versão portátil** (apenas copia os arquivos; nada é registrado no Windows).
+- **Local de instalação:** a pasta padrão ou outra escolhida em *Procurar*.
+- **Atualização:** uma instalação existente é detectada e substituída, mantendo configurações, histórico e fila.
 
-> ⚠️ **Administrador:** a pasta padrão (dentro do seu usuário) **não** precisa de administrador. Se escolher uma pasta protegida (como `C:\Arquivos de Programas`), é preciso **clicar com o botão direito no `KoeDL-Setup.exe` > Executar como administrador**. O instalador também avisa e oferece reabrir como administrador.
+> **Administrador:** a pasta padrão (dentro do seu perfil de usuário) não exige direitos de administrador. Uma pasta protegida, como `C:\Arquivos de Programas`, exige **botão direito no `KoeDL-Setup.exe` > Executar como administrador**; o instalador avisa e oferece reabrir com elevação.
 
 ## Gerar a partir do código
 
-O `KoeDL.bat` de arquivo único é gerado a partir de fontes legíveis em `src/` (backend, interface, traduções, C#). Para refazer:
+O `KoeDL.bat` de arquivo único é gerado a partir das fontes em `src/` (backend, interface, traduções, C#). Para refazê-lo:
 
 ```
 python build/build.py          # reescreve KoeDL.bat e Media-Downloader.bat
 python build/build.py --check  # falha se o .bat commitado não bate com src/
 ```
 
-Ao criar uma tag como `v3.11`, o GitHub Actions (`.github/workflows/build.yml`) gera `KoeDL.bat`, `KoeDL.exe` e `KoeDL-Setup.exe`, cria o `SHA256SUMS.txt` e publica tudo na release, usando a seção correspondente do `CHANGELOG.md` como notas.
+Ao enviar uma tag (por exemplo `v3.16.0`), o GitHub Actions (`.github/workflows/build.yml`) gera `KoeDL.bat`, `KoeDL.exe` e `KoeDL-Setup.exe`, cria o `SHA256SUMS.txt` e publica tudo na release, usando a seção correspondente do `CHANGELOG.md` como notas.
 
-## Tecnologias usadas
+## Tecnologias
 
 | Peça | Para quê |
 |---|---|
 | **Batch (`.bat`) + PowerShell 5.1** | Arquivo único: o `.bat` lê a si mesmo e executa a parte em PowerShell sem depender da política de execução de scripts |
 | **PowerShell `HttpListener`** | Servidor web local (somente `127.0.0.1`, portas 8765–8789) com token por execução e verificação do cabeçalho `Host` |
-| **Runspaces do PowerShell** | Download, leitura de playlist e atualização em segundo plano, sem travar a interface |
-| **HTML + CSS + JavaScript puros** | Interface embutida no próprio arquivo, com tema claro e escuro automático |
+| **Runspaces do PowerShell** | Downloads, leitura de playlist e atualizações em segundo plano, sem bloquear a interface |
+| **HTML + CSS + JavaScript puros** | Interface embutida no próprio arquivo, tema claro e escuro automático, inglês e português |
 | **[yt-dlp](https://github.com/yt-dlp/yt-dlp)** | Extração e download |
 | **[FFmpeg](https://ffmpeg.org/)** (builds do yt-dlp) | Conversão, junção de áudio e vídeo e capa embutida |
-| **[Deno](https://deno.com/)** | Execução do JavaScript que alguns sites exigem hoje |
-| **C# 5 + `CSharpCodeProvider` (.NET Framework)** | Compila o lançador `.exe` com ícone na bandeja, direto da máquina do usuário |
+| **[Deno](https://deno.com/)** | Execução do JavaScript exigido por alguns sites |
+| **C# 5 + `CSharpCodeProvider` (.NET Framework)** | Compila o lançador `.exe` com ícone na bandeja na máquina do usuário |
 | **WScript.Shell** | Criação de atalhos |
 
 ## Como funciona por dentro
 
 - O `.bat` extrai o texto depois do marcador `###PS###` e o executa como bloco de script.
-- Cada execução do yt-dlp usa um arquivo de configuração temporário em UTF-8. Isso evita problemas de aspas e de acentos na linha de comando do Windows.
+- Cada execução do yt-dlp usa um arquivo de configuração temporário em UTF-8, evitando problemas de aspas e acentos na linha de comando do Windows.
 - O progresso vem de `--progress-template`; os arquivos concluídos, de `--exec`.
-- O nome da pasta da playlist é resolvido antes do download. O yt-dlp troca `/` por outro caractere dentro de campos do modelo de nome, então a pasta não pode ser montada só por ele.
+- O nome da pasta da playlist é resolvido antes do download, porque o yt-dlp substitui `/` dentro de campos do modelo de nome.
 - O histórico (`--download-archive`) é separado por link e por formato/qualidade.
-- A API local (`/api/...`) é simples e protegida por token, o que deixa espaço para uma extensão de navegador ou um app com janela própria no futuro.
+- A API local (`/api/...`) é protegida por token, o que deixa espaço para uma extensão de navegador ou um app com janela própria no futuro.
 
 ## Aviso legal
 
-Use apenas para baixar conteúdo que você tem o direito de baixar (seu, de domínio público, com licença que permita ou com autorização). Baixar certos conteúdos pode violar os termos de serviço dos sites ou leis de direitos autorais do seu país. A responsabilidade pelo uso é de quem usa. Este projeto não tem ligação com YouTube, Google ou qualquer outro site citado.
+Use este programa apenas para baixar conteúdo que você tem o direito de baixar (seu, de domínio público, com licença que permita ou com autorização). Baixar certos conteúdos pode violar os termos de serviço dos sites ou leis de direitos autorais do seu país. A responsabilidade pelo uso é de quem usa. Este projeto não tem ligação com YouTube, Google ou qualquer outro site citado.
 
 ## Licença
 
@@ -167,21 +154,8 @@ Use apenas para baixar conteúdo que você tem o direito de baixar (seu, de dom�
 
 ## Créditos
 
-Todo o trabalho pesado é do [yt-dlp](https://github.com/yt-dlp/yt-dlp), do [FFmpeg](https://ffmpeg.org/) e do [Deno](https://deno.com/), que têm suas próprias licenças. Este projeto só os orquestra.
+O trabalho de download, conversão e execução de JavaScript é feito pelo [yt-dlp](https://github.com/yt-dlp/yt-dlp), pelo [FFmpeg](https://ffmpeg.org/) e pelo [Deno](https://deno.com/), cada um com sua licença. Este projeto apenas os orquestra.
 
 ---
 
-Feito por **[Andreas-Pinheiro](https://github.com/Andreas-Pinheiro)**.
-
-## Apoie o projeto
-
-<p align="center"><img src="assets/support-banner.png" alt="Apoie o KoeDL" width="560"></p>
-
-O KoeDL é gratuito e foi feito com a ajuda do Claude, uma IA da Anthropic. Se ele te ajuda, você pode apoiar de graça:
-
-- ⭐ **Dê uma estrela** no repositório, no topo desta página.
-- 🔗 **Compartilhe** com um amigo que também baixa mídia.
-- ☕ **Pague um café** no [Ko-fi](https://ko-fi.com/andreaspinheiro001).
-- 🐞 **Avise de um problema** na aba [Issues](https://github.com/Andreas-Pinheiro/KoeDL_Media_Downloader/issues).
-
-As mesmas opções (e o botão de café) estão dentro do app, na aba **♥ Apoiar**. Apoiar é totalmente opcional.
+Mantido por **[Andreas-Pinheiro](https://github.com/Andreas-Pinheiro)**.
