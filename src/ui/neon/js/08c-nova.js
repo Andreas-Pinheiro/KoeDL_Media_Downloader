@@ -1,5 +1,6 @@
 /* Interface nova: personagem lateral, estado vazio (dormindo), chips da barra, indicador online */
 $('sideimg').src='data:image/webp;base64,@@B64:assets/ui/lado.webp@@';
+document.querySelector('.kl').innerHTML='<img class="kl-img" alt="KoeDL" src="data:image/webp;base64,@@B64:assets/ui/logo.webp@@">';
 const SLEEP='data:image/webp;base64,@@B64:assets/ui/dorme.webp@@';
 (function(){
  var tw=document.querySelector('#p_links .tw');if(!tw)return;
