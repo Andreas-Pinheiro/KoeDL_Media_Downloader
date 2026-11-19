@@ -25,6 +25,17 @@ Baixador de **áudio e vídeo** para Windows, Baixe o instalador (`KoeDL-Setup.e
 <img src="assets/screens/pt_support.png" alt="Apoiar" width="400">
 </p>
 
+### Duas interfaces
+
+Em **Configurações > Interface** você escolhe entre as duas: a **Clássica** é a tela de sempre e a **Neon** é a que tem a personagem na lateral e os painéis numerados. A escolha fica salva e a troca recarrega a página.
+
+<p align="center">
+<img src="assets/screens/pt_ui_classic.png" alt="Interface clássica" width="400">
+<img src="assets/screens/pt_ui_neon.png" alt="Interface neon" width="400">
+</p>
+
+<p align="center"><img src="assets/screens/pt_ui_switch.png" alt="Configurações > Interface" width="560"></p>
+
 ## O que faz
 
 - **Música ou vídeo** de qualquer site suportado pelo [yt-dlp](https://github.com/yt-dlp/yt-dlp) (mais de mil; veja a lista de sites dele).

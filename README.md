@@ -25,6 +25,17 @@ Audio and **video downloader** for Windows. Download the installer (`KoeDL-Setup
 <img src="assets/screens/en_support.png" alt="Support" width="400">
 </p>
 
+### Two interfaces
+
+Under **Settings > Interface** you pick between the two: **Classic** is the usual screen and **Neon** is the one with the character on the side and numbered panels. The choice is saved and switching reloads the page.
+
+<p align="center">
+<img src="assets/screens/en_ui_classic.png" alt="Classic interface" width="400">
+<img src="assets/screens/en_ui_neon.png" alt="Neon interface" width="400">
+</p>
+
+<p align="center"><img src="assets/screens/en_ui_switch.png" alt="Settings > Interface" width="560"></p>
+
 ## Features
 
 - **Music or video** from any site supported by [yt-dlp](https://github.com/yt-dlp/yt-dlp) (over a thousand; see its list of supported sites).
