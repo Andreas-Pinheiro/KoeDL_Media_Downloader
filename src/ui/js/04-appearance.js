@@ -6,7 +6,7 @@ function quitApp(){KConfirm(t('quit_q')).then(function(yes){if(!yes)return;api('
   document.body.innerHTML='<div style="display:grid;place-items:center;height:100vh;font:600 1.2rem system-ui;color:#c4b5fd;background:#0b0d1e;text-align:center;padding:24px">'+esc(t('quit_done'))+'</div>'},500)})}
 const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 let cur='links',P={items:[],from:0,busy:false,title:'',url:''},ready=false,running=false,lastStatus=null;
-const IDS=['rate','frag','dirAudio','dirVideo','notif','after','autoclip','lookv','selfUpd','lang','openMode','theme','accent','fsize','density','corner','afmt','aq','vq','vcont','plmode','num','batch','splitType','st','en','noPl','nock','wait','meta','safe','reset','alt','addId','dlDir','chan','curmode','curpx2','curanim'];
+const IDS=['rate','frag','dirAudio','dirVideo','notif','after','autoclip','lookv','selfUpd','showAds','lang','openMode','theme','accent','fsize','density','corner','afmt','aq','vq','vcont','plmode','num','batch','splitType','st','en','noPl','nock','wait','meta','safe','reset','alt','addId','dlDir','chan','curmode','curpx2','curanim'];
 const FS={s:12,m:14,l:16,xl:18};
 function scl(){return Math.max(.85,Math.min(1.6,Math.min(innerWidth/1060,innerHeight/720)))}
 window.addEventListener('resize',function(){try{applyLook()}catch(e){}});
