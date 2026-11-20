@@ -317,5 +317,8 @@
   "skin_lbl": "Choose the interface",
   "skin_classic": "Classic",
   "skin_neon": "Neon",
-  "skin_hint": "Switching reloads the page. Classic is the usual screen; Neon is the one with the side character and numbered panels."
+  "skin_hint": "Switching reloads the page. Classic is the usual screen; Neon is the one with the side character and numbered panels.",
+  "showads": "Show a small sponsor strip (helps keep KoeDL free)",
+  "ads_lbl": "Sponsored",
+  "ads_x": "Close"
 }

@@ -1,0 +1,5 @@
+/* faixa de patrocinador: 1 linha, sem animacao, sem som, fecha com x */
+#adbar{display:none;align-items:center;justify-content:center;gap:8px;margin:2px auto 0;padding:3px 10px;max-width:760px;font-size:.72rem;color:var(--mu);border-top:1px solid color-mix(in srgb,var(--mu) 25%,transparent)}
+#adbar.on{display:flex}#adbar .adl{opacity:.7;text-transform:uppercase;letter-spacing:.06em;font-size:.62rem}
+#adbar a{color:inherit;text-decoration:underline;cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}#adbar a:hover{color:var(--fg)}
+#adbar button{all:unset;cursor:pointer;opacity:.6;padding:0 4px;line-height:1}#adbar button:hover{opacity:1}

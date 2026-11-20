@@ -1,0 +1,4 @@
+{
+  "_doc": "Patrocinadores do KoeDL. Cada item: id, text {pt,en}, url (https), from/to (AAAA-MM-DD, opcionais), weight (opcional). Lista vazia = nada aparece.",
+  "ads": []
+}

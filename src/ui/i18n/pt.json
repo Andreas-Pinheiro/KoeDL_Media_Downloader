@@ -317,5 +317,8 @@
   "skin_lbl": "Escolha a interface",
   "skin_classic": "Clássica",
   "skin_neon": "Neon",
-  "skin_hint": "A troca recarrega a página. A Clássica é a tela de sempre; a Neon é a que tem a personagem na lateral e os painéis numerados."
+  "skin_hint": "A troca recarrega a página. A Clássica é a tela de sempre; a Neon é a que tem a personagem na lateral e os painéis numerados.",
+  "showads": "Mostrar uma faixa discreta de patrocinador (ajuda a manter o KoeDL gratuito)",
+  "ads_lbl": "Patrocinado",
+  "ads_x": "Fechar"
 }
